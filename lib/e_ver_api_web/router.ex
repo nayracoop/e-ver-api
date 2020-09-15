@@ -7,6 +7,9 @@ defmodule EVerApiWeb.Router do
 
   scope "/api", EVerApiWeb do
     pipe_through :api
+
+    get "/events", EventController, :index
+    post "/events", EventController, :create
   end
 
   # Enables LiveDashboard only for development
