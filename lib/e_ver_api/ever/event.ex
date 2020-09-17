@@ -8,6 +8,8 @@ defmodule EVerApi.Ever.Event do
     field :name, :string
     field :start_time, :utc_datetime
 
+    belongs_to :user_id, EVerApi.Accounts.User
+
     timestamps()
   end
 

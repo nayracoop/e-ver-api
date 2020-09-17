@@ -8,6 +8,8 @@ defmodule EVerApi.Repo.Migrations.CreateEvents do
       add :start_time, :utc_datetime
       add :end_time, :utc_datetime
 
+      add :user_id, references(:users, on_delete: :nothing)
+
       timestamps()
     end
 

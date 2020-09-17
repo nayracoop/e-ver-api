@@ -8,6 +8,9 @@ defmodule EVerApiWeb.Router do
   scope "/api", EVerApiWeb do
     pipe_through :api
 
+    get "/users", UserController, :index
+    post "/users", UserController, :create
+
     get "/events", EventController, :index
     post "/events", EventController, :create
   end
