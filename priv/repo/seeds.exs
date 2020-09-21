@@ -11,6 +11,16 @@
 # and so on) as they will fail if something goes wrong.
 alias EVerApi.Repo
 alias EVerApi.Accounts.User
+alias EVerApi.Ever.Event
+
+now = Timex.now |> Timex.to_datetime() |> DateTime.truncate(:second)
+
+Repo.insert!(%User{
+  first_name: "señora",
+  last_name: "nayra",
+  organization: "Coop. de trabajo Nayra ltda",
+  email: "nayra@fake.coop"
+})
 
 Repo.insert!(%User{
   first_name: "Richard",
@@ -26,9 +36,10 @@ Repo.insert!(%User{
   email: "dhavide.lebon@fake.coop"
 })
 
-Repo.insert!(%User{
-  first_name: "señora",
-  last_name: "nayra",
-  organization: "Coop. de trabajo Nayra ltda",
-  email: "nayra@fake.coop"
+Repo.insert!(%Event{
+  name: "Ever Demo Event",
+  description: "Full event for e-ver demo purpose",
+  start_time: Timex.shift(now, days: 5),
+  end_time: Timex.shift(now, days: 6),
+  user_id: 1
 })
