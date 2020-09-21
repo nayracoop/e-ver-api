@@ -18,7 +18,7 @@ defmodule EVerApiWeb.UserController do
       conn
       |> put_status(:created)
       # |> put_resp_header("location", Routes.user_path(conn, :show, user))
-      |> render("show.json", user: user)
+      |> render("show_base.json", user: user)
     end
   end
 

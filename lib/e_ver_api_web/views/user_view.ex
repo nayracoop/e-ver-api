@@ -6,8 +6,12 @@ defmodule EVerApiWeb.UserView do
     %{data: render_many(users, UserView, "user.json")}
   end
 
-  def render("show.json", %{user: user}) do
+  def render("show_base.json", %{user: user}) do
     %{data: render_one(user, UserView, "base_user.json")}
+  end
+
+  def render("show.json", %{user: user}) do
+    %{data: render_one(user, UserView, "user.json")}
   end
 
   def render("user.json", %{user: user}) do
@@ -17,7 +21,7 @@ defmodule EVerApiWeb.UserView do
       last_name: user.last_name,
       email: user.email,
       organization: user.organization,
-      events: %{data: render_many(user.events, EventView, "base_event.json")}
+      events: render_many(user.events, EventView, "base_event.json")
     }
   end
 
