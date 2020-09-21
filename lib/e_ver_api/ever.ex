@@ -7,6 +7,7 @@ defmodule EVerApi.Ever do
   alias EVerApi.Repo
 
   alias EVerApi.Ever.Event
+  alias EVerApi.Accounts.User
 
   @doc """
   Returns the list of events.
@@ -18,7 +19,7 @@ defmodule EVerApi.Ever do
 
   """
   def list_events do
-    Repo.all(Event)
+    Repo.all(Event) |> Repo.preload(:user)
   end
 
   @doc """

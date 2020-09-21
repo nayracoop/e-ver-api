@@ -9,6 +9,8 @@ defmodule EVerApi.Accounts.User do
     field :organization, :string
     field :password, :string
 
+    has_many :events, EVerApi.Ever.Event
+
     timestamps()
   end
 

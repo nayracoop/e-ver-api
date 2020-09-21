@@ -1,5 +1,7 @@
 .PHONY: server setup test
 
+SHELL := /bin/bash
+
 export MIX_ENV ?= dev
 export SECRET_KEY_BASE ?= $(shell mix phx.gen.secret)
 

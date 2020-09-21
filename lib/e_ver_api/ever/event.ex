@@ -8,7 +8,7 @@ defmodule EVerApi.Ever.Event do
     field :name, :string
     field :start_time, :utc_datetime
 
-    belongs_to :user_id, EVerApi.Accounts.User
+    belongs_to :user, EVerApi.Accounts.User
 
     timestamps()
   end
@@ -16,7 +16,8 @@ defmodule EVerApi.Ever.Event do
   @doc false
   def changeset(event, attrs) do
     event
-    |> cast(attrs, [:name, :description, :start_time, :end_time])
-    |> validate_required([:name, :description, :start_time, :end_time])
+    |> cast(attrs, [:name, :description, :start_time, :end_time, :user_id])
+    |> validate_required([:name, :description, :start_time, :end_time, :user_id])
+    |> foreign_key_constraint(:user_id)
   end
 end
