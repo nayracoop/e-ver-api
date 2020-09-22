@@ -67,4 +67,73 @@ defmodule EVerApi.EverTest do
       assert %Ecto.Changeset{} = Ever.change_event(event)
     end
   end
+
+  describe "talks" do
+    alias EVerApi.Ever.Talk
+
+    @valid_attrs %{body: "some body", duration: 42, name: "some name", start_time: "2010-04-17T14:00:00Z", tags: [], video_url: "some video_url"}
+    @update_attrs %{body: "some updated body", duration: 43, name: "some updated name", start_time: "2011-05-18T15:01:01Z", tags: [], video_url: "some updated video_url"}
+    @invalid_attrs %{body: nil, duration: nil, name: nil, start_time: nil, tags: nil, video_url: nil}
+
+    def talk_fixture(attrs \\ %{}) do
+      {:ok, talk} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Ever.create_talk()
+
+      talk
+    end
+
+    test "list_talks/0 returns all talks" do
+      talk = talk_fixture()
+      assert Ever.list_talks() == [talk]
+    end
+
+    test "get_talk!/1 returns the talk with given id" do
+      talk = talk_fixture()
+      assert Ever.get_talk!(talk.id) == talk
+    end
+
+    test "create_talk/1 with valid data creates a talk" do
+      assert {:ok, %Talk{} = talk} = Ever.create_talk(@valid_attrs)
+      assert talk.body == "some body"
+      assert talk.duration == 42
+      assert talk.name == "some name"
+      assert talk.start_time == DateTime.from_naive!(~N[2010-04-17T14:00:00Z], "Etc/UTC")
+      assert talk.tags == []
+      assert talk.video_url == "some video_url"
+    end
+
+    test "create_talk/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Ever.create_talk(@invalid_attrs)
+    end
+
+    test "update_talk/2 with valid data updates the talk" do
+      talk = talk_fixture()
+      assert {:ok, %Talk{} = talk} = Ever.update_talk(talk, @update_attrs)
+      assert talk.body == "some updated body"
+      assert talk.duration == 43
+      assert talk.name == "some updated name"
+      assert talk.start_time == DateTime.from_naive!(~N[2011-05-18T15:01:01Z], "Etc/UTC")
+      assert talk.tags == []
+      assert talk.video_url == "some updated video_url"
+    end
+
+    test "update_talk/2 with invalid data returns error changeset" do
+      talk = talk_fixture()
+      assert {:error, %Ecto.Changeset{}} = Ever.update_talk(talk, @invalid_attrs)
+      assert talk == Ever.get_talk!(talk.id)
+    end
+
+    test "delete_talk/1 deletes the talk" do
+      talk = talk_fixture()
+      assert {:ok, %Talk{}} = Ever.delete_talk(talk)
+      assert_raise Ecto.NoResultsError, fn -> Ever.get_talk!(talk.id) end
+    end
+
+    test "change_talk/1 returns a talk changeset" do
+      talk = talk_fixture()
+      assert %Ecto.Changeset{} = Ever.change_talk(talk)
+    end
+  end
 end
