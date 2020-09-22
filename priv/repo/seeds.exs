@@ -37,6 +37,22 @@ Repo.insert!(%User{
 })
 
 Repo.insert!(%Event{
+  name: "VR/AR the state of art",
+  description: "Fake event for e-ver demo purpose",
+  start_time: Timex.shift(now, days: 15),
+  end_time: Timex.shift(now, days: 18),
+  user_id: 1
+})
+
+Repo.insert!(%Event{
+  name: "AI für alles! a non scientific AI aproach",
+  description: "Full event for e-ver demo purpose",
+  start_time: Timex.shift(now, months: 1),
+  end_time: Timex.shift(now, months: 1, hours: 5),
+  user_id: 2
+})
+
+Repo.insert!(%Event{
   name: "Ever Demo Event",
   description: "Full event for e-ver demo purpose",
   start_time: Timex.shift(now, days: 5),
