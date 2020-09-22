@@ -7,6 +7,10 @@ defmodule EVerApiWeb.EventView do
   end
 
   def render("show.json", %{event: event}) do
+    %{data: render_one(event, EventView, "event.json")}
+  end
+
+  def render("show_base.json", %{event: event}) do
     %{data: render_one(event, EventView, "base_event.json")}
   end
 

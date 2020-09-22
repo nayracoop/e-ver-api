@@ -13,6 +13,7 @@ defmodule EVerApiWeb.Router do
     post "/users", UserController, :create
 
     get "/events", EventController, :index
+    get "/events/:id", EventController, :show
     post "/events", EventController, :create
   end
 

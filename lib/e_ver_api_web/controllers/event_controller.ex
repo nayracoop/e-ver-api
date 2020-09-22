@@ -18,7 +18,7 @@ defmodule EVerApiWeb.EventController do
       conn
       |> put_status(:created)
       #|> put_resp_header("location", Routes.event_path(conn, :show, event))
-      |> render("show.json", event: event)
+      |> render("show_base.json", event: event)
     end
   end
 
