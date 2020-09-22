@@ -10,6 +10,8 @@ defmodule EVerApi.Repo.Migrations.CreateTalks do
       add :video_url, :string
       add :tags, {:array, :string}
 
+      add :event_id, references(:events, on_delete: :nothing)
+
       timestamps()
     end
 

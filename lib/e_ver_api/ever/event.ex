@@ -9,6 +9,7 @@ defmodule EVerApi.Ever.Event do
     field :start_time, :utc_datetime
 
     belongs_to :user, EVerApi.Accounts.User
+    has_many :talks, EVerApi.Ever.Talk
 
     timestamps()
   end

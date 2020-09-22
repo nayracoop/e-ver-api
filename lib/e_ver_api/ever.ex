@@ -6,8 +6,7 @@ defmodule EVerApi.Ever do
   import Ecto.Query, warn: false
   alias EVerApi.Repo
 
-  alias EVerApi.Ever.Event
-  alias EVerApi.Accounts.User
+  alias EVerApi.Ever.{Event, Talk}
 
   @doc """
   Returns the list of events.
@@ -19,7 +18,7 @@ defmodule EVerApi.Ever do
 
   """
   def list_events do
-    Repo.all(Event) |> Repo.preload(:user)
+    Repo.all(Event) |> Repo.preload(:user) |> Repo.preload(:talks)
   end
 
   @doc """

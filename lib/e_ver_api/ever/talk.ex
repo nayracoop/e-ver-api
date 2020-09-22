@@ -10,13 +10,16 @@ defmodule EVerApi.Ever.Talk do
     field :tags, {:array, :string}
     field :video_url, :string
 
+    belongs_to :event, EVerApi.Ever.Event
+
     timestamps()
   end
 
   @doc false
   def changeset(talk, attrs) do
     talk
-    |> cast(attrs, [:name, :body, :start_time, :duration, :video_url, :tags])
-    |> validate_required([:name, :body, :start_time, :duration, :video_url, :tags])
+    |> cast(attrs, [:name, :body, :start_time, :duration, :video_url, :tags, :event_id])
+    |> validate_required([:name, :body, :start_time, :duration, :video_url, :event_id])
+    |> foreign_key_constraint(:event_id)
   end
 end

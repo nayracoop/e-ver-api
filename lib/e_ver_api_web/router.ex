@@ -15,6 +15,10 @@ defmodule EVerApiWeb.Router do
     get "/events", EventController, :index
     get "/events/:id", EventController, :show
     post "/events", EventController, :create
+
+    get "/talks", TalkController, :index
+    get "/talks/:id", TalkController, :show
+    post "/talks", TalkController, :create
   end
 
   # Enables LiveDashboard only for development

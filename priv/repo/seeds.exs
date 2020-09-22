@@ -11,7 +11,7 @@
 # and so on) as they will fail if something goes wrong.
 alias EVerApi.Repo
 alias EVerApi.Accounts.User
-alias EVerApi.Ever.Event
+alias EVerApi.Ever.{Event, Talk}
 
 now = Timex.now |> Timex.to_datetime() |> DateTime.truncate(:second)
 
@@ -58,4 +58,14 @@ Repo.insert!(%Event{
   start_time: Timex.shift(now, days: 5),
   end_time: Timex.shift(now, days: 6),
   user_id: 1
+})
+
+
+Repo.insert!(%Talk{
+  name: "Why e-ver",
+  body: "e-ver is a virtual events platform",
+  start_time: Timex.shift(now, days: 5),
+  duration: 30,
+  video_url: "https://www.youtube.com/watch?v=C-u5WLJ9Yk4",
+  event_id: 3
 })

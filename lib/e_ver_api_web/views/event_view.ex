@@ -1,6 +1,6 @@
 defmodule EVerApiWeb.EventView do
   use EVerApiWeb, :view
-  alias EVerApiWeb.{EventView, UserView}
+  alias EVerApiWeb.{EventView, UserView, TalkView}
 
   def render("index.json", %{events: events}) do
     %{data: render_many(events, EventView, "event.json")}
@@ -21,7 +21,8 @@ defmodule EVerApiWeb.EventView do
       description: event.description,
       start_time: event.start_time,
       end_time: event.end_time,
-      user: render_one(event.user, UserView, "base_user.json")
+      user: render_one(event.user, UserView, "base_user.json"),
+      talks: render_many(event.talks, TalkView, "talk.json")
     }
   end
 
