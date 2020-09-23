@@ -3,14 +3,17 @@ defmodule EVerApi.Ever.Talk do
   import Ecto.Changeset
 
   schema "talks" do
-    field :body, :string
-    field :duration, :integer
-    field :name, :string
+    field :title, :string
+    field :details, :string
+    field :summary, :string
     field :start_time, :utc_datetime
-    field :tags, {:array, :string}
+    field :duration, :integer
     field :video_url, :string
+    field :tags, {:array, :string}
+    field :allow_comments, :boolean, default: false
 
     belongs_to :event, EVerApi.Ever.Event
+    has_many :speakers, EVerApi.Ever.Speaker
 
     timestamps()
   end
@@ -18,7 +21,7 @@ defmodule EVerApi.Ever.Talk do
   @doc false
   def changeset(talk, attrs) do
     talk
-    |> cast(attrs, [:name, :body, :start_time, :duration, :video_url, :tags, :event_id])
+    |> cast(attrs, [:name, :body, :start_time, :duration, :video_url, :tags, :allow_comments, :event_id])
     |> validate_required([:name, :body, :start_time, :duration, :video_url, :event_id])
     |> foreign_key_constraint(:event_id)
   end

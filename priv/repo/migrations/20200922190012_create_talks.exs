@@ -3,12 +3,14 @@ defmodule EVerApi.Repo.Migrations.CreateTalks do
 
   def change do
     create table(:talks) do
-      add :name, :string
-      add :body, :string
+      add :title, :string
+      add :details, :string
+      add :summary, :string
       add :start_time, :utc_datetime
       add :duration, :integer
-      add :video_url, :string
+      add :video_url, :string # todo embedded
       add :tags, {:array, :string}
+      add :allow_comments, :boolean, default: false
 
       add :event_id, references(:events, on_delete: :nothing)
 

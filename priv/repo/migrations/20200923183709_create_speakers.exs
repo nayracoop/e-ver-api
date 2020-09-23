@@ -11,6 +11,8 @@ defmodule EVerApi.Repo.Migrations.CreateSpeakers do
       add :bio, :string
       add :avatar, :string
 
+      add :talk_id, references(:talks, on_delete: :nothing)
+
       timestamps()
     end
 
