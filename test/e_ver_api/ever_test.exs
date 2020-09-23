@@ -136,4 +136,75 @@ defmodule EVerApi.EverTest do
       assert %Ecto.Changeset{} = Ever.change_talk(talk)
     end
   end
+
+  describe "speakers" do
+    alias EVerApi.Ever.Speaker
+
+    @valid_attrs %{avatar: "some avatar", bio: "some bio", company: "some company", first_name: "some first_name", last_name: "some last_name", name: "some name", role: "some role"}
+    @update_attrs %{avatar: "some updated avatar", bio: "some updated bio", company: "some updated company", first_name: "some updated first_name", last_name: "some updated last_name", name: "some updated name", role: "some updated role"}
+    @invalid_attrs %{avatar: nil, bio: nil, company: nil, first_name: nil, last_name: nil, name: nil, role: nil}
+
+    def speaker_fixture(attrs \\ %{}) do
+      {:ok, speaker} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Ever.create_speaker()
+
+      speaker
+    end
+
+    test "list_speakers/0 returns all speakers" do
+      speaker = speaker_fixture()
+      assert Ever.list_speakers() == [speaker]
+    end
+
+    test "get_speaker!/1 returns the speaker with given id" do
+      speaker = speaker_fixture()
+      assert Ever.get_speaker!(speaker.id) == speaker
+    end
+
+    test "create_speaker/1 with valid data creates a speaker" do
+      assert {:ok, %Speaker{} = speaker} = Ever.create_speaker(@valid_attrs)
+      assert speaker.avatar == "some avatar"
+      assert speaker.bio == "some bio"
+      assert speaker.company == "some company"
+      assert speaker.first_name == "some first_name"
+      assert speaker.last_name == "some last_name"
+      assert speaker.name == "some name"
+      assert speaker.role == "some role"
+    end
+
+    test "create_speaker/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Ever.create_speaker(@invalid_attrs)
+    end
+
+    test "update_speaker/2 with valid data updates the speaker" do
+      speaker = speaker_fixture()
+      assert {:ok, %Speaker{} = speaker} = Ever.update_speaker(speaker, @update_attrs)
+      assert speaker.avatar == "some updated avatar"
+      assert speaker.bio == "some updated bio"
+      assert speaker.company == "some updated company"
+      assert speaker.first_name == "some updated first_name"
+      assert speaker.last_name == "some updated last_name"
+      assert speaker.name == "some updated name"
+      assert speaker.role == "some updated role"
+    end
+
+    test "update_speaker/2 with invalid data returns error changeset" do
+      speaker = speaker_fixture()
+      assert {:error, %Ecto.Changeset{}} = Ever.update_speaker(speaker, @invalid_attrs)
+      assert speaker == Ever.get_speaker!(speaker.id)
+    end
+
+    test "delete_speaker/1 deletes the speaker" do
+      speaker = speaker_fixture()
+      assert {:ok, %Speaker{}} = Ever.delete_speaker(speaker)
+      assert_raise Ecto.NoResultsError, fn -> Ever.get_speaker!(speaker.id) end
+    end
+
+    test "change_speaker/1 returns a speaker changeset" do
+      speaker = speaker_fixture()
+      assert %Ecto.Changeset{} = Ever.change_speaker(speaker)
+    end
+  end
 end
