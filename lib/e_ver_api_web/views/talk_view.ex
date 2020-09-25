@@ -17,7 +17,7 @@ defmodule EVerApiWeb.TalkView do
       summary: talk.summary,
       start_time: talk.start_time,
       duration: talk.duration,
-      video_url: talk.video_url,
+      video: %{uri: talk.video.uri, type: talk.video.type, autoplay: talk.video.autoplay},
       tags: talk.tags,
       speakers: render_many(talk.speakers, SpeakerView, "speaker.json")}
   end

@@ -8,9 +8,10 @@ defmodule EVerApi.Ever.Talk do
     field :summary, :string
     field :start_time, :utc_datetime
     field :duration, :integer
-    field :video_url, :string
     field :tags, {:array, :string}
     field :allow_comments, :boolean, default: false
+
+    embeds_one :video, EVerApi.Ever.Video
 
     belongs_to :event, EVerApi.Ever.Event
     has_many :speakers, EVerApi.Ever.Speaker

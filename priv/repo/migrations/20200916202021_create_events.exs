@@ -6,6 +6,7 @@ defmodule EVerApi.Repo.Migrations.CreateEvents do
       add :name, :string
       add :description, :string
       add :summary, :string
+      add :url, :string
       add :start_time, :utc_datetime
       add :end_time, :utc_datetime
 

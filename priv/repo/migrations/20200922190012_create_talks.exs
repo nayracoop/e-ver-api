@@ -8,7 +8,7 @@ defmodule EVerApi.Repo.Migrations.CreateTalks do
       add :summary, :string
       add :start_time, :utc_datetime
       add :duration, :integer
-      add :video_url, :string # todo embedded
+      add :video, :map
       add :tags, {:array, :string}
       add :allow_comments, :boolean, default: false
 

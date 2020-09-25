@@ -67,7 +67,11 @@ Repo.insert!(%Talk{
   summary: "e-ver demo",
   start_time: Timex.shift(now, days: 5),
   duration: 30,
-  video_url: "https://www.youtube.com/watch?v=C-u5WLJ9Yk4",
+  video: %{
+    uri: "https://www.youtube.com/watch?v=C-u5WLJ9Yk4",
+    type: "recorded",
+    autoplay: false
+  },
   event_id: 3
 })
 
@@ -77,7 +81,10 @@ Repo.insert!(%Talk{
   summary: "creat a new e-ver",
   start_time: Timex.shift(now, days: 5, minutes: 30),
   duration: 20,
-  video_url: "https://www.youtube.com/watch?v=LyO2fU2cuec",
+  video: %{
+    uri: "https://www.youtube.com/watch?v=LyO2fU2cuec",
+    type: "live"
+  },
   event_id: 3,
   allow_comments: true,
   tags: ["virtual events", "e-ver"]
