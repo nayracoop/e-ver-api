@@ -12,6 +12,7 @@ defmodule EVerApi.Ever.Event do
 
     belongs_to :user, EVerApi.Accounts.User
     has_many :talks, EVerApi.Ever.Talk
+    has_many :sponsors, EVerApi.Ever.Sponsor
 
     timestamps()
   end

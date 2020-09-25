@@ -7,13 +7,15 @@ defmodule EVerApi.Ever.Sponsor do
     field :name, :string
     field :website, :string
 
+    belongs_to :event, EVerApi.Ever.Event
+
     timestamps()
   end
 
   @doc false
   def changeset(sponsor, attrs) do
     sponsor
-    |> cast(attrs, [:name, :logo, :website])
-    |> validate_required([:name, :logo, :website])
+    |> cast(attrs, [:name, :logo, :website, :event_id])
+    |> validate_required([:name, :logo, :website, :event_id])
   end
 end

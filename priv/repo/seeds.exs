@@ -124,5 +124,20 @@ Repo.insert!(%Speaker{
 Repo.insert!(%Sponsor{
   name: "no name sponsor",
   logo: "no_name.png",
-  website: "https://nayra.coop"
+  website: "https://nayra.coop",
+  event_id: 1
+})
+
+Repo.insert!(%Sponsor{
+  name: "Fake Coop",
+  logo: "no_name.png",
+  website: "https://nayra.coop",
+  event_id: 2
+})
+
+Repo.insert!(%Sponsor{
+  name: "Fake Inc.",
+  logo: "no_name.png",
+  website: "https://nayra.coop",
+  event_id: 2
 })

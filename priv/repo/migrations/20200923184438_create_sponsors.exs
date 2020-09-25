@@ -7,6 +7,7 @@ defmodule EVerApi.Repo.Migrations.CreateSponsors do
       add :logo, :string
       add :website, :string
 
+      add :event_id, references(:events, on_delete: :nothing)
       timestamps()
     end
 

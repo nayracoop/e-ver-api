@@ -18,7 +18,7 @@ defmodule EVerApi.Ever do
 
   """
   def list_events do
-    Repo.all(Event) |> Repo.preload([:user, {:talks, :speakers}])
+    Repo.all(Event) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
   end
 
   @doc """
@@ -35,7 +35,7 @@ defmodule EVerApi.Ever do
       ** (Ecto.NoResultsError)
 
   """
-  def get_event!(id), do: Repo.get!(Event, id) |> Repo.preload([:user, {:talks, :speakers}])
+  def get_event!(id), do: Repo.get!(Event, id) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
 
   @doc """
   Creates a event.
