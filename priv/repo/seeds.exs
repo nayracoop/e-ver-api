@@ -13,27 +13,36 @@ alias EVerApi.Repo
 alias EVerApi.Accounts.User
 alias EVerApi.Ever.{Event, Talk, Speaker, Sponsor}
 
+import Bcrypt, only: [hash_pwd_salt: 1]
+
 now = Timex.now |> Timex.to_datetime() |> DateTime.truncate(:second)
+hash = hash_pwd_salt("123456")
 
 Repo.insert!(%User{
   first_name: "señora",
   last_name: "nayra",
   organization: "Coop. de trabajo Nayra ltda",
-  email: "nayra@fake.coop"
+  email: "nayra@fake.coop",
+  username: "nayra",
+  password_hash: hash
 })
 
 Repo.insert!(%User{
   first_name: "Richard",
   last_name: "Forte",
   organization: "The fake inc.",
-  email: "rick.forte@fake.coop"
+  email: "rick.forte@fake.coop",
+  username: "ricky.forte",
+  password_hash: hash
 })
 
 Repo.insert!(%User{
   first_name: "Dhavide",
   last_name: "Lebón",
   organization: "Coop Gerú Sirán",
-  email: "dhavide.lebon@fake.coop"
+  email: "dhavide.lebon@fake.coop",
+  username: "dhavide.lebon",
+  password_hash: hash
 })
 
 Repo.insert!(%Event{

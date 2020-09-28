@@ -20,6 +20,7 @@ defmodule EVerApiWeb.UserView do
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email,
+      username: user.username,
       organization: user.organization,
       events: render_many(user.events, EventView, "base_event.json")
     }
@@ -31,6 +32,7 @@ defmodule EVerApiWeb.UserView do
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email,
+      username: user.username,
       organization: user.organization
     }
   end

@@ -5,12 +5,15 @@ defmodule EVerApi.Repo.Migrations.CreateUsers do
     create table(:users) do
       add :first_name, :string
       add :last_name, :string
-      add :email, :string
+      add :email, :string, unique: true
+      add :username, :string, unique: true
       add :organization, :string
-      add :password, :string
+      add :password_hash, :string
 
       timestamps()
     end
 
+    create unique_index(:users, [:email])
+    create unique_index(:users, [:username])
   end
 end
