@@ -36,4 +36,8 @@ defmodule EVerApiWeb.UserView do
       organization: user.organization
     }
   end
+
+  def render("jwt.json", %{jwt: jwt}) do
+    %{jwt: jwt}
+  end
 end

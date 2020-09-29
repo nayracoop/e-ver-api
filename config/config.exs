@@ -28,6 +28,13 @@ config :phoenix, :json_library, Jason
 
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
+config :e_ver_api, EVerApi.Guardian,
+  issuer: "e_ver_api",
+  secret_key: "test" # mix guardian.gen.secret
+
+config :e_ver_api, EVerApi.AuthAccessPipeline,
+  module: EVerApi.Guardian,
+  error_handler: EVerApi.AuthErrorHandler
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

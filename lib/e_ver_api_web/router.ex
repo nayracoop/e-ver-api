@@ -5,15 +5,18 @@ defmodule EVerApiWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :maybe_browser_auth do
+    plug EVerApi.AuthAccessPipeline
+  end
+
   scope "/api", EVerApiWeb do
-    pipe_through :api
+    pipe_through [:api, :maybe_browser_auth]
 
     get "/users", UserController, :index
     get "/users/:id", UserController, :show
     post "/users", UserController, :create
 
     get "/events", EventController, :index
-    get "/events/:id", EventController, :show
     post "/events", EventController, :create
 
     get "/talks", TalkController, :index
@@ -21,6 +24,12 @@ defmodule EVerApiWeb.Router do
     post "/talks", TalkController, :create
   end
 
+  scope "/api", EVerApiWeb do
+    get "/events/:id", EventController, :show
+    post "/login", UserController, :sign_in
+    # separate the logic from create (for admins usage)
+    post "sign_up", UserController, :sign_up
+  end
   # Enables LiveDashboard only for development
   #
   # If you want to use the LiveDashboard in production, you should put
