@@ -21,4 +21,11 @@ defmodule EVerApiWeb.FallbackController do
     |> put_view(EVerApiWeb.ErrorView)
     |> render(:"404")
   end
+
+  def call(conn, {:error, :unauthorized}) do
+    conn
+    |> put_status(:unauthorized)
+    |> json(%{error: "Login error"})
+  end
+
 end
