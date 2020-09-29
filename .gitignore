@@ -28,3 +28,4 @@ e_ver_api-*.tar
 /priv/static/
 
 .env.*
+!.env.example
