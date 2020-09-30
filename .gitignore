@@ -29,3 +29,4 @@ e_ver_api-*.tar
 
 .env.*
 !.env.example
+!.env.test.example

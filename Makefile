@@ -16,4 +16,4 @@ reset:
 
 test: MIX_ENV=test
 test:
-	@source .env.test && mix test
+	@source .env.test && mix coveralls.html

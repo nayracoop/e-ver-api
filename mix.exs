@@ -10,7 +10,8 @@ defmodule EVerApi.MixProject do
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -47,7 +48,9 @@ defmodule EVerApi.MixProject do
       {:tzdata, "~> 1.0.1"},
       {:timex, "~> 3.5"},
       {:bcrypt_elixir, "~> 2.2"},
-      {:guardian, "~> 2.1" }
+      {:guardian, "~> 2.1" },
+      {:ex_machina, "~> 2.4", only: :test},
+      {:excoveralls, "~> 0.10", only: :test},
     ]
   end
 
