@@ -7,8 +7,13 @@ defmodule EVerApiWeb.UserControllerTest do
   @moduletag :user_controller_case
 
   @create_attrs %{
-    email: "nayra@fake.coop",
-    password: "123456"
+    email: "test.queen@nayra.coop",
+    password: "123456",
+    password_confirmation: "123456",
+    first_name: "mrs test",
+    last_name: "queen",
+    username: "test_queen",
+    organization: "nayracoop"
   }
   @update_attrs %{
     name: "some updated name",
@@ -22,7 +27,13 @@ defmodule EVerApiWeb.UserControllerTest do
     user
   end
 
-
+  defp assert_401(conn, f, route) do
+    conn =
+      conn
+      |> delete_req_header("authorization")
+      |> f.(route)
+    assert json_response(conn, 401)["message"] == "unauthenticated"
+  end
 
   setup %{conn: conn} do
     insert(:user)
@@ -39,22 +50,16 @@ defmodule EVerApiWeb.UserControllerTest do
   end
 
   describe "index" do
-    #insert(:user)
+
     @tag individual_test: "users_index_401"
     test "401 for list users", %{conn: conn} do
-      conn =
-        conn
-        |> delete_req_header("authorization")
-        |> get(Routes.user_path(conn, :index))
-      assert json_response(conn, 401)["message"] == "unauthenticated"
+      assert_401(conn, &get/2, Routes.user_path(conn, :index))
     end
 
-    @tag individual_test: "user_index_list"
+    @tag individual_test: "users_index_list"
     test "lists all users", %{conn: conn} do
-
       conn = get(conn, Routes.user_path(conn, :index))
       response = json_response(conn, 200)["data"]
-      IO.inspect(response)
       expected = %{
         "email" => "nayra@fake.coop",
         "events" => [],
@@ -71,6 +76,12 @@ defmodule EVerApiWeb.UserControllerTest do
   end
 
   describe "create user" do
+    @tag individual_test: "users_index_401"
+    test "401 for list users", %{conn: conn} do
+      assert_401(conn, &post/2, Routes.user_path(conn, :create))
+    end
+
+    @tag individual_test: "users_create"
     test "renders user when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
@@ -78,12 +89,17 @@ defmodule EVerApiWeb.UserControllerTest do
       conn = get(conn, Routes.user_path(conn, :show, id))
 
       assert %{
-               "id" => id,
-               "name" => "some name",
-               "password" => "some password"
+                "id" => id,
+                "email" => "test.queen@nayra.coop",
+                "first_name" => "mrs test",
+                "last_name" => "queen",
+                "username" => "test_queen",
+                "organization" => "nayracoop",
+                "events" => []
              } = json_response(conn, 200)["data"]
     end
 
+    @tag individual_test: "users_create_invalid"
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
