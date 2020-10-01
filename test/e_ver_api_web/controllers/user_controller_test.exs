@@ -1,12 +1,14 @@
 defmodule EVerApiWeb.UserControllerTest do
-  use EVerApiWeb.ConnCase
+  use EVerApiWeb.ConnCase, async: true
 
   alias EVerApi.Accounts
   alias EVerApi.Accounts.User
 
+  @moduletag :user_controller_case
+
   @create_attrs %{
-    name: "some name",
-    password: "some password"
+    email: "nayra@fake.coop",
+    password: "123456"
   }
   @update_attrs %{
     name: "some updated name",
@@ -16,17 +18,55 @@ defmodule EVerApiWeb.UserControllerTest do
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@create_attrs)
+    #IO.inspect(user)
     user
   end
 
+
+
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    insert(:user)
+    jwt = EVerApi.Accounts.token_sign_in("nayra@fake.coop", "123456")
+    {:ok, jwt_string, _} = jwt
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> put_req_header("content-type", "application/json")
+      |> put_req_header("authorization", "Bearer #{jwt_string}")
+
+    # IO.inspect(conn)
+    {:ok, conn: conn}
   end
 
   describe "index" do
+    #insert(:user)
+    @tag individual_test: "users_index_401"
+    test "401 for list users", %{conn: conn} do
+      conn =
+        conn
+        |> delete_req_header("authorization")
+        |> get(Routes.user_path(conn, :index))
+      assert json_response(conn, 401)["message"] == "unauthenticated"
+    end
+
+    @tag individual_test: "user_index_list"
     test "lists all users", %{conn: conn} do
+
       conn = get(conn, Routes.user_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
+      response = json_response(conn, 200)["data"]
+      IO.inspect(response)
+      expected = %{
+        "email" => "nayra@fake.coop",
+        "events" => [],
+        "first_name" => "señora",
+        "last_name" => "nayra",
+        "organization" => "Coop. de trabajo Nayra ltda",
+        "username" => "nayra"
+      }
+
+      assert expected = response
+      [%{"id" => id}] = response
+      assert is_number(id)
     end
   end
 

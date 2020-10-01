@@ -23,6 +23,7 @@ defmodule EVerApiWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import EVerApiWeb.ConnCase
+      import EVerApi.Factory
 
       alias EVerApiWeb.Router.Helpers, as: Routes
 
