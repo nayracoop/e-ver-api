@@ -68,9 +68,41 @@ defmodule EVerApiWeb.UserControllerTest do
         "username" => "nayra"
       }
 
+      assert json_response(conn, 200)
       assert expected = response
       [%{"id" => id}] = response
       assert is_number(id)
+    end
+  end
+
+  describe "show" do
+    @tag individual_test: "users_show_401"
+    test "401 for create users", %{conn: conn} do
+      assert_401(conn, &get/2, Routes.user_path(conn, :show, 1))
+    end
+
+    @tag individual_test: "users_show"
+    test "get an user by id", %{conn: conn} do
+      user = fixture(:user)
+      conn = get(conn, Routes.user_path(conn, :show, user.id))
+      expected = %{
+        "email" => "test.queen@nayra.coop",
+        "first_name" => "mrs test",
+        "last_name" => "queen",
+        "username" => "test_queen",
+        "organization" => "nayracoop"
+      }
+      response = json_response(conn, 200)["data"]
+      assert json_response(conn, 200)
+      assert expected = response
+    end
+
+    @tag individual_test: "users_show_404"
+    test "404 for get an user by id", %{conn: conn} do
+      user = fixture(:user)
+      conn = get(conn, Routes.user_path(conn, :show, -1))
+
+      assert assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
     end
   end
 
