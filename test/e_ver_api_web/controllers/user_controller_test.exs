@@ -23,7 +23,6 @@ defmodule EVerApiWeb.UserControllerTest do
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@create_attrs)
-    #IO.inspect(user)
     user
   end
 
@@ -77,7 +76,7 @@ defmodule EVerApiWeb.UserControllerTest do
 
   describe "create user" do
     @tag individual_test: "users_index_401"
-    test "401 for list users", %{conn: conn} do
+    test "401 for create users", %{conn: conn} do
       assert_401(conn, &post/2, Routes.user_path(conn, :create))
     end
 
@@ -96,7 +95,9 @@ defmodule EVerApiWeb.UserControllerTest do
                 "username" => "test_queen",
                 "organization" => "nayracoop",
                 "events" => []
-             } = json_response(conn, 200)["data"]
+              } = json_response(conn, 200)["data"]
+      # should not contain the password_hash field
+      refute  Kernel.match?(%{"password_hash" => pass}, json_response(conn, 200)["data"])
     end
 
     @tag individual_test: "users_create_invalid"
@@ -108,6 +109,10 @@ defmodule EVerApiWeb.UserControllerTest do
 
   describe "update user" do
     setup [:create_user]
+
+    test "401 for update users", %{conn: conn} do
+      assert_401(conn, &put/2, Routes.user_path(conn, :update))
+    end
 
     test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
@@ -130,6 +135,10 @@ defmodule EVerApiWeb.UserControllerTest do
 
   describe "delete user" do
     setup [:create_user]
+
+    test "401 for delete users", %{conn: conn} do
+      assert_401(conn, &delete/2, Routes.user_path(conn, :delete))
+    end
 
     test "deletes chosen user", %{conn: conn, user: user} do
       conn = delete(conn, Routes.user_path(conn, :delete, user))
