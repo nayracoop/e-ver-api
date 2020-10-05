@@ -3,10 +3,28 @@ defmodule EVerApi.AccountsTest do
 
   alias EVerApi.Accounts
 
+  @moduletag :accounts
   describe "users" do
     alias EVerApi.Accounts.User
 
-    @valid_attrs %{name: "some name", password: "some password"}
+    @valid_attrs %{
+      email: "test.kinga@nayra.coop",
+      password: "123456",
+      password_confirmation: "123456",
+      first_name: "mrs test",
+      last_name: "kinga",
+      username: "test_kinga",
+      organization: "nayracoop"
+    }
+
+    @valid_fetch %{
+      email: "test.kinga@nayra.coop",
+      first_name: "mrs test",
+      last_name: "kinga",
+      username: "test_kinga",
+      organizatisdson: "nayracoop"
+    }
+
     @update_attrs %{name: "some updated name", password: "some updated password"}
     @invalid_attrs %{name: nil, password: nil}
 
@@ -23,16 +41,43 @@ defmodule EVerApi.AccountsTest do
       user = user_fixture()
       assert Accounts.list_users() == [user]
     end
-
-    test "get_user!/1 returns the user with given id" do
+    @tag individual_test: "get_user"
+    test "get_user/1 returns the user with given id" do
       user = user_fixture()
-      assert Accounts.get_user!(user.id) == user
+      assert %{
+        email: "test.kinga@nayra.coop",
+        first_name: "mrs test",
+        last_name: "kinga",
+        username: "test_kinga",
+        organization: "nayracoop"
+      } = Accounts.get_user(user.id)
+      assert Accounts.get_user(-1) == nil
     end
 
+    @tag individual_test: "get_user"
+    test "get_user!/1 returns the user with given id" do
+      user = user_fixture()
+      assert assert %{
+        email: "test.kinga@nayra.coop",
+        first_name: "mrs test",
+        last_name: "kinga",
+        username: "test_kinga",
+        organization: "nayracoop"
+      } = Accounts.get_user!(user.id)
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_user!(-1) end
+    end
+
+    @tag individual_test: "create_user"
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      assert user.name == "some name"
-      assert user.password == "some password"
+      assert assert %{
+        email: "test.kinga@nayra.coop",
+        first_name: "mrs test",
+        last_name: "kinga",
+        username: "test_kinga",
+        organization: "nayracoop"
+      } = user
+      #assert user.password == "some password"
     end
 
     test "create_user/1 with invalid data returns error changeset" do
