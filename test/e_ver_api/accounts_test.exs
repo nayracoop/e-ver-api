@@ -17,13 +17,15 @@ defmodule EVerApi.AccountsTest do
       organization: "nayracoop"
     }
 
-    @valid_fetch %{
-      email: "test.kinga@nayra.coop",
-      first_name: "mrs test",
-      last_name: "kinga",
-      username: "test_kinga",
-      organizatisdson: "nayracoop"
-    }
+    defp valid_fetch() do
+      %{
+        email: "test.kinga@nayra.coop",
+        first_name: "mrs test",
+        last_name: "kinga",
+        username: "test_kinga",
+        organization: "nayracoop"
+      }
+    end
 
     @update_attrs %{name: "some updated name", password: "some updated password"}
     @invalid_attrs %{name: nil, password: nil}
@@ -39,8 +41,15 @@ defmodule EVerApi.AccountsTest do
 
     test "list_users/0 returns all users" do
       user = user_fixture()
-      assert Accounts.list_users() == [user]
+      assert [%{
+        email: "test.kinga@nayra.coop",
+        first_name: "mrs test",
+        last_name: "kinga",
+        username: "test_kinga",
+        organization: "nayracoop"
+      }] = Accounts.list_users()
     end
+
     @tag individual_test: "get_user"
     test "get_user/1 returns the user with given id" do
       user = user_fixture()
@@ -70,13 +79,10 @@ defmodule EVerApi.AccountsTest do
     @tag individual_test: "create_user"
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      assert assert %{
-        email: "test.kinga@nayra.coop",
-        first_name: "mrs test",
-        last_name: "kinga",
-        username: "test_kinga",
-        organization: "nayracoop"
-      } = user
+      expected = valid_fetch()
+      IO.inspect expected
+
+      assert expected = user
       #assert user.password == "some password"
     end
 
