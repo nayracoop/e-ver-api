@@ -2,6 +2,9 @@ defmodule EVerApi.AccountsTest do
   use EVerApi.DataCase
 
   alias EVerApi.Accounts
+  import Bcrypt
+
+  @password "123456"
 
   @moduletag :accounts
   describe "users" do
@@ -27,7 +30,7 @@ defmodule EVerApi.AccountsTest do
       }
     end
 
-    @update_attrs %{name: "some updated name", password: "some updated password"}
+    @update_attrs %{first_name: "The Royal", last_name: "queen"}
     @invalid_attrs %{name: nil, password: nil}
 
     def user_fixture(attrs \\ %{}) do
@@ -39,18 +42,23 @@ defmodule EVerApi.AccountsTest do
       user
     end
 
+    @tag individual_test: "list_users"
     test "list_users/0 returns all users" do
       user = user_fixture()
-      assert [%{
+      [listed_user] = Accounts.list_users()
+      assert %{
         email: "test.kinga@nayra.coop",
         first_name: "mrs test",
         last_name: "kinga",
         username: "test_kinga",
-        organization: "nayracoop"
-      }] = Accounts.list_users()
+        organization: "nayracoop",
+        password_hash: hash
+      } = listed_user
+      # check hashed pass
+      assert {:ok, _} = Bcrypt.check_pass(listed_user, @password)
     end
 
-    @tag individual_test: "list_users"
+    @tag individual_test: "list_users_empty"
     test "list_users/0 returns empty list if theres no users" do
       #user = user_fixture()
       assert [] == Accounts.list_users()
@@ -72,7 +80,7 @@ defmodule EVerApi.AccountsTest do
     @tag individual_test: "get_user"
     test "get_user!/1 returns the user with given id" do
       user = user_fixture()
-      assert assert %{
+      assert %{
         email: "test.kinga@nayra.coop",
         first_name: "mrs test",
         last_name: "kinga",
@@ -85,11 +93,15 @@ defmodule EVerApi.AccountsTest do
     @tag individual_test: "create_user"
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      expected = valid_fetch()
-      IO.inspect expected
-
-      assert expected = user
-      #assert user.password == "some password"
+      assert %{
+        email: "test.kinga@nayra.coop",
+        first_name: "mrs test",
+        last_name: "kinga",
+        username: "test_kinga",
+        organization: "nayracoop"
+      } = user
+      # check hashed pass
+      assert {:ok, _} = Bcrypt.check_pass(user, @password)
     end
 
     test "create_user/1 with invalid data returns error changeset" do
