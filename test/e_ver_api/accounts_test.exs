@@ -31,7 +31,7 @@ defmodule EVerApi.AccountsTest do
     end
 
     @update_attrs %{first_name: "The Royal", last_name: "queen"}
-    @invalid_attrs %{name: nil, password: nil}
+    @invalid_attrs %{first_name: nil, last_name: nil}
 
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
@@ -108,17 +108,23 @@ defmodule EVerApi.AccountsTest do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
     end
 
+    @tag individual_test: "update_user"
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
-      assert user.name == "some updated name"
-      assert user.password == "some updated password"
+      assert user.first_name == "The Royal"
+      assert user.last_name == "queen"
     end
 
+    @tag individual_test: "update_user_invalid"
     test "update_user/2 with invalid data returns error changeset" do
       user = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
-      assert user == Accounts.get_user!(user.id)
+      user_ = Accounts.get_user!(user.id)
+      assert %{
+        first_name: "mrs test",
+        last_name: "kinga"
+      } = user_
     end
 
     test "delete_user/1 deletes the user" do
