@@ -108,6 +108,14 @@ defmodule EVerApi.AccountsTest do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
     end
 
+    @tag individual_test: "create_user_unique"
+    test "create_user/1 with not unique data returns error changeset" do
+      #email must be unique
+      user = user_fixture()
+      assert {:error, %Ecto.Changeset{action: :insert, errors: [err]}} = Accounts.create_user(@valid_attrs)
+      assert {:email, _} = err
+    end
+
     @tag individual_test: "update_user"
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
