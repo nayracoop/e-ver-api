@@ -45,6 +45,17 @@ Repo.insert!(%User{
   password_hash: hash
 })
 
+# deleted user
+Repo.insert!(%User{
+  first_name: "señor",
+  last_name: "nayra",
+  organization: "Coop. de trabajo Nayra ltda",
+  email: "senhor.nayra@fake.coop",
+  username: "senhor.nayra",
+  password_hash: hash,
+  deleted_at: now
+})
+
 Repo.insert!(%Event{
   name: "VR/AR the state of art",
   description: "Fake event for e-ver demo purpose",

@@ -1,5 +1,6 @@
 defmodule EVerApi.Accounts.User do
   use Ecto.Schema
+  import Ecto.SoftDelete.Schema
   import Ecto.Changeset
   import Bcrypt, only: [hash_pwd_salt: 1]
 
@@ -13,6 +14,7 @@ defmodule EVerApi.Accounts.User do
     # virtual fields
     field :password, :string, virtual: true
     field :password_confirmation, :string, virtual: true
+    soft_delete_schema()
 
     has_many :events, EVerApi.Ever.Event
 

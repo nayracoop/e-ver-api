@@ -9,6 +9,7 @@ defmodule EVerApi.Accounts do
   alias EVerApi.Accounts.User
   alias EVerApi.Guardian
   import Bcrypt
+  import Ecto.SoftDelete.Query
 
   @doc """
   Returns the list of users.
@@ -20,7 +21,9 @@ defmodule EVerApi.Accounts do
 
   """
   def list_users do
-    Repo.all(User) |> Repo.preload(:events)
+    query = from(u in User, select: u)
+      |> with_undeleted()
+    Repo.all(query) |> Repo.preload(:events)
   end
 
   @doc """
@@ -104,7 +107,7 @@ defmodule EVerApi.Accounts do
 
   """
   def delete_user(%User{} = user) do
-    Repo.delete(user)
+    Repo.soft_delete(user)
   end
 
   @doc """

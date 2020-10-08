@@ -51,6 +51,7 @@ defmodule EVerApi.MixProject do
       {:guardian, "~> 2.1" },
       {:ex_machina, "~> 2.4", only: :test},
       {:excoveralls, "~> 0.10", only: :test},
+      {:ecto_soft_delete, "~> 1.0"}
     ]
   end
 

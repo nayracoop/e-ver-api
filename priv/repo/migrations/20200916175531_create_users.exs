@@ -1,5 +1,6 @@
 defmodule EVerApi.Repo.Migrations.CreateUsers do
   use Ecto.Migration
+  import Ecto.SoftDelete.Migration
 
   def change do
     create table(:users) do
@@ -11,6 +12,7 @@ defmodule EVerApi.Repo.Migrations.CreateUsers do
       add :password_hash, :string
 
       timestamps()
+      soft_delete_columns()
     end
 
     create unique_index(:users, [:email])
