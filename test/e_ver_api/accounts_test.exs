@@ -139,9 +139,13 @@ defmodule EVerApi.AccountsTest do
       } = user_
     end
 
+    @tag individual_test: "delete_user"
     test "delete_user/1 deletes the user" do
       user = user_fixture()
+      Accounts.delete_user(user)
+
       assert {:ok, %User{}} = Accounts.delete_user(user)
+      assert nil == Accounts.get_user(user.id)
       assert_raise Ecto.NoResultsError, fn -> Accounts.get_user!(user.id) end
     end
 

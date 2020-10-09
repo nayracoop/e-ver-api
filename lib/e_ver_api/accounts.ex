@@ -40,8 +40,11 @@ defmodule EVerApi.Accounts do
       nil
 
   """
-  def get_user(id), do: Repo.get(User, id) |> Repo.preload(:events)
-
+  def get_user(id) do
+    query = from(u in User, select: u)
+      |> with_undeleted()
+    Repo.get(query, id) |> Repo.preload(:events)
+  end
     @doc """
   Gets a single user.
 
@@ -56,7 +59,11 @@ defmodule EVerApi.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id) |> Repo.preload(:events)
+  def get_user!(id) do
+    query = from(u in User, select: u)
+      |> with_undeleted()
+    Repo.get!(query, id) |> Repo.preload(:events)
+  end
 
   @doc """
   Creates a user.
