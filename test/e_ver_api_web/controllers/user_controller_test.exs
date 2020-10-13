@@ -167,18 +167,25 @@ defmodule EVerApiWeb.UserControllerTest do
 
   describe "delete user" do
     setup [:create_user]
-
+    @tag individual_test: "users_delete"
     test "401 for delete users", %{conn: conn} do
-      assert_401(conn, &delete/2, Routes.user_path(conn, :delete))
+      assert_401(conn, &delete/2, Routes.user_path(conn, :delete, 1))
     end
 
+    @tag individual_test: "users_delete"
+    test "404 for delete users", %{conn: conn} do
+      conn = delete(conn, Routes.user_path(conn, :delete, -1))
+      assert assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
+    end
+
+    @tag individual_test: "users_delete"
     test "deletes chosen user", %{conn: conn, user: user} do
       conn = delete(conn, Routes.user_path(conn, :delete, user))
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, Routes.user_path(conn, :show, user))
-      end
+      conn = get(conn, Routes.user_path(conn, :show, user))
+      assert assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
+
     end
   end
 
