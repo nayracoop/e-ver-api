@@ -22,6 +22,7 @@ defmodule EVerApiWeb.Router do
     get "/users", UserController, :index
     get "/users/:id", UserController, :show
     post "/users", UserController, :create
+    delete "/users/:id", UserController, :delete
 
     get "/events", EventController, :index
     post "/events", EventController, :create

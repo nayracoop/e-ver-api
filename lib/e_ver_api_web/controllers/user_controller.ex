@@ -17,7 +17,7 @@ defmodule EVerApiWeb.UserController do
     with {:ok, %User{} = user} <- Accounts.create_user(user_params) do
       conn
       |> put_status(:created)
-      # |> put_resp_header("location", Routes.user_path(conn, :show, user))
+      |> put_resp_header("location", Routes.user_path(conn, :show, user))
       |> render("show_base.json", user: user)
     end
   end
@@ -39,11 +39,16 @@ defmodule EVerApiWeb.UserController do
   end
 
   def delete(conn, %{"id" => id}) do
-    user = Accounts.get_user(id)
+    #user = Accounts.get_user(id)
+    #IO.inspect(user)
 
-    with {:ok, %User{}} <- Accounts.delete_user(user) do
+    with user <- Accounts.get_user(id),
+        {:ok, %User{}} when not is_nil(user) <- Accounts.delete_user(user) do
       send_resp(conn, :no_content, "")
+    else
+      _ -> {:error, :not_found}
     end
+
   end
 
   def sign_in(conn, %{"email" => email, "password" => password}) do

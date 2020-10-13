@@ -2,6 +2,8 @@ defmodule EVerApi.AccountsTest do
   use EVerApi.DataCase
 
   alias EVerApi.Accounts
+  alias EVerApi.Repo
+
   import Bcrypt
 
   @password "123456"
@@ -147,6 +149,16 @@ defmodule EVerApi.AccountsTest do
       assert {:ok, %User{}} = Accounts.delete_user(user)
       assert nil == Accounts.get_user(user.id)
       assert_raise Ecto.NoResultsError, fn -> Accounts.get_user!(user.id) end
+      # verify soft deletion
+      del_user = Repo.get(User, user.id)
+      assert del_user != nil
+      assert del_user.deleted_at != nil
+
+    end
+
+    @tag individual_test: "delete_user_404"
+    test "delete_user/1 for inexistant user" do
+      assert {:error, :not_found} = Accounts.delete_user(nil)
     end
 
     test "change_user/1 returns a user changeset" do
