@@ -122,7 +122,7 @@ defmodule EVerApi.AccountsTest do
 
     end
 
-    @tag individual_test: "update_user"
+    #@tag individual_test: "update_user"
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
@@ -139,6 +139,15 @@ defmodule EVerApi.AccountsTest do
         first_name: "mrs test",
         last_name: "kinga"
       } = user_
+    end
+
+    @tag individual_test: "update_user"
+    test "update_user/2 should not change password" do
+      user = user_fixture()
+      assert {:ok, %User{} = user} = Accounts.update_user(user, %{password: "holaholu", password_confirmation: "holaholu"})
+      # get fresh updated user without virtuals
+      user = Accounts.get_user(user.id)
+      assert {:ok, _} = Bcrypt.check_pass(user, @password)
     end
 
     @tag individual_test: "delete_user"
