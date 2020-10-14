@@ -16,10 +16,11 @@ defmodule EVerApiWeb.UserControllerTest do
     organization: "nayracoop"
   }
   @update_attrs %{
-    name: "some updated name",
-    password: "some updated password"
+    username: "nayrista",
+    first_name: "test",
+    last_name: "queer"
   }
-  @invalid_attrs %{name: nil, password: nil}
+  @invalid_attrs %{first_name: nil, last_name: nil}
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@create_attrs)
@@ -142,10 +143,12 @@ defmodule EVerApiWeb.UserControllerTest do
   describe "update user" do
     setup [:create_user]
 
+    #@tag individual_test: "users_update"
     test "401 for update users", %{conn: conn} do
-      assert_401(conn, &put/2, Routes.user_path(conn, :update))
+      assert_401(conn, &put/2, Routes.user_path(conn, :update, 1))
     end
 
+    #@tag individual_test: "users_update"
     test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
@@ -154,14 +157,26 @@ defmodule EVerApiWeb.UserControllerTest do
 
       assert %{
                "id" => id,
-               "name" => "some updated name",
-               "password" => "some updated password"
+               "first_name" => "test",
+               "last_name" => "queer",
+               "username" => "nayrista"
              } = json_response(conn, 200)["data"]
     end
 
+    #@tag individual_test: "users_update"
     test "renders errors when data is invalid", %{conn: conn, user: user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    @tag individual_test: "users_update"
+    test "renders errors when an unique field is updated with existent data", %{conn: conn, user: user} do
+      user2 = Accounts.create_user(Map.replace!(@create_attrs, :username, "dhavide.lebon"))
+      # try to change current username with an already existent username in database
+      conn = put(conn, Routes.user_path(conn, :update, user), user: %{username: "nayra"})
+      IO.inspect(conn)
+      assert json_response(conn, 422)["errors"] != %{}
+      assert %{"username" => ["has already been taken"]} = json_response(conn, 422)["errors"]
     end
   end
 

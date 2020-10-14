@@ -39,9 +39,6 @@ defmodule EVerApiWeb.UserController do
   end
 
   def delete(conn, %{"id" => id}) do
-    #user = Accounts.get_user(id)
-    #IO.inspect(user)
-
     with user <- Accounts.get_user(id),
         {:ok, %User{}} when not is_nil(user) <- Accounts.delete_user(user) do
       send_resp(conn, :no_content, "")

@@ -34,6 +34,18 @@ defmodule EVerApi.Accounts.User do
     |> put_password_hash
   end
 
+  def update_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:first_name, :last_name, :email, :username, :organization, :password, :password_confirmation])
+    |> validate_required([:first_name, :last_name, :email, :username, :password_hash])
+    |> validate_format(:email, ~r/@/) # this is very basic hahaha
+    |> validate_length(:password, min: 6)
+    |> validate_confirmation(:password)
+    |> unique_constraint([:email])
+    |> unique_constraint([:username])
+    #|> put_password_hash
+  end
+
   def put_password_hash(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
