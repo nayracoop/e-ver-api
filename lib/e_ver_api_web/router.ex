@@ -27,6 +27,8 @@ defmodule EVerApiWeb.Router do
 
     get "/events", EventController, :index
     post "/events", EventController, :create
+    put "/events/:id", EventController, :update
+    delete "/events/:id", EventController, :delete
 
     #get "/talks", TalkController, :index
     #get "/talks/:id", TalkController, :show

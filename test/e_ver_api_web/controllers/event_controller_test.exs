@@ -5,7 +5,7 @@ defmodule EVerApiWeb.EventControllerTest do
   alias EVerApi.Ever.Event
 
   @create_attrs %{
-    description: "some description",
+    summary: "some summary",
     end_time: "2010-04-17T14:00:00Z",
     name: "some name",
     start_time: "2010-04-17T14:00:00Z"
@@ -18,19 +18,56 @@ defmodule EVerApiWeb.EventControllerTest do
   }
   @invalid_attrs %{description: nil, end_time: nil, name: nil, start_time: nil}
 
+  defp assert_401(conn, f, route) do
+    conn =
+      conn
+      |> delete_req_header("authorization")
+      |> f.(route)
+    assert json_response(conn, 401)["message"] == "unauthenticated"
+  end
+
   def fixture(:event) do
+    # TODO find a user first
+
     {:ok, event} = Ever.create_event(@create_attrs)
     event
   end
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    insert(:user)
+    jwt = EVerApi.Accounts.token_sign_in("nayra@fake.coop", "123456")
+    {:ok, jwt_string, _} = jwt
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> put_req_header("content-type", "application/json")
+      |> put_req_header("authorization", "Bearer #{jwt_string}")
+
+    {:ok, conn: conn}
   end
 
   describe "index" do
+    #setup []
+
+    @tag individual_test: "events_index"
+    test "401 for list events", %{conn: conn} do
+      assert_401(conn, &get/2, Routes.event_path(conn, :index))
+    end
+
+    @tag individual_test: "events_index"
     test "lists all events", %{conn: conn} do
+      e = fixture(:event)
+
+      #a = EVerApi.Accounts.list_users()
       conn = get(conn, Routes.event_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
+      assert json_response(conn, 200)
+      response = json_response(conn, 200)["data"]
+      assert [%{
+        "summary" => "some summary",
+        "end_time" => "2010-04-17T14:00:00Z",
+        "name" => "some name",
+        "start_time" => "2010-04-17T14:00:00Z"
+      }] = response
     end
   end
 

@@ -18,6 +18,7 @@ defmodule EVerApiWeb.EventView do
     IO.inspect(event)
     %{id: event.id,
       name: event.name,
+      summary: event.summary,
       description: event.description,
       start_time: event.start_time,
       end_time: event.end_time,
@@ -30,6 +31,7 @@ defmodule EVerApiWeb.EventView do
   def render("base_event.json", %{event: event}) do
     %{id: event.id,
       name: event.name,
+      summary: event.summary,
       description: event.description,
       start_time: event.start_time,
       end_time: event.end_time,
