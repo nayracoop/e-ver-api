@@ -10,6 +10,8 @@ defmodule EVerApiWeb.Router do
   end
 
   scope "/api", EVerApiWeb do
+    pipe_through [:api]
+
     get "/events/:id", EventController, :show
     post "/login", UserController, :sign_in
     # separate the logic from create (for admins usage)

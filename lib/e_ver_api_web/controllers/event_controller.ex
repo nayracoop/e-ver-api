@@ -23,8 +23,11 @@ defmodule EVerApiWeb.EventController do
   end
 
   def show(conn, %{"id" => id}) do
-    event = Ever.get_event!(id)
-    render(conn, "show.json", event: event)
+    event = Ever.get_event(id)
+    case event do
+      nil -> {:error, :not_found}
+      _ -> render(conn, "show.json", event: event)
+    end
   end
 
   def update(conn, %{"id" => id, "event" => event_params}) do

@@ -38,6 +38,21 @@ defmodule EVerApi.Ever do
   def get_event!(id), do: Repo.get!(Event, id) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
 
   @doc """
+  Gets a single event.
+
+  returns nil if the Event does not exist.
+
+  ## Examples
+
+      iex> get_event(123)
+      %Event{}
+
+      iex> get_event(456)
+      nil
+
+  """
+  def get_event(id), do: Repo.get(Event, id) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+  @doc """
   Creates a event.
 
   ## Examples

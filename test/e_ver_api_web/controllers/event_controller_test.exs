@@ -77,6 +77,53 @@ defmodule EVerApiWeb.EventControllerTest do
     end
   end
 
+  describe "show" do
+    setup [:create_event]
+
+    @tag individual_test: "events_show"
+    test "get an event by id", %{conn: conn} do
+      event = fixture(:event)
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+
+      assert json_response(conn, 200)
+
+      response = json_response(conn, 200)["data"]
+      assert %{
+        "summary" => "some summary",
+        "end_time" => "2010-04-17T14:00:00Z",
+        "name" => "some name",
+        "start_time" => "2010-04-17T14:00:00Z"
+      } = response
+    end
+
+    @tag individual_test: "events_show"
+    # can get an event without JWT - in the "future" should use domain check logic
+    test "get an event by id without authentication", %{conn: conn} do
+      event = fixture(:event)
+      conn = delete_req_header(conn, "authorization")
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+
+      assert json_response(conn, 200)
+
+      response = json_response(conn, 200)["data"]
+      assert %{
+        "summary" => "some summary",
+        "end_time" => "2010-04-17T14:00:00Z",
+        "name" => "some name",
+        "start_time" => "2010-04-17T14:00:00Z"
+      } = response
+    end
+
+
+    @tag individual_test: "events_show"
+    test "404 for get an event by id", %{conn: conn} do
+      event = fixture(:event)
+      conn = get(conn, Routes.event_path(conn, :show, -1))
+
+      assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
+    end
+  end
+
   describe "create event" do
     @tag individual_test: "events_create"
     test "401 for create an event", %{conn: conn} do

@@ -102,7 +102,7 @@ defmodule EVerApiWeb.UserControllerTest do
       user = fixture(:user)
       conn = get(conn, Routes.user_path(conn, :show, -1))
 
-      assert assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
+      assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
     end
   end
 
