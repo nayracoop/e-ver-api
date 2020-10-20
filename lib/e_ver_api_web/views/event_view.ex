@@ -15,7 +15,6 @@ defmodule EVerApiWeb.EventView do
   end
 
   def render("event.json", %{event: event}) do
-    IO.inspect(event)
     %{id: event.id,
       name: event.name,
       summary: event.summary,

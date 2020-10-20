@@ -8,7 +8,8 @@ defmodule EVerApiWeb.EventControllerTest do
     summary: "some summary",
     end_time: "2010-04-17T14:00:00Z",
     name: "some name",
-    start_time: "2010-04-17T14:00:00Z"
+    start_time: "2010-04-17T14:00:00Z",
+    user_id: 1
   }
   @update_attrs %{
     description: "some updated description",
@@ -27,8 +28,6 @@ defmodule EVerApiWeb.EventControllerTest do
   end
 
   def fixture(:event) do
-    # TODO find a user first
-
     {:ok, event} = Ever.create_event(@create_attrs)
     event
   end
@@ -58,7 +57,6 @@ defmodule EVerApiWeb.EventControllerTest do
     test "lists all events", %{conn: conn} do
       e = fixture(:event)
 
-      #a = EVerApi.Accounts.list_users()
       conn = get(conn, Routes.event_path(conn, :index))
       assert json_response(conn, 200)
       response = json_response(conn, 200)["data"]
@@ -68,6 +66,14 @@ defmodule EVerApiWeb.EventControllerTest do
         "name" => "some name",
         "start_time" => "2010-04-17T14:00:00Z"
       }] = response
+    end
+
+    @tag individual_test: "events_index"
+    test "renders an empty array of events", %{conn: conn} do
+      conn = get(conn, Routes.event_path(conn, :index))
+      assert json_response(conn, 200)
+      response = json_response(conn, 200)["data"]
+      assert [] == response
     end
   end
 

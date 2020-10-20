@@ -11,7 +11,8 @@ defmodule EVerApi.Factory do
       organization: "Coop. de trabajo Nayra ltda",
       email: "nayra@fake.coop",
       username: "nayra",
-      password_hash: hash
+      password_hash: hash,
+      id: 1 # fixed id for test
     }
   end
 end

@@ -45,7 +45,6 @@ defmodule EVerApiWeb.UserControllerTest do
       |> put_req_header("content-type", "application/json")
       |> put_req_header("authorization", "Bearer #{jwt_string}")
 
-    # IO.inspect(conn)
     {:ok, conn: conn}
   end
 
@@ -174,7 +173,7 @@ defmodule EVerApiWeb.UserControllerTest do
       user2 = Accounts.create_user(Map.replace!(@create_attrs, :username, "dhavide.lebon"))
       # try to change current username with an already existent username in database
       conn = put(conn, Routes.user_path(conn, :update, user), user: %{username: "nayra"})
-      IO.inspect(conn)
+
       assert json_response(conn, 422)["errors"] != %{}
       assert %{"username" => ["has already been taken"]} = json_response(conn, 422)["errors"]
     end
