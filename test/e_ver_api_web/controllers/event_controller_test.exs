@@ -78,6 +78,12 @@ defmodule EVerApiWeb.EventControllerTest do
   end
 
   describe "create event" do
+    @tag individual_test: "events_create"
+    test "401 for create an event", %{conn: conn} do
+      assert_401(conn, &post/2, Routes.event_path(conn, :create))
+    end
+
+    @tag individual_test: "events_create"
     test "renders event when data is valid", %{conn: conn} do
       conn = post(conn, Routes.event_path(conn, :create), event: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
@@ -86,13 +92,14 @@ defmodule EVerApiWeb.EventControllerTest do
 
       assert %{
                "id" => id,
-               "description" => "some description",
+               "summary" => "some summary",
                "end_time" => "2010-04-17T14:00:00Z",
                "name" => "some name",
                "start_time" => "2010-04-17T14:00:00Z"
              } = json_response(conn, 200)["data"]
     end
 
+    @tag individual_test: "events_create"
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.event_path(conn, :create), event: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
