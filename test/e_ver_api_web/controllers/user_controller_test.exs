@@ -76,7 +76,7 @@ defmodule EVerApiWeb.UserControllerTest do
   end
 
   describe "show" do
-    @tag individual_test: "users_show_401"
+    @tag individual_test: "users_show"
     test "401 for create users", %{conn: conn} do
       assert_401(conn, &get/2, Routes.user_path(conn, :show, 1))
     end
@@ -97,7 +97,7 @@ defmodule EVerApiWeb.UserControllerTest do
       assert expected = response
     end
 
-    @tag individual_test: "users_show_404"
+    @tag individual_test: "users_show"
     test "404 for get an user by id", %{conn: conn} do
       user = fixture(:user)
       conn = get(conn, Routes.user_path(conn, :show, -1))

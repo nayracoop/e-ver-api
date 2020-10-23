@@ -29,8 +29,8 @@ defmodule EVerApi.Accounts.User do
     |> validate_format(:email, ~r/@/) # this is very basic hahaha
     |> validate_length(:password, min: 6)
     |> validate_confirmation(:password)
-    |> unique_constraint([:email])
-    |> unique_constraint([:username])
+    |> unique_constraint(:email)
+    |> unique_constraint(:username)
     |> put_password_hash
   end
 
@@ -41,8 +41,8 @@ defmodule EVerApi.Accounts.User do
     |> validate_format(:email, ~r/@/) # this is very basic hahaha
     |> validate_length(:password, min: 6)
     |> validate_confirmation(:password)
-    |> unique_constraint([:email])
-    |> unique_constraint([:username])
+    |> unique_constraint(:email)
+    |> unique_constraint(:username)
     |> put_password_hash
   end
 

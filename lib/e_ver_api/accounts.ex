@@ -66,6 +66,24 @@ defmodule EVerApi.Accounts do
   end
 
   @doc """
+  Gets a single user by email.
+
+  Does not Raises `Ecto.NoResultsError` if the User does not exist.
+
+  ## Examples
+
+      iex> get_user_by(:email, "nayre@nayro.coop")
+      %User{}
+
+      iex> get_user_by(:email, "nayre@nayro.coop")
+      nil
+
+  """
+  def get_user_by(:email, email) when is_binary(email)  do
+    Repo.get_by(User, email: email)
+  end
+
+  @doc """
   Creates a user.
 
   ## Examples

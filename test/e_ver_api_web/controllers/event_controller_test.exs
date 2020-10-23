@@ -1,5 +1,6 @@
 defmodule EVerApiWeb.EventControllerTest do
   use EVerApiWeb.ConnCase
+  @moduletag :events_controller_case
 
   alias EVerApi.Ever
   alias EVerApi.Ever.Event
@@ -8,8 +9,7 @@ defmodule EVerApiWeb.EventControllerTest do
     summary: "some summary",
     end_time: "2010-04-17T14:00:00Z",
     name: "some name",
-    start_time: "2010-04-17T14:00:00Z",
-    user_id: 1
+    start_time: "2010-04-17T14:00:00Z"
   }
   @update_attrs %{
     description: "some updated description",
@@ -18,6 +18,8 @@ defmodule EVerApiWeb.EventControllerTest do
     start_time: "2011-05-18T15:01:01Z"
   }
   @invalid_attrs %{description: nil, end_time: nil, name: nil, start_time: nil}
+
+  @email "nayra@fake.coop"
 
   defp assert_401(conn, f, route) do
     conn =
@@ -28,20 +30,22 @@ defmodule EVerApiWeb.EventControllerTest do
   end
 
   def fixture(:event) do
-    {:ok, event} = Ever.create_event(@create_attrs)
+    # get last user
+    user = EVerApi.Accounts.get_user_by(:email, @email)
+    {:ok, event} = Ever.create_event(Map.put_new(@create_attrs, :user_id, user.id) )
     event
   end
 
   setup %{conn: conn} do
     insert(:user)
-    jwt = EVerApi.Accounts.token_sign_in("nayra@fake.coop", "123456")
+    jwt = EVerApi.Accounts.token_sign_in(@email, "123456")
+
     {:ok, jwt_string, _} = jwt
     conn =
       conn
       |> put_req_header("accept", "application/json")
       |> put_req_header("content-type", "application/json")
       |> put_req_header("authorization", "Bearer #{jwt_string}")
-
     {:ok, conn: conn}
   end
 
@@ -156,6 +160,7 @@ defmodule EVerApiWeb.EventControllerTest do
   describe "update event" do
     setup [:create_event]
 
+    @tag individual_test: "events_update"
     test "renders event when data is valid", %{conn: conn, event: %Event{id: id} = event} do
       conn = put(conn, Routes.event_path(conn, :update, event), event: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
@@ -171,6 +176,7 @@ defmodule EVerApiWeb.EventControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    @tag individual_test: "events_update"
     test "renders errors when data is invalid", %{conn: conn, event: event} do
       conn = put(conn, Routes.event_path(conn, :update, event), event: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
