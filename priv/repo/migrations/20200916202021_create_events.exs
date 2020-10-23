@@ -1,5 +1,6 @@
 defmodule EVerApi.Repo.Migrations.CreateEvents do
   use Ecto.Migration
+  import Ecto.SoftDelete.Migration
 
   def change do
     create table(:events) do
@@ -13,6 +14,7 @@ defmodule EVerApi.Repo.Migrations.CreateEvents do
       add :user_id, references(:users, on_delete: :nothing)
 
       timestamps()
+      soft_delete_columns()
     end
 
   end

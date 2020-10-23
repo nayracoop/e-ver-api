@@ -7,6 +7,7 @@ defmodule EVerApi.Ever do
   alias EVerApi.Repo
 
   alias EVerApi.Ever.{Event, Talk}
+  import Ecto.SoftDelete.Query
 
   @doc """
   Returns the list of events.
@@ -18,7 +19,9 @@ defmodule EVerApi.Ever do
 
   """
   def list_events do
-    Repo.all(Event) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+    query = from(e in Event, select: e)
+      |> with_undeleted()
+    Repo.all(query) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
   end
 
   @doc """
@@ -35,7 +38,11 @@ defmodule EVerApi.Ever do
       ** (Ecto.NoResultsError)
 
   """
-  def get_event!(id), do: Repo.get!(Event, id) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+  def get_event!(id) do
+    query = from(e in Event, select: e)
+      |> with_undeleted()
+    Repo.get!(query, id) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+  end
 
   @doc """
   Gets a single event.
@@ -51,7 +58,11 @@ defmodule EVerApi.Ever do
       nil
 
   """
-  def get_event(id), do: Repo.get(Event, id) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+  def get_event(id) do
+    query = from(e in Event, select: e)
+      |> with_undeleted()
+    Repo.get(query, id) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+  end
   @doc """
   Creates a event.
 
@@ -101,7 +112,7 @@ defmodule EVerApi.Ever do
 
   """
   def delete_event(%Event{} = event) do
-    Repo.delete(event)
+    Repo.soft_delete(event)
   end
 
   @doc """

@@ -136,7 +136,9 @@ defmodule EVerApiWeb.EventControllerTest do
 
     @tag individual_test: "events_create"
     test "renders event when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.event_path(conn, :create), event: @create_attrs)
+      user = EVerApi.Accounts.get_user_by(:email, @email)
+      attrs = Map.put_new(@create_attrs, :user_id, user.id)
+      conn = post(conn, Routes.event_path(conn, :create), event: attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
       conn = get(conn, Routes.event_path(conn, :show, id))
@@ -186,13 +188,18 @@ defmodule EVerApiWeb.EventControllerTest do
   describe "delete event" do
     setup [:create_event]
 
+    @tag individual_test: "events_delete"
+    test "401 for create an event", %{conn: conn} do
+      assert_401(conn, &delete/2, Routes.event_path(conn, :delete, 1))
+    end
+
+    @tag individual_test: "events_delete"
     test "deletes chosen event", %{conn: conn, event: event} do
       conn = delete(conn, Routes.event_path(conn, :delete, event))
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, Routes.event_path(conn, :show, event))
-      end
+      conn = get(conn, Routes.event_path(conn, :show, event))
+      assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
     end
   end
 

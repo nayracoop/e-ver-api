@@ -1,5 +1,6 @@
 defmodule EVerApi.Ever.Event do
   use Ecto.Schema
+  import Ecto.SoftDelete.Schema
   import Ecto.Changeset
 
   schema "events" do
@@ -9,6 +10,7 @@ defmodule EVerApi.Ever.Event do
     field :url, :string
     field :start_time, :utc_datetime
     field :end_time, :utc_datetime
+    soft_delete_schema()
 
     belongs_to :user, EVerApi.Accounts.User
     has_many :talks, EVerApi.Ever.Talk
