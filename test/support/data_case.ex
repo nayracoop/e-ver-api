@@ -24,6 +24,7 @@ defmodule EVerApi.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import EVerApi.DataCase
+      import EVerApi.Factory
     end
   end
 

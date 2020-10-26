@@ -6,22 +6,38 @@ defmodule EVerApi.EverTest do
   describe "events" do
     alias EVerApi.Ever.Event
 
-    @valid_attrs %{description: "some description", end_time: "2010-04-17T14:00:00Z", name: "some name", start_time: "2010-04-17T14:00:00Z"}
+    @valid_attrs %{
+       summary: "some summary",
+       end_time: "2010-04-17T14:00:00Z",
+       name: "some name",
+       start_time: "2010-04-17T14:00:00Z"
+      }
     @update_attrs %{description: "some updated description", end_time: "2011-05-18T15:01:01Z", name: "some updated name", start_time: "2011-05-18T15:01:01Z"}
     @invalid_attrs %{description: nil, end_time: nil, name: nil, start_time: nil}
 
     def event_fixture(attrs \\ %{}) do
+      user = insert(:user)
+
       {:ok, event} =
         attrs
         |> Enum.into(@valid_attrs)
+        |> Map.put_new(:user_id, user.id)
         |> Ever.create_event()
 
       event
     end
 
+    @tag individual_test: "list_events"
     test "list_events/0 returns all events" do
       event = event_fixture()
-      assert Ever.list_events() == [event]
+      [listed_event] = Ever.list_events()
+
+      assert %{
+        summary: "some summary",
+        end_time: ~U[2010-04-17T14:00:00Z],
+        name: "some name",
+        start_time: ~U[2010-04-17T14:00:00Z]
+       } = listed_event
     end
 
     test "get_event!/1 returns the event with given id" do
