@@ -61,7 +61,7 @@ defmodule EVerApi.AccountsTest do
     end
 
     @tag individual_test: "list_users_empty"
-    test "list_users/0 returns empty list if theres no users" do
+    test "list_users/0 returns empty list if there is no users" do
       #user = user_fixture()
       assert [] == Accounts.list_users()
     end

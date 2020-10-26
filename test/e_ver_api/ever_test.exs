@@ -40,9 +40,35 @@ defmodule EVerApi.EverTest do
        } = listed_event
     end
 
+    @tag individual_test: "list_events"
+    test "list_events/0 returns an empty list if there is no events" do
+      assert [] == Ever.list_events()
+    end
+
+    @tag individual_test: "get_event"
     test "get_event!/1 returns the event with given id" do
       event = event_fixture()
-      assert Ever.get_event!(event.id) == event
+      assert %{
+        summary: "some summary",
+        end_time: ~U[2010-04-17T14:00:00Z],
+        name: "some name",
+        start_time: ~U[2010-04-17T14:00:00Z]
+       } = Ever.get_event!(event.id)
+
+       assert_raise Ecto.NoResultsError, fn -> Ever.get_event!(-1) end
+    end
+
+    @tag individual_test: "get_event"
+    test "get_event/1 returns the event with given id" do
+      event = event_fixture()
+      assert %{
+        summary: "some summary",
+        end_time: ~U[2010-04-17T14:00:00Z],
+        name: "some name",
+        start_time: ~U[2010-04-17T14:00:00Z]
+       } = Ever.get_event(event.id)
+
+       assert nil == Ever.get_event(-1)
     end
 
     test "create_event/1 with valid data creates a event" do
