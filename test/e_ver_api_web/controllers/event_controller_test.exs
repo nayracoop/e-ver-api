@@ -163,6 +163,11 @@ defmodule EVerApiWeb.EventControllerTest do
     setup [:create_event]
 
     @tag individual_test: "events_update"
+    test "401 for update an event", %{conn: conn, event: %Event{id: id} = event} do
+      assert_401(conn, &put/2, Routes.event_path(conn, :update, event))
+    end
+
+    @tag individual_test: "events_update"
     test "renders event when data is valid", %{conn: conn, event: %Event{id: id} = event} do
       conn = put(conn, Routes.event_path(conn, :update, event), event: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
@@ -183,6 +188,12 @@ defmodule EVerApiWeb.EventControllerTest do
       conn = put(conn, Routes.event_path(conn, :update, event), event: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
+
+    @tag individual_test: "events_update"
+    test "renders errors when event is inexistent", %{conn: conn} do
+      conn = put(conn, Routes.event_path(conn, :update, -1), event: @valid_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
   end
 
   describe "delete event" do
@@ -199,6 +210,12 @@ defmodule EVerApiWeb.EventControllerTest do
       assert response(conn, 204)
 
       conn = get(conn, Routes.event_path(conn, :show, event))
+      assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
+    end
+
+    @tag individual_test: "events_delete"
+    test "404 for delete non existent event", %{conn: conn, event: event} do
+      conn = delete(conn, Routes.event_path(conn, :delete, -1))
       assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
     end
   end

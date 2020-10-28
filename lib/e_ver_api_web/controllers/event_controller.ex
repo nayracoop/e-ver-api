@@ -31,18 +31,21 @@ defmodule EVerApiWeb.EventController do
   end
 
   def update(conn, %{"id" => id, "event" => event_params}) do
-    event = Ever.get_event!(id)
-
-    with {:ok, %Event{} = event} <- Ever.update_event(event, event_params) do
-      render(conn, "show.json", event: event)
+    case Ever.get_event(id) do
+      nil ->  {:error, :not_found}
+      event ->
+        with {:ok, %Event{} = event} <- Ever.update_event(event, event_params) do
+          render(conn, "show.json", event: event)
+        end
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    event = Ever.get_event!(id)
-
-    with {:ok, %Event{}} <- Ever.delete_event(event) do
+    with event when not is_nil(event) <- Ever.get_event(id),
+        {:ok, %Event{}}  <- Ever.delete_event(event) do
       send_resp(conn, :no_content, "")
+    else
+      _ -> {:error, :not_found}
     end
   end
 end
