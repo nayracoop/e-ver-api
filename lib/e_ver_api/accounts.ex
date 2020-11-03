@@ -135,9 +135,6 @@ defmodule EVerApi.Accounts do
     Repo.soft_delete(user)
   end
 
-  def delete_user(nil) do
-    {:error, :not_found}
-  end
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 

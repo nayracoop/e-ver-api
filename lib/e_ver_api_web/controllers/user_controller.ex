@@ -39,13 +39,12 @@ defmodule EVerApiWeb.UserController do
   end
 
   def delete(conn, %{"id" => id}) do
-    with user <- Accounts.get_user(id),
-        {:ok, %User{}} when not is_nil(user) <- Accounts.delete_user(user) do
+    with user when not is_nil(user) <- Accounts.get_user(id),
+        {:ok, %User{}} <- Accounts.delete_user(user) do
       send_resp(conn, :no_content, "")
     else
       _ -> {:error, :not_found}
     end
-
   end
 
   def sign_in(conn, %{"email" => email, "password" => password}) do
