@@ -1,8 +1,8 @@
 defmodule EVerApiWeb.SponsorControllerTest do
   use EVerApiWeb.ConnCase
 
-  alias EVerApi.Ever
-  alias EVerApi.Ever.Sponsor
+  alias EVerApi.Sponsors
+  alias EVerApi.Sponsors.Sponsor
 
   @create_attrs %{
     logo: "some logo",
@@ -17,7 +17,7 @@ defmodule EVerApiWeb.SponsorControllerTest do
   @invalid_attrs %{logo: nil, name: nil, website: nil}
 
   def fixture(:sponsor) do
-    {:ok, sponsor} = Ever.create_sponsor(@create_attrs)
+    {:ok, sponsor} = Sponsors.create_sponsor(@create_attrs)
     sponsor
   end
 

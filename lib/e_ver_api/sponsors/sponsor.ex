@@ -1,4 +1,4 @@
-defmodule EVerApi.Ever.Sponsor do
+defmodule EVerApi.Sponsors.Sponsor do
   use Ecto.Schema
   import Ecto.Changeset
 
