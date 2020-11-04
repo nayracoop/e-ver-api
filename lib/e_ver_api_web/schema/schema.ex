@@ -53,7 +53,7 @@ defmodule EVerApiWeb.Schema.Schema do
     field :tags, list_of(:string)
     field :allow_comments, non_null(:boolean)
 
-    field :speakers, list_of(:speaker)
+    field :speakers, list_of(:speaker), resolve: dataloader(Ever)
   end
 
   object :speaker do
@@ -66,7 +66,7 @@ defmodule EVerApiWeb.Schema.Schema do
     field :name, non_null(:string)
     field :role, non_null(:string)
 
-    field :talks, list_of(:talk)
+    field :talks, list_of(:talk), resolve: dataloader(Ever)
   end
 
   object :sponsor do
