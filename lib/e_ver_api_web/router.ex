@@ -37,6 +37,18 @@ defmodule EVerApiWeb.Router do
     #post "/talks", TalkController, :create
   end
 
+  scope "/graphql" do
+    pipe_through :api
+
+    forward "/api", Absinthe.Plug,
+      schema: EVerApiWeb.Schema.Schema
+
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: EVerApiWeb.Schema.Schema,
+      socket: EVerApiWeb.UserSocket,
+      interface: :simple
+  end
+
   # Enables LiveDashboard only for development
   #
   # If you want to use the LiveDashboard in production, you should put
