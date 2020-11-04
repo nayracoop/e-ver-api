@@ -11,7 +11,8 @@ defmodule EVerApi.Ever.Speaker do
     field :name, :string
     field :role, :string
 
-    belongs_to :talk, EVerApi.Ever.Talk
+    many_to_many :talks, EVerApi.Ever.Talk, join_through: EVerApi.Ever.SpeakerTalk
+    belongs_to :event, EVerApi.Ever.Event
 
     timestamps()
   end
@@ -21,6 +22,6 @@ defmodule EVerApi.Ever.Speaker do
     speaker
     |> cast(attrs, [:name, :first_name, :last_name, :company, :role, :bio, :avatar])
     |> validate_required([:name, :first_name, :last_name, :company, :role, :bio, :avatar])
-    |> foreign_key_constraint(:talk_id)
+    #|> foreign_key_constraint(:talk_id)
   end
 end

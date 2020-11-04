@@ -11,7 +11,8 @@
 # and so on) as they will fail if something goes wrong.
 alias EVerApi.Repo
 alias EVerApi.Accounts.User
-alias EVerApi.Ever.{Event, Talk, Speaker, Sponsor}
+alias EVerApi.Ever.{Event, Talk, Speaker, SpeakerTalk}
+alias EVerApi.Sponsors.Sponsor
 
 import Bcrypt, only: [hash_pwd_salt: 1]
 
@@ -118,7 +119,7 @@ Repo.insert!(%Speaker{
   role: "cooperative",
   company: "nayra coop ltda",
   avatar: "nayra.png",
-  talk_id: 1
+  event_id: 3
 })
 
 Repo.insert!(%Speaker{
@@ -128,7 +129,7 @@ Repo.insert!(%Speaker{
   role: "Kommander",
   company: "IMF",
   avatar: "nayra.png",
-  talk_id: 1
+  event_id: 3
 })
 
 Repo.insert!(%Speaker{
@@ -138,9 +139,26 @@ Repo.insert!(%Speaker{
   role: "Ph D",
   company: "Paco Am Plus",
   avatar: "nayra.png",
-  talk_id: 2
+  event_id: 3
 })
 
+Repo.insert!(%SpeakerTalk{
+  talk_id: 1, speaker_id: 1
+})
+
+Repo.insert!(%SpeakerTalk{
+  talk_id: 1, speaker_id: 2
+})
+
+Repo.insert!(%SpeakerTalk{
+  talk_id: 1, speaker_id: 3
+})
+
+Repo.insert!(%SpeakerTalk{
+  talk_id: 2, speaker_id: 2
+})
+
+# Sponsors context
 Repo.insert!(%Sponsor{
   name: "no name sponsor",
   logo: "no_name.png",

@@ -14,7 +14,7 @@ defmodule EVerApi.Ever.Talk do
     embeds_one :video, EVerApi.Ever.Video
 
     belongs_to :event, EVerApi.Ever.Event
-    has_many :speakers, EVerApi.Ever.Speaker
+    many_to_many :speakers, EVerApi.Ever.Speaker, join_through: EVerApi.Ever.SpeakerTalk
 
     timestamps()
   end
