@@ -51,7 +51,11 @@ defmodule EVerApi.MixProject do
       {:guardian, "~> 2.1" },
       {:ex_machina, "~> 2.4", only: :test},
       {:excoveralls, "~> 0.10", only: :test},
-      {:ecto_soft_delete, "~> 1.0"}
+      {:ecto_soft_delete, "~> 1.0"},
+      {:absinthe, "~> 1.5.3"},
+      {:absinthe_plug, "~> 1.5.0"},
+      {:absinthe_phoenix, "~> 2.0"},
+      {:dataloader, "~> 1.0.8"}
     ]
   end
 
