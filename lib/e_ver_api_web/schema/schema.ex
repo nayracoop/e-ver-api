@@ -1,7 +1,6 @@
 defmodule EVerApiWeb.Schema.Schema do
   use Absinthe.Schema
-  alias EVerApi.{Accounts, Ever}
-  alias EVerApi.Sponsors
+  alias EVerApi.{Accounts, Ever, Sponsors}
 
   import_types Absinthe.Type.Custom
   import Absinthe.Resolution.Helpers, only: [dataloader: 1, dataloader: 3]
