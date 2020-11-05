@@ -6,7 +6,7 @@ defmodule EVerApiWeb.Router do
   end
 
   pipeline :jwt_authenticated do
-    plug EVerApi.AuthAccessPipeline
+    plug EVerApiWeb.AuthAccessPipeline
   end
 
   scope "/api", EVerApiWeb do
