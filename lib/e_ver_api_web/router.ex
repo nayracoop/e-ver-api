@@ -5,8 +5,12 @@ defmodule EVerApiWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :jwt_authenticated do
+  pipeline :auth do
     plug EVerApiWeb.AuthAccessPipeline
+  end
+
+  pipeline :ensure_auth do
+    plug Guardian.Plug.EnsureAuthenticated
   end
 
   scope "/api", EVerApiWeb do
@@ -19,7 +23,7 @@ defmodule EVerApiWeb.Router do
   end
 
   scope "/api", EVerApiWeb do
-    pipe_through [:api, :jwt_authenticated]
+    pipe_through [:api, :auth, :ensure_auth]
 
     get "/users", UserController, :index
     get "/users/:id", UserController, :show
