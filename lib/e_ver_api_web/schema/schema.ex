@@ -7,6 +7,7 @@ defmodule EVerApiWeb.Schema.Schema do
   import Absinthe.Resolution.Helpers, only: [dataloader: 1, dataloader: 3]
 
   alias EVerApiWeb.Resolvers
+  alias EVerApiWeb.Schema.Middleware
 
   query do
     @desc "Get an event by its id"
@@ -18,6 +19,7 @@ defmodule EVerApiWeb.Schema.Schema do
     @desc "Get a list of events"
     field :events, list_of(:event) do
       arg :order, type: :sort_order, default_value: :asc
+      middleware Middleware.Authenticate
       resolve &Resolvers.Ever.events/3
     end
   end

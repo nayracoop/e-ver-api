@@ -43,7 +43,7 @@ defmodule EVerApiWeb.Router do
   end
 
   scope "/graphql" do
-    pipe_through :api
+    pipe_through [:api, :auth]
 
     forward "/api", Absinthe.Plug,
       schema: EVerApiWeb.Schema.Schema
