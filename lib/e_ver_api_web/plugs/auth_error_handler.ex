@@ -1,4 +1,4 @@
-defmodule EVerApi.AuthErrorHandler do
+defmodule EVerApiWeb.AuthErrorHandler do
   import Plug.Conn
 
   @behaviour Guardian.Plug.ErrorHandler

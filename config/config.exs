@@ -32,9 +32,9 @@ config :e_ver_api, EVerApi.Guardian,
   issuer: "e_ver_api",
   secret_key: System.get_env("JWT_SECRET") # mix guardian.gen.secret
 
-config :e_ver_api, EVerApi.AuthAccessPipeline,
+config :e_ver_api, EVerApiWeb.AuthAccessPipeline,
   module: EVerApi.Guardian,
-  error_handler: EVerApi.AuthErrorHandler
+  error_handler: EVerApiWeb.AuthErrorHandler
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
