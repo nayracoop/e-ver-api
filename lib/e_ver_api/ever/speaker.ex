@@ -11,7 +11,7 @@ defmodule EVerApi.Ever.Speaker do
     field :name, :string
     field :role, :string
 
-    many_to_many :talks, EVerApi.Ever.Talk, join_through: EVerApi.Ever.SpeakerTalk
+    many_to_many :talks, EVerApi.Ever.Talk, join_through: EVerApi.Ever.SpeakerTalk, on_replace: :delete
     belongs_to :event, EVerApi.Ever.Event
 
     timestamps()
@@ -21,7 +21,7 @@ defmodule EVerApi.Ever.Speaker do
   def changeset(speaker, attrs) do
     speaker
     |> cast(attrs, [:name, :first_name, :last_name, :company, :role, :bio, :avatar])
-    |> validate_required([:name, :first_name, :last_name, :company, :role, :bio, :avatar])
-    #|> foreign_key_constraint(:talk_id)
+    |> validate_required([:name, :role, :event_id])
+    |> foreign_key_constraint(:event_id)
   end
 end

@@ -51,7 +51,6 @@ defmodule EVerApiWeb.EventControllerTest do
 
   describe "index" do
     #setup []
-
     @tag individual_test: "events_index"
     test "401 for list events", %{conn: conn} do
       assert_401(conn, &get/2, Routes.event_path(conn, :index))
@@ -60,7 +59,6 @@ defmodule EVerApiWeb.EventControllerTest do
     @tag individual_test: "events_index"
     test "lists all events", %{conn: conn} do
       e = fixture(:event)
-
       conn = get(conn, Routes.event_path(conn, :index))
       assert json_response(conn, 200)
       response = json_response(conn, 200)["data"]
@@ -69,7 +67,7 @@ defmodule EVerApiWeb.EventControllerTest do
         "end_time" => "2010-04-17T14:00:00Z",
         "name" => "some name",
         "start_time" => "2010-04-17T14:00:00Z"
-      }] = response
+        }] = response
     end
 
     @tag individual_test: "events_index"
