@@ -14,7 +14,7 @@ defmodule EVerApi.Ever.Talk do
     embeds_one :video, EVerApi.Ever.Video
 
     belongs_to :event, EVerApi.Ever.Event
-    many_to_many :speakers, EVerApi.Ever.Speaker, join_through: EVerApi.Ever.SpeakerTalk
+    many_to_many :speakers, EVerApi.Ever.Speaker, join_through: EVerApi.Ever.SpeakerTalk, on_replace: :delete
 
     timestamps()
   end
@@ -23,7 +23,7 @@ defmodule EVerApi.Ever.Talk do
   def changeset(talk, attrs) do
     talk
     |> cast(attrs, [:name, :body, :start_time, :duration, :video_url, :tags, :allow_comments, :event_id])
-    |> validate_required([:name, :body, :start_time, :duration, :video_url, :event_id])
+    |> validate_required([:title, :event_id])
     |> foreign_key_constraint(:event_id)
   end
 end
