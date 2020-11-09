@@ -6,6 +6,7 @@ defmodule EVerApi.Ever do
   import Ecto.Query, warn: false
   alias EVerApi.Repo
 
+  alias EVerApi.Accounts.User
   alias EVerApi.Ever.{Event, Talk}
   import Ecto.SoftDelete.Query
 
@@ -19,9 +20,16 @@ defmodule EVerApi.Ever do
 
   """
   def list_events do
-    query = from(e in Event, select: e)
-      |> with_undeleted()
-    Repo.all(query) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+    from(e in Event, select: e)
+    |> with_undeleted()
+    |> Repo.all
+    |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+  end
+
+  def list_events_no_preload do
+    from(e in Event, select: e)
+    |> with_undeleted()
+    |> Repo.all
   end
 
   @doc """
@@ -63,6 +71,14 @@ defmodule EVerApi.Ever do
       |> with_undeleted()
     Repo.get(query, id) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
   end
+
+  def create_event(%User{} = user, attrs) do
+    %Event{}
+    |> Event.changeset(attrs)
+    |> Ecto.Changeset.put_assoc(:user, user)
+    |> Repo.insert()
+  end
+
   @doc """
   Creates a event.
 
@@ -75,12 +91,11 @@ defmodule EVerApi.Ever do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_event(attrs \\ %{}) do
+  def create_event(attrs) do
     %Event{}
     |> Event.changeset(attrs)
     |> Repo.insert()
   end
-
   @doc """
   Updates a event.
 

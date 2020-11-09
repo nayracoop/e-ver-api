@@ -23,9 +23,10 @@ defmodule EVerApi.Ever.Event do
   @doc false
   def changeset(event, attrs) do
     event
-    |> cast(attrs, [:name, :summary, :description, :url, :start_time, :end_time, :user_id])
-    |> validate_required([:name, :summary, :start_time, :end_time, :user_id])
-    |> foreign_key_constraint(:user_id)
+    |> cast(attrs, [:name, :summary, :description, :url, :start_time, :end_time])
+    |> validate_required([:name, :summary, :start_time, :end_time])
+    |> assoc_constraint(:user)
+    # |> foreign_key_constraint(:user_id)
     |> validate_length(:summary, min: 2, max: 512)
     #|> validate_length(:description, min: 2)
     # validate utc datetime fields
