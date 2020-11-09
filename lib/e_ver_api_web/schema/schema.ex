@@ -23,6 +23,20 @@ defmodule EVerApiWeb.Schema.Schema do
     end
   end
 
+  mutation do
+    @desc "Create an event"
+    field :create_event, :event do
+      arg :name, non_null(:string)
+      arg :description, non_null(:string)
+      arg :summary, non_null(:string)
+      arg :url, non_null(:string)
+      arg :start_time, non_null(:datetime)
+      arg :end_time, non_null(:datetime)
+      middleware Middleware.Authenticate
+      resolve &Resolvers.Ever.create_event/3
+    end
+  end
+
   enum :sort_order do
     value :asc
     value :desc
@@ -62,10 +76,10 @@ defmodule EVerApiWeb.Schema.Schema do
     field :avatar, non_null(:string)
     field :bio, non_null(:string)
     field :company, non_null(:string)
-    field :first_name, non_null(:string)
-    field :last_name, non_null(:string)
+    field :first_name, :string
+    field :last_name, :string
     field :name, non_null(:string)
-    field :role, non_null(:string)
+    field :role, :string
 
     field :talks, list_of(:talk), resolve: dataloader(Ever)
   end
