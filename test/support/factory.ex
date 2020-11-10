@@ -4,7 +4,7 @@ defmodule EVerApi.Factory do
   import Bcrypt, only: [hash_pwd_salt: 1]
 
   @email "nayra@fake.coop"
-  @names ["Richard", "Feche", "Elsa"]
+  @names ["Richard", "Feche", "Elsa", "Refalosa", "Quiqui", "Ana"]
   @topics ["programming in KOVOL", "Decentralized life",
     "Cooperativismo mágico", "Sound sculptures", "Wine & enology",
     "Innovation in Media Arts", "AR/VR für alles", "Innovationsgenossenschaften",
@@ -80,6 +80,7 @@ defmodule EVerApi.Factory do
       start_time: "2010-04-17T14:00:00Z",
       user_id: u.id,
       talks: Enum.concat([talk], talks),
+      speakers: Enum.concat([speaker], speakers),
       sponsors: sponsors
     }
   end
