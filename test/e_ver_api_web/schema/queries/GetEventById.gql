@@ -1,5 +1,5 @@
 query {
-  events {
+  event(id: 1) {
     id
     name
     sponsors {
