@@ -6,10 +6,10 @@ defmodule EVerApiWeb.SpeakerController do
 
   action_fallback EVerApiWeb.FallbackController
 
-  def index(conn, _params) do
-    speakers = Ever.list_speakers()
-    render(conn, "index.json", speakers: speakers)
-  end
+  # def index(conn, _params) do
+  #   speakers = Ever.list_speakers()
+  #   render(conn, "index.json", speakers: speakers)
+  # end
 
   def create(conn, %{"speaker" => speaker_params}) do
     with {:ok, %Speaker{} = speaker} <- Ever.create_speaker(speaker_params) do
@@ -20,10 +20,10 @@ defmodule EVerApiWeb.SpeakerController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    speaker = Ever.get_speaker!(id)
-    render(conn, "show.json", speaker: speaker)
-  end
+  # def show(conn, %{"id" => id}) do
+  #   speaker = Ever.get_speaker!(id)
+  #   render(conn, "show.json", speaker: speaker)
+  # end
 
   def update(conn, %{"id" => id, "speaker" => speaker_params}) do
     speaker = Ever.get_speaker!(id)

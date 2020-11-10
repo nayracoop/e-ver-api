@@ -36,9 +36,17 @@ defmodule EVerApiWeb.Router do
     put "/events/:id", EventController, :update
     delete "/events/:id", EventController, :delete
 
-    #get "/talks", TalkController, :index
-    #get "/talks/:id", TalkController, :show
-    #post "/talks", TalkController, :create
+    post "/events/:id/speakers", SpeakerController, :create
+    # put "/events/:id/speakers/:speaker_id", SpeakerController, :update
+    # delete "/events/:id/speakers/:speaker_id", SpeakerController, :delete
+
+    # post "/events/:id/talks", TalkController, :create
+    # put "/events/:id/talks/:talk_id", TalkController, :update
+    # delete "/events/:id/talks/:talk_id", TalkController, :delete
+
+    # post "/events/:id/sponsors", SponsorController, :create
+    # put "/events/:id/sponsors/:sponsor_id", SponsorController, :update
+    # delete "/events/:id/sponsors/:sponsor_id", SponsorController, :delete
   end
 
   # Enables LiveDashboard only for development
