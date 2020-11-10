@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 export MIX_ENV ?= dev
 export SECRET_KEY_BASE ?= $(shell mix phx.gen.secret)
-export TEST_FILE ?= ""
+export TEST_FILE ?=
 
 server: MIX_ENV=dev
 server:
