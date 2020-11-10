@@ -1,9 +1,10 @@
-.PHONY: server setup test
+.PHONY: server setup reset test
 
 SHELL := /bin/bash
 
 export MIX_ENV ?= dev
 export SECRET_KEY_BASE ?= $(shell mix phx.gen.secret)
+export TEST_FILE ?= ""
 
 server: MIX_ENV=dev
 server:
@@ -16,4 +17,4 @@ reset:
 
 test: MIX_ENV=test
 test:
-	@source .env.test && mix coveralls.html
+	@source .env.test && mix coveralls.html $(TEST_FILE)
