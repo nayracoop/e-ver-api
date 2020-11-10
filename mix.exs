@@ -55,7 +55,8 @@ defmodule EVerApi.MixProject do
       {:absinthe, "~> 1.5.3"},
       {:absinthe_plug, "~> 1.5.0"},
       {:absinthe_phoenix, "~> 2.0"},
-      {:dataloader, "~> 1.0.8"}
+      {:dataloader, "~> 1.0.8"},
+      {:wormwood, "~> 0.1.3"}
     ]
   end
 

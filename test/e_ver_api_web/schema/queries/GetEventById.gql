@@ -1,0 +1,12 @@
+query {
+  events {
+    id
+    name
+    sponsors {
+      name
+    }
+    talks {
+      title
+    }
+  }
+}
