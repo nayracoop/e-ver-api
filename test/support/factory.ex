@@ -3,7 +3,6 @@ defmodule EVerApi.Factory do
   alias ExMachina.Sequence
   import Bcrypt, only: [hash_pwd_salt: 1]
 
-  @email "nayra@fake.coop"
   @names ["Richard", "Feche", "Elsa", "Refalosa", "Quiqui", "Ana"]
   @topics ["programming in KOVOL", "Decentralized life",
     "Cooperativismo mágico", "Sound sculptures", "Wine & enology",
@@ -14,15 +13,13 @@ defmodule EVerApi.Factory do
   @sponsors ["The Air Conditioner Fundamentalism co.", "nayracoop"]
 
   def user_factory do
-    hash = hash_pwd_salt("123456");
-
     %EVerApi.Accounts.User{
       first_name: "señora",
       last_name: "nayra",
       organization: "Coop. de trabajo Nayra ltda",
-      email: "nayra@fake.coop",
-      username: "nayra",
-      password_hash: hash
+      email: sequence(:email, &"email-#{&1}@example.com"),
+      username: sequence("nayra"),
+      password_hash: hash_pwd_salt("123456")
     }
   end
 
@@ -58,9 +55,6 @@ defmodule EVerApi.Factory do
   end
 
   def event_factory do
-    # this works only with previous loaded user. TODO a custom name passed as argument
-    u = EVerApi.Accounts.get_user_by(:email, @email)
-
     # speaker & talks
     [speaker | speakers] = insert_list(3, :speaker)
     [talk | talks] = insert_list(3, :talk)
@@ -78,7 +72,7 @@ defmodule EVerApi.Factory do
       end_time: "2010-04-17T14:00:00Z",
       name: Sequence.next(:topics, @topics),
       start_time: "2010-04-17T14:00:00Z",
-      user_id: u.id,
+      user: build(:user),
       talks: Enum.concat([talk], talks),
       speakers: Enum.concat([speaker], speakers),
       sponsors: sponsors
