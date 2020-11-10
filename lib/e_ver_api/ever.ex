@@ -20,10 +20,9 @@ defmodule EVerApi.Ever do
 
   """
   def list_events do
-    from(e in Event, select: e)
-    |> with_undeleted()
-    |> Repo.all
-    |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+    query = from(e in Event, select: e)
+      |> with_undeleted()
+    Repo.all(query) |> Repo.preload([:user, :sponsors, :speakers, {:talks, :speakers}])
   end
 
   def list_events_no_preload do
@@ -49,7 +48,7 @@ defmodule EVerApi.Ever do
   def get_event!(id) do
     query = from(e in Event, select: e)
       |> with_undeleted()
-    Repo.get!(query, id) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+    Repo.get!(query, id) |> Repo.preload([:user, :sponsors, :speakers, {:talks, :speakers}])
   end
 
   @doc """
@@ -69,7 +68,7 @@ defmodule EVerApi.Ever do
   def get_event(id) do
     query = from(e in Event, select: e)
       |> with_undeleted()
-    Repo.get(query, id) |> Repo.preload([:user, :sponsors, {:talks, :speakers}])
+    Repo.get(query, id) |> Repo.preload([:user, :sponsors, :speakers, {:talks, :speakers}])
   end
 
   def create_event(%User{} = user, attrs) do

@@ -165,11 +165,6 @@ defmodule EVerApi.AccountsTest do
 
     end
 
-    @tag individual_test: "delete_user_404"
-    test "delete_user/1 for inexistant user" do
-      assert {:error, :not_found} = Accounts.delete_user(nil)
-    end
-
     test "change_user/1 returns a user changeset" do
       user = user_fixture()
       assert %Ecto.Changeset{} = Accounts.change_user(user)

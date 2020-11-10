@@ -77,6 +77,27 @@ defmodule EVerApiWeb.EventControllerTest do
       response = json_response(conn, 200)["data"]
       assert [] == response
     end
+
+    @tag individual_test: "events_index"
+    test "lists all events with related data", %{conn: conn} do
+      e = insert(:event)
+      conn = get(conn, Routes.event_path(conn, :index))
+      assert json_response(conn, 200)
+      response = json_response(conn, 200)["data"]
+      assert [%{
+        "talks" => talks,
+        "sponsors" => sponsors,
+        "speakers" => speakers
+        }] = response
+
+      assert is_list(talks)
+      assert Enum.count(talks) == 3
+      assert is_list(sponsors)
+      assert Enum.count(sponsors) == 2
+      assert is_list(speakers)
+      assert Enum.count(speakers) == 3
+      # assert associations fields TODO
+    end
   end
 
   describe "show" do
