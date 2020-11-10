@@ -22,40 +22,22 @@ defmodule EVerApiWeb.UserControllerTest do
   }
   @invalid_attrs %{first_name: nil, last_name: nil}
 
-  def fixture(:user) do
-    {:ok, user} = Accounts.create_user(@create_attrs)
-    user
-  end
+  describe "with logged-in user" do
+    setup %{conn: conn, login_as: email} do
+      user = insert(:user, email: email)
 
-  defp assert_401(conn, f, route) do
-    conn =
-      conn
-      |> delete_req_header("authorization")
-      |> f.(route)
-    assert json_response(conn, 401)["message"] == "unauthenticated"
-  end
+      {:ok, jwt_string, _} = EVerApi.Accounts.token_sign_in(email, "123456")
 
-  setup %{conn: conn} do
-    insert(:user)
-    jwt = EVerApi.Accounts.token_sign_in("nayra@fake.coop", "123456")
-    {:ok, jwt_string, _} = jwt
-    conn =
-      conn
-      |> put_req_header("accept", "application/json")
-      |> put_req_header("content-type", "application/json")
-      |> put_req_header("authorization", "Bearer #{jwt_string}")
+      conn =
+        conn
+        |> put_req_header("accept", "application/json")
+        |> put_req_header("content-type", "application/json")
+        |> put_req_header("authorization", "Bearer #{jwt_string}")
 
-    {:ok, conn: conn}
-  end
-
-  describe "index" do
-
-    @tag individual_test: "users_index_401"
-    test "401 for list users", %{conn: conn} do
-      assert_401(conn, &get/2, Routes.user_path(conn, :index))
+      {:ok, conn: conn, user: user}
     end
 
-    @tag individual_test: "users_index_list"
+    @tag individual_test: "users_index_list", login_as: "email@email.com"
     test "lists all users", %{conn: conn} do
       conn = get(conn, Routes.user_path(conn, :index))
       response = json_response(conn, 200)["data"]
@@ -73,47 +55,21 @@ defmodule EVerApiWeb.UserControllerTest do
       [%{"id" => id}] = response
       assert is_number(id)
     end
-  end
 
-  describe "show" do
-    @tag individual_test: "users_show"
-    test "401 for create users", %{conn: conn} do
-      assert_401(conn, &get/2, Routes.user_path(conn, :show, 1))
-    end
-
-    @tag individual_test: "users_show"
-    test "get an user by id", %{conn: conn} do
-      user = fixture(:user)
+    @tag individual_test: "users_show", login_as: "email@email.com"
+    test "get an user by id", %{conn: conn, user: user} do
       conn = get(conn, Routes.user_path(conn, :show, user.id))
-      expected = %{
-        "email" => "test.queen@nayra.coop",
-        "first_name" => "mrs test",
-        "last_name" => "queen",
-        "username" => "test_queen",
-        "organization" => "nayracoop"
-      }
-      response = json_response(conn, 200)["data"]
-      assert json_response(conn, 200)
-      assert expected = response
+      assert user = json_response(conn, 200)["data"]
     end
 
-    @tag individual_test: "users_show"
+    @tag individual_test: "users_show", login_as: "email@email.com"
     test "404 for get an user by id", %{conn: conn} do
-      user = fixture(:user)
       conn = get(conn, Routes.user_path(conn, :show, -1))
-
       assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
     end
-  end
 
-  describe "create user" do
-    @tag individual_test: "users_index_401"
-    test "401 for create users", %{conn: conn} do
-      assert_401(conn, &post/2, Routes.user_path(conn, :create))
-    end
-
-    @tag individual_test: "users_create"
-    test "renders user when data is valid", %{conn: conn} do
+    @tag individual_test: "users_create", login_as: "email@email.com"
+    test "renders created user when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
@@ -128,27 +84,19 @@ defmodule EVerApiWeb.UserControllerTest do
                 "organization" => "nayracoop",
                 "events" => []
               } = json_response(conn, 200)["data"]
+
       # should not contain the password_hash field
-      refute  Kernel.match?(%{"password_hash" => pass}, json_response(conn, 200)["data"])
+      refute Kernel.match?(%{"password_hash" => pass}, json_response(conn, 200)["data"])
     end
 
-    @tag individual_test: "users_create_invalid"
-    test "renders errors when data is invalid", %{conn: conn} do
+    @tag individual_test: "users_create", login_as: "email@email.com"
+    test "renders creation errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
-  end
 
-  describe "update user" do
-    setup [:create_user]
-
-    #@tag individual_test: "users_update"
-    test "401 for update users", %{conn: conn} do
-      assert_401(conn, &put/2, Routes.user_path(conn, :update, 1))
-    end
-
-    #@tag individual_test: "users_update"
-    test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
+    @tag individual_test: "users_update", login_as: "email@email.com"
+    test "renders updated user when data is valid", %{conn: conn, user: %User{id: id} = user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
@@ -162,49 +110,48 @@ defmodule EVerApiWeb.UserControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    #@tag individual_test: "users_update"
-    test "renders errors when data is invalid", %{conn: conn, user: user} do
+    @tag individual_test: "users_update", login_as: "email@email.com"
+    test "renders update errors when data is invalid", %{conn: conn, user: user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
 
-    @tag individual_test: "users_update"
-    test "renders errors when an unique field is updated with existent data", %{conn: conn, user: user} do
-      user2 = Accounts.create_user(Map.replace!(@create_attrs, :username, "dhavide.lebon"))
+    @tag individual_test: "users_update", login_as: "email@email.com"
+    test "renders errors when an unique field is updated with existent data", %{conn: conn, user: %User{username: username} = user} do
+      {:ok, user2} = Accounts.create_user(Map.replace!(@create_attrs, :username, "dhavide.lebon"))
       # try to change current username with an already existent username in database
-      conn = put(conn, Routes.user_path(conn, :update, user), user: %{username: "nayra"})
+      conn = put(conn, Routes.user_path(conn, :update, user2), user: %{username: username})
 
       assert json_response(conn, 422)["errors"] != %{}
       assert %{"username" => ["has already been taken"]} = json_response(conn, 422)["errors"]
     end
-  end
 
-  describe "delete user" do
-    setup [:create_user]
-    @tag individual_test: "users_delete"
-    test "401 for delete users", %{conn: conn} do
-      assert_401(conn, &delete/2, Routes.user_path(conn, :delete, 1))
-    end
-
-    @tag individual_test: "users_delete"
+    @tag individual_test: "users_delete", login_as: "email@email.com"
     test "404 for delete users", %{conn: conn} do
       conn = delete(conn, Routes.user_path(conn, :delete, -1))
       assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
     end
 
-    @tag individual_test: "users_delete"
-    test "deletes chosen user", %{conn: conn, user: user} do
-      conn = delete(conn, Routes.user_path(conn, :delete, user))
+    @tag individual_test: "users_delete", login_as: "email@email.com"
+    test "deletes chosen user", %{conn: conn} do
+      user_to_delete = insert(:user)
+      conn = delete(conn, Routes.user_path(conn, :delete, user_to_delete))
       assert response(conn, 204)
 
-      conn = get(conn, Routes.user_path(conn, :show, user))
+      conn = get(conn, Routes.user_path(conn, :show, user_to_delete))
       assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
-
     end
   end
 
-  defp create_user(_) do
-    user = fixture(:user)
-    %{user: user}
+  test "requires user authentication on all actions", %{conn: conn} do
+    Enum.each([
+      get(conn, Routes.user_path(conn, :index)),
+      get(conn, Routes.user_path(conn, :show, 1)),
+      post(conn, Routes.user_path(conn, :create, %{})),
+      put(conn, Routes.user_path(conn, :update, "123")),
+      delete(conn, Routes.user_path(conn, :delete, "123")),
+    ], fn conn ->
+      assert json_response(conn, 401)["message"] == "unauthenticated"
+    end)
   end
 end
