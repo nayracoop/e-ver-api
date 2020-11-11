@@ -22,8 +22,14 @@ defmodule EVerApi.Ever.Talk do
   @doc false
   def changeset(talk, attrs) do
     talk
-    |> cast(attrs, [:name, :body, :start_time, :duration, :video_url, :tags, :allow_comments, :event_id])
+    |> cast(attrs, [:title, :details, :summary, :start_time, :duration, :tags, :allow_comments, :event_id])
+    |> cast_embed(:video, with: &video_changeset/2)
     |> validate_required([:title, :event_id])
     |> foreign_key_constraint(:event_id)
+  end
+
+  defp video_changeset(video, attrs) do
+    video
+    |> cast(attrs, [:uri, :type, :autoplay])
   end
 end
