@@ -33,12 +33,12 @@ defmodule EVerApiWeb.SpeakerControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index" do
-    test "lists all speakers", %{conn: conn} do
-      conn = get(conn, Routes.speaker_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
-    end
-  end
+  # describe "index" do
+  #   test "lists all speakers", %{conn: conn} do
+  #     conn = get(conn, Routes.speaker_path(conn, :index))
+  #     assert json_response(conn, 200)["data"] == []
+  #   end
+  # end
 
   describe "create speaker" do
     test "renders speaker when data is valid", %{conn: conn} do

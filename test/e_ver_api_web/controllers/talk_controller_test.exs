@@ -31,12 +31,12 @@ defmodule EVerApiWeb.TalkControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index" do
-    test "lists all talks", %{conn: conn} do
-      conn = get(conn, Routes.talk_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
-    end
-  end
+  # describe "index" do
+  #   test "lists all talks", %{conn: conn} do
+  #     conn = get(conn, Routes.talk_path(conn, :index))
+  #     assert json_response(conn, 200)["data"] == []
+  #   end
+  # end
 
   describe "create talk" do
     test "renders talk when data is valid", %{conn: conn} do

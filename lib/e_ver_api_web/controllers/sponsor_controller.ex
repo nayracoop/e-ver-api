@@ -6,10 +6,10 @@ defmodule EVerApiWeb.SponsorController do
 
   action_fallback EVerApiWeb.FallbackController
 
-  def index(conn, _params) do
-    sponsors = Sponsors.list_sponsors()
-    render(conn, "index.json", sponsors: sponsors)
-  end
+  # def index(conn, _params) do
+  #   sponsors = Sponsors.list_sponsors()
+  #   render(conn, "index.json", sponsors: sponsors)
+  # end
 
   def create(conn, %{"sponsor" => sponsor_params}) do
     with {:ok, %Sponsor{} = sponsor} <- Sponsors.create_sponsor(sponsor_params) do
@@ -20,10 +20,10 @@ defmodule EVerApiWeb.SponsorController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    sponsor = Sponsors.get_sponsor!(id)
-    render(conn, "show.json", sponsor: sponsor)
-  end
+  # def show(conn, %{"id" => id}) do
+  #   sponsor = Sponsors.get_sponsor!(id)
+  #   render(conn, "show.json", sponsor: sponsor)
+  # end
 
   def update(conn, %{"id" => id, "sponsor" => sponsor_params}) do
     sponsor = Sponsors.get_sponsor!(id)
