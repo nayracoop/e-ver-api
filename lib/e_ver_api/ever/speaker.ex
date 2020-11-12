@@ -20,7 +20,7 @@ defmodule EVerApi.Ever.Speaker do
   @doc false
   def changeset(speaker, attrs) do
     speaker
-    |> cast(attrs, [:name, :first_name, :last_name, :role, :company, :bio, :avatar])
+    |> cast(attrs, [:name, :first_name, :last_name, :role, :company, :bio, :avatar, :event_id])
     |> validate_required([:name, :event_id])
     |> foreign_key_constraint(:event_id)
   end

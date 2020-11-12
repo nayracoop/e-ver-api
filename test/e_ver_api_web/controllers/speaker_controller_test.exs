@@ -40,13 +40,25 @@ defmodule EVerApiWeb.SpeakerControllerTest do
   #   end
   # end
 
-  describe "create speaker" do
-    test "renders speaker when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.speaker_path(conn, :create), speaker: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+  describe "with a logged-in user" do
+    setup %{conn: conn, login_as: email} do
+      user = insert(:user, email: email)
+      event = insert(:event, %{user: user})
+      {:ok, jwt_string, _} = EVerApi.Accounts.token_sign_in(email, "123456")
 
-      conn = get(conn, Routes.speaker_path(conn, :show, id))
+      conn =
+        conn
+        |> put_req_header("accept", "application/json")
+        |> put_req_header("content-type", "application/json")
+        |> put_req_header("authorization", "Bearer #{jwt_string}")
 
+      {:ok, conn: conn, user: user, event: event}
+    end
+    @tag individual_test: "speakers_create", login_as: "email@email.com"
+    test "renders speaker when data is valid", %{conn: conn, user: user, event: event} do
+
+      conn = post(conn, Routes.speaker_path(conn, :create, event.id), speaker: @create_attrs)
+      response = json_response(conn, 201)["data"]
       assert %{
                "id" => id,
                "avatar" => "some avatar",
@@ -56,11 +68,32 @@ defmodule EVerApiWeb.SpeakerControllerTest do
                "last_name" => "some last_name",
                "name" => "some name",
                "role" => "some role"
-             } = json_response(conn, 200)["data"]
+             } = response
+
+      # check if event contains the speaker
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      resp = List.last(json_response(conn, 200)["data"]["speakers"])
+      assert %{
+        "id" => id,
+        "avatar" => "some avatar",
+        "bio" => "some bio",
+        "company" => "some company",
+        "first_name" => "some first_name",
+        "last_name" => "some last_name",
+        "name" => "some name",
+        "role" => "some role"
+      } = resp
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.speaker_path(conn, :create), speaker: @invalid_attrs)
+    @tag individual_test: "speakers_create", login_as: "email@email.com"
+    test "renders errors when trying to add speaker to non existent event", %{conn: conn, user: user, event: event} do
+      conn = post(conn, Routes.speaker_path(conn, :create, "666"), speaker: @valid_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "speakers_create", login_as: "email@email.com"
+    test "renders errors when data is invalid", %{conn: conn, user: user, event: event} do
+      conn = post(conn, Routes.speaker_path(conn, :create, event.id), speaker: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end

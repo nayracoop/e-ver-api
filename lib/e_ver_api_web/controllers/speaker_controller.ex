@@ -11,12 +11,18 @@ defmodule EVerApiWeb.SpeakerController do
   #   render(conn, "index.json", speakers: speakers)
   # end
 
-  def create(conn, %{"speaker" => speaker_params}) do
-    with {:ok, %Speaker{} = speaker} <- Ever.create_speaker(speaker_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.speaker_path(conn, :show, speaker))
-      |> render("show.json", speaker: speaker)
+  def create(conn, %{"event_id" => event_id, "speaker" => speaker_params}) do
+    # Next time use Ecto relationship and update event
+
+    case Ever.get_event(event_id) do
+      nil ->  {:error, :not_found}
+      event ->
+        params = Map.put_new(speaker_params, "event_id", event.id)
+        with {:ok, %Speaker{} = speaker} <- Ever.create_speaker(params) do
+          conn
+          |> put_status(:created)
+          |> render("show.json", speaker: speaker)
+        end
     end
   end
 
