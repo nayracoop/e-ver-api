@@ -36,9 +36,9 @@ defmodule EVerApiWeb.Router do
     put "/events/:id", EventController, :update
     delete "/events/:id", EventController, :delete
 
-    post "/events/:id/speakers", SpeakerController, :create
-    # put "/events/:id/speakers/:speaker_id", SpeakerController, :update
-    # delete "/events/:id/speakers/:speaker_id", SpeakerController, :delete
+    post "/events/:event_id/speakers", SpeakerController, :create
+    put "/events/:event_id/speakers/:id", SpeakerController, :update
+    delete "/events/:event_id/speakers/:id", SpeakerController, :delete
 
     # post "/events/:id/talks", TalkController, :create
     # put "/events/:id/talks/:talk_id", TalkController, :update
