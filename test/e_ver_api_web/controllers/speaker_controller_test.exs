@@ -1,5 +1,6 @@
 defmodule EVerApiWeb.SpeakerControllerTest do
-  use EVerApiWeb.ConnCase
+  use EVerApiWeb.ConnCase, async: true
+  @moduletag :speakers_controller_case
 
   alias EVerApi.Ever
   alias EVerApi.Ever.Speaker
@@ -54,6 +55,7 @@ defmodule EVerApiWeb.SpeakerControllerTest do
 
       {:ok, conn: conn, user: user, event: event}
     end
+
     @tag individual_test: "speakers_create", login_as: "email@email.com"
     test "renders speaker when data is valid", %{conn: conn, user: user, event: event} do
 
@@ -72,7 +74,7 @@ defmodule EVerApiWeb.SpeakerControllerTest do
 
       # check if event contains the speaker
       conn = get(conn, Routes.event_path(conn, :show, event.id))
-      resp = List.last(json_response(conn, 200)["data"]["speakers"])
+      resp = Enum.find(json_response(conn, 200)["data"]["speakers"], fn x -> x["id"] == id end)
       assert %{
         "id" => id,
         "avatar" => "some avatar",
@@ -96,28 +98,42 @@ defmodule EVerApiWeb.SpeakerControllerTest do
       conn = post(conn, Routes.speaker_path(conn, :create, event.id), speaker: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
+
+    # UPDATE
+    @tag individual_test: "speakers_update", login_as: "email@email.com"
+    test "renders updated speaker when data is valid", %{conn: conn, user: user, event: event} do
+      %Speaker{id: id} = List.first(event.speakers)
+      conn = put(conn, Routes.speaker_path(conn, :update, event.id, id), speaker: @update_attrs)
+
+      assert %{
+        "id" => id,
+        "avatar" => "some updated avatar",
+        "bio" => "some updated bio",
+        "company" => "some updated company",
+        "first_name" => "some updated first_name",
+        "last_name" => "some updated last_name",
+        "name" => "some updated name",
+        "role" => "some updated role"
+        } = json_response(conn, 200)["data"]
+
+      # fetch event and check updated speaker
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      resp = Enum.find(json_response(conn, 200)["data"]["speakers"], fn x -> x["id"] == id end)
+      assert %{
+        "id" => id,
+        "avatar" => "some updated avatar",
+        "bio" => "some updated bio",
+        "company" => "some updated company",
+        "first_name" => "some updated first_name",
+        "last_name" => "some updated last_name",
+        "name" => "some updated name",
+        "role" => "some updated role"
+        } = resp
+    end
   end
 
   describe "update speaker" do
     setup [:create_speaker]
-
-    test "renders speaker when data is valid", %{conn: conn, speaker: %Speaker{id: id} = speaker} do
-      conn = put(conn, Routes.speaker_path(conn, :update, speaker), speaker: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, Routes.speaker_path(conn, :show, id))
-
-      assert %{
-               "id" => id,
-               "avatar" => "some updated avatar",
-               "bio" => "some updated bio",
-               "company" => "some updated company",
-               "first_name" => "some updated first_name",
-               "last_name" => "some updated last_name",
-               "name" => "some updated name",
-               "role" => "some updated role"
-             } = json_response(conn, 200)["data"]
-    end
 
     test "renders errors when data is invalid", %{conn: conn, speaker: speaker} do
       conn = put(conn, Routes.speaker_path(conn, :update, speaker), speaker: @invalid_attrs)

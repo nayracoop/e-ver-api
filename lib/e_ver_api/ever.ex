@@ -256,6 +256,21 @@ defmodule EVerApi.Ever do
   def get_speaker!(id), do: Repo.get!(Speaker, id)
 
   @doc """
+  Gets a single speaker.
+
+  Returns nil if the Speaker does not exist.
+
+  ## Examples
+
+      iex> get_speaker(123)
+      %Speaker{}
+
+      iex> get_speaker(456)
+      nil
+
+  """
+  def get_speaker(id), do: Repo.get(Speaker, id)
+  @doc """
   Creates a speaker.
 
   ## Examples
