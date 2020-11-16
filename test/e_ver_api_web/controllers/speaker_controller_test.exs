@@ -150,18 +150,24 @@ defmodule EVerApiWeb.SpeakerControllerTest do
       conn = put(conn, Routes.speaker_path(conn, :update, event.id, "999"), speaker: @valid_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
-  end
 
-    describe "delete speaker" do
-    setup [:create_speaker]
+    # soft DELETE
+    @tag individual_test: "speakers_delete", login_as: "email@email.com"
+    test "deletes chosen speaker", %{conn: conn, user: user, event: event} do
+      %Speaker{id: id} = List.first(event.speakers)
 
-    test "deletes chosen speaker", %{conn: conn, speaker: speaker} do
-      conn = delete(conn, Routes.speaker_path(conn, :delete, speaker))
+      conn = delete(conn, Routes.speaker_path(conn, :delete, event.id, id))
       assert response(conn, 204)
+      assert Ever.get_speaker(id) == nil
 
-      assert_error_sent 404, fn ->
-        get(conn, Routes.speaker_path(conn, :show, speaker))
-      end
+      #TODO
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      resp = Enum.find(json_response(conn, 200)["data"]["speakers"], fn x -> x["id"] == id end)
+      assert resp == nil
+
+      #assert_error_sent 404, fn ->
+      #  get(conn, Routes.speaker_path(conn, :show, speaker))
+      #end
     end
   end
 

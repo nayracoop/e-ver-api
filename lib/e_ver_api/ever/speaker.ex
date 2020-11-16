@@ -1,5 +1,6 @@
 defmodule EVerApi.Ever.Speaker do
   use Ecto.Schema
+  import Ecto.SoftDelete.Schema
   import Ecto.Changeset
 
   schema "speakers" do
@@ -10,6 +11,7 @@ defmodule EVerApi.Ever.Speaker do
     field :role, :string
     field :bio, :string
     field :avatar, :string
+    soft_delete_schema()
 
     many_to_many :talks, EVerApi.Ever.Talk, join_through: EVerApi.Ever.SpeakerTalk, on_replace: :delete
     belongs_to :event, EVerApi.Ever.Event

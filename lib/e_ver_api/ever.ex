@@ -236,7 +236,9 @@ defmodule EVerApi.Ever do
 
   """
   def list_speakers do
-    Repo.all(Speaker)
+    query = from(s in Speaker, select: s)
+      |> with_undeleted()
+    Repo.all(query)
   end
 
   @doc """
@@ -253,7 +255,11 @@ defmodule EVerApi.Ever do
       ** (Ecto.NoResultsError)
 
   """
-  def get_speaker!(id), do: Repo.get!(Speaker, id)
+  def get_speaker!(id) do
+    query = from(s in Speaker, select: s)
+      |> with_undeleted()
+    Repo.get!(query, id)
+  end
 
   @doc """
   Gets a single speaker.
@@ -269,7 +275,11 @@ defmodule EVerApi.Ever do
       nil
 
   """
-  def get_speaker(id), do: Repo.get(Speaker, id)
+  def get_speaker(id) do
+    query = from(s in Speaker, select: s)
+      |> with_undeleted()
+    Repo.get(query, id)
+  end
   @doc """
   Creates a speaker.
 
@@ -319,7 +329,7 @@ defmodule EVerApi.Ever do
 
   """
   def delete_speaker(%Speaker{} = speaker) do
-    Repo.delete(speaker)
+    Repo.soft_delete(speaker)
   end
 
   @doc """

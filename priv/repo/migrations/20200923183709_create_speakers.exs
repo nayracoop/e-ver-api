@@ -1,5 +1,6 @@
 defmodule EVerApi.Repo.Migrations.CreateSpeakers do
   use Ecto.Migration
+  import Ecto.SoftDelete.Migration
 
   def change do
     create table(:speakers) do
@@ -11,9 +12,10 @@ defmodule EVerApi.Repo.Migrations.CreateSpeakers do
       add :bio, :string
       add :avatar, :string
 
-      add :event_id, references(:events, on_delete: :nothing)
+      add :event_id, references(:events, on_delete: :delete_all)
 
       timestamps()
+      soft_delete_columns()
     end
 
   end
