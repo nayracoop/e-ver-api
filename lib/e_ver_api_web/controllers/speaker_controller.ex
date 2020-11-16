@@ -41,6 +41,7 @@ defmodule EVerApiWeb.SpeakerController do
         {:ok, %Speaker{} = speaker}  <- Ever.update_speaker(speaker, speaker_params) do
           render(conn, "show.json", speaker: speaker)
         else
+          {:error,  %Ecto.Changeset{} = changeset} -> {:error, changeset}
           _ -> {:error, :not_found}  # speaker not found
         end
     end

@@ -56,6 +56,7 @@ defmodule EVerApiWeb.SpeakerControllerTest do
       {:ok, conn: conn, user: user, event: event}
     end
 
+    # CREATE
     @tag individual_test: "speakers_create", login_as: "email@email.com"
     test "renders speaker when data is valid", %{conn: conn, user: user, event: event} do
 
@@ -130,18 +131,28 @@ defmodule EVerApiWeb.SpeakerControllerTest do
         "role" => "some updated role"
         } = resp
     end
-  end
 
-  describe "update speaker" do
-    setup [:create_speaker]
-
-    test "renders errors when data is invalid", %{conn: conn, speaker: speaker} do
-      conn = put(conn, Routes.speaker_path(conn, :update, speaker), speaker: @invalid_attrs)
+    @tag individual_test: "speakers_update", login_as: "email@email.com"
+    test "renders errors when update data is invalid", %{conn: conn, user: user, event: event} do
+      %Speaker{id: id} = List.first(event.speakers)
+      conn = put(conn, Routes.speaker_path(conn, :update, event.id, id), speaker: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    @tag individual_test: "speakers_update", login_as: "email@email.com"
+    test "renders errors when trying to update speaker to non existent event", %{conn: conn, user: user, event: event} do
+      conn = put(conn, Routes.speaker_path(conn, :update, "666", "999"), speaker: @valid_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "speakers_update", login_as: "email@email.com"
+    test "renders errors when trying to update non existen speaker for a valid event event", %{conn: conn, user: user, event: event} do
+      conn = put(conn, Routes.speaker_path(conn, :update, event.id, "999"), speaker: @valid_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
     end
   end
 
-  describe "delete speaker" do
+    describe "delete speaker" do
     setup [:create_speaker]
 
     test "deletes chosen speaker", %{conn: conn, speaker: speaker} do
