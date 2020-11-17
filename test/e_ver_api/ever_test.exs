@@ -200,6 +200,11 @@ defmodule EVerApi.EverTest do
 
   describe "speakers" do
     alias EVerApi.Ever.Speaker
+    setup do
+      e = insert(:event)
+      #IO.inspect(e)
+      %{event: e}
+    end
 
     @valid_attrs %{avatar: "some avatar", bio: "some bio", company: "some company", first_name: "some first_name", last_name: "some last_name", name: "some name", role: "some role"}
     @update_attrs %{avatar: "some updated avatar", bio: "some updated bio", company: "some updated company", first_name: "some updated first_name", last_name: "some updated last_name", name: "some updated name", role: "some updated role"}
@@ -214,14 +219,46 @@ defmodule EVerApi.EverTest do
       speaker
     end
 
-    test "list_speakers/0 returns all speakers" do
-      speaker = speaker_fixture()
-      assert Ever.list_speakers() == [speaker]
+    @tag individual_test: "list_speakers"
+    test "list_speakers/0 returns all speakers", %{event: event} do
+
+      new_speaker = speaker_fixture(%{event_id: event.id})
+      # test with_undeleted
+      deleted_speaker = speaker_fixture(%{event_id: event.id})
+      Ever.delete_speaker(deleted_speaker)
+
+      speakers = Ever.list_speakers()
+      assert is_list(speakers)
+      # 3 defined in factory and new_speaker
+      assert Enum.count(speakers) == 4
+      # validate a single speaker
+      assert %{
+        id: _,
+        avatar: "some avatar",
+        bio: "some bio",
+        company: "some company",
+        first_name: "some first_name",
+        last_name: "some last_name",
+        name: "some name",
+        role: "some role"
+      } = new_speaker
     end
 
-    test "get_speaker!/1 returns the speaker with given id" do
-      speaker = speaker_fixture()
+    @tag individual_test: "get_speaker"
+    test "get_speaker!/1 returns the speaker with given id", %{event: event} do
+      speaker = speaker_fixture(%{event_id: event.id})
       assert Ever.get_speaker!(speaker.id) == speaker
+    end
+
+    @tag individual_test: "get_speaker"
+    test "get_speaker/1 returns the speaker with given id", %{event: event} do
+      speaker = speaker_fixture(%{event_id: event.id})
+      assert Ever.get_speaker(speaker.id) == speaker
+      # test nil in soft deleted speaker
+      Ever.delete_speaker(speaker)
+      assert Ever.get_speaker(speaker.id) == nil
+      # nil
+      assert Ever.get_speaker("666") == nil
     end
 
     test "create_speaker/1 with valid data creates a speaker" do
