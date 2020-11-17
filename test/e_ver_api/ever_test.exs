@@ -261,8 +261,9 @@ defmodule EVerApi.EverTest do
       assert Ever.get_speaker("666") == nil
     end
 
-    test "create_speaker/1 with valid data creates a speaker" do
-      assert {:ok, %Speaker{} = speaker} = Ever.create_speaker(@valid_attrs)
+    @tag individual_test: "create_speaker"
+    test "create_speaker/1 with valid data creates a speaker", %{event: event} do
+      assert {:ok, %Speaker{} = speaker} = Ever.create_speaker(Map.put(@valid_attrs, :event_id, event.id))
       assert speaker.avatar == "some avatar"
       assert speaker.bio == "some bio"
       assert speaker.company == "some company"
@@ -272,12 +273,19 @@ defmodule EVerApi.EverTest do
       assert speaker.role == "some role"
     end
 
-    test "create_speaker/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Ever.create_speaker(@invalid_attrs)
+    @tag individual_test: "create_speaker"
+    test "create_speaker/1 with invalid data returns error changeset", %{event: event} do
+      assert {:error, %Ecto.Changeset{}} = Ever.create_speaker(Map.put(@invalid_attrs, :event_id, event.id))
     end
 
-    test "update_speaker/2 with valid data updates the speaker" do
-      speaker = speaker_fixture()
+    @tag individual_test: "create_speaker"
+    test "create_speaker/1 with an inexistent event returns error changeset", %{event: event} do
+      assert {:error, %Ecto.Changeset{}} = Ever.create_speaker(Map.put(@valid_attrs, :event_id, "666"))
+    end
+
+    @tag individual_test: "update_speaker"
+    test "update_speaker/2 with valid data updates the speaker", %{event: event} do
+      speaker = speaker_fixture(%{event_id: event.id})
       assert {:ok, %Speaker{} = speaker} = Ever.update_speaker(speaker, @update_attrs)
       assert speaker.avatar == "some updated avatar"
       assert speaker.bio == "some updated bio"
@@ -288,20 +296,29 @@ defmodule EVerApi.EverTest do
       assert speaker.role == "some updated role"
     end
 
-    test "update_speaker/2 with invalid data returns error changeset" do
-      speaker = speaker_fixture()
+    @tag individual_test: "update_speaker"
+    test "update_speaker/2 with invalid data returns error changeset", %{event: event} do
+      speaker = speaker_fixture(%{event_id: event.id})
       assert {:error, %Ecto.Changeset{}} = Ever.update_speaker(speaker, @invalid_attrs)
       assert speaker == Ever.get_speaker!(speaker.id)
     end
 
-    test "delete_speaker/1 deletes the speaker" do
-      speaker = speaker_fixture()
+    @tag individual_test: "update_speaker"
+    test "update_speaker/2 with an inexistent event returns error changeset", %{event: event} do
+      speaker = speaker_fixture(%{event_id: event.id})
+      assert {:error, %Ecto.Changeset{}} = Ever.update_speaker(speaker, Map.put(@valid_attrs, :event_id, "666"))
+    end
+
+    @tag individual_test: "delete_speaker"
+    test "delete_speaker/1 deletes the speaker", %{event: event} do
+      speaker = speaker_fixture(%{event_id: event.id})
       assert {:ok, %Speaker{}} = Ever.delete_speaker(speaker)
       assert_raise Ecto.NoResultsError, fn -> Ever.get_speaker!(speaker.id) end
     end
 
-    test "change_speaker/1 returns a speaker changeset" do
-      speaker = speaker_fixture()
+    @tag individual_test: "change_speaker"
+    test "change_speaker/1 returns a speaker changeset", %{event: event} do
+      speaker = speaker_fixture(%{event_id: event.id})
       assert %Ecto.Changeset{} = Ever.change_speaker(speaker)
     end
   end
