@@ -160,15 +160,29 @@ defmodule EVerApiWeb.SpeakerControllerTest do
       assert response(conn, 204)
       assert Ever.get_speaker(id) == nil
 
-      #TODO
+      # check the event is not rendering the deleted speaker
       conn = get(conn, Routes.event_path(conn, :show, event.id))
       resp = Enum.find(json_response(conn, 200)["data"]["speakers"], fn x -> x["id"] == id end)
       assert resp == nil
 
-      #assert_error_sent 404, fn ->
-      #  get(conn, Routes.speaker_path(conn, :show, speaker))
-      #end
+      #IO.inspect json_response(conn, 200)["data"]["speakers"]
+      # trying to re delete
+      conn = delete(conn, Routes.speaker_path(conn, :delete, event.id, id))
+      assert response(conn, 404)
     end
+
+    @tag individual_test: "speakers_delete", login_as: "email@email.com"
+    test "renders errors when trying to delete speaker to non existent event", %{conn: conn, user: user, event: event} do
+      conn = delete(conn, Routes.speaker_path(conn, :delete, "666", "999"))
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "speakers_delete", login_as: "email@email.com"
+    test "renders errors when trying to delete non existen speaker for a valid event event", %{conn: conn, user: user, event: event} do
+      conn = delete(conn, Routes.speaker_path(conn, :delete, event.id, "999"))
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
   end
 
   defp create_speaker(_) do

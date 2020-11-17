@@ -59,9 +59,12 @@ defmodule EVerApi.Ever do
 
   """
   def get_event(id) do
+    # filter soft-deleted associations
+    speakers_query = from(s in EVerApi.Ever.Speaker, select: s)
+      |> with_undeleted()
     query = from(e in Event, select: e)
       |> with_undeleted()
-    Repo.get(query, id) |> Repo.preload([:user, :sponsors, :speakers, {:talks, :speakers}])
+    Repo.get(query, id) |> Repo.preload([:user, :sponsors, [speakers: speakers_query], {:talks, :speakers}])
   end
   @doc """
   Creates a event.

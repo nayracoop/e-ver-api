@@ -14,8 +14,8 @@ defmodule EVerApi.Ever.Event do
 
     belongs_to :user, EVerApi.Accounts.User
     has_many :talks, EVerApi.Ever.Talk
-    has_many :speakers, EVerApi.Ever.Speaker
-    has_many :sponsors, EVerApi.Sponsors.Sponsor
+    has_many :speakers, EVerApi.Ever.Speaker, on_replace: :delete
+    has_many :sponsors, EVerApi.Sponsors.Sponsor, on_replace: :delete
 
     timestamps()
   end
@@ -27,6 +27,9 @@ defmodule EVerApi.Ever.Event do
     |> validate_required([:name, :summary, :start_time, :end_time, :user_id])
     |> foreign_key_constraint(:user_id)
     |> validate_length(:summary, min: 2, max: 512)
+
+    #|> cast_assoc(:speakers)
+    #|> cast_assoc(:talks)
     #|> validate_length(:description, min: 2)
     # validate utc datetime fields
   end
