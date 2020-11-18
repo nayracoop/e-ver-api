@@ -58,8 +58,7 @@ defmodule EVerApiWeb.Router do
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
       schema: EVerApiWeb.Schema.Schema,
-      socket: EVerApiWeb.UserSocket,
-      interface: :simple
+      socket: EVerApiWeb.UserSocket
   end
 
   # Enables LiveDashboard only for development

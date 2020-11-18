@@ -66,9 +66,11 @@ defmodule EVerApi.Ever do
 
   """
   def get_event(id) do
-    query = from(e in Event, select: e)
+    query =
+      from(e in Event, select: e)
       |> with_undeleted()
-    Repo.get(query, id) |> Repo.preload([:user, :sponsors, :speakers, {:talks, :speakers}])
+      |> Repo.get(id)
+      |> Repo.preload([:user, :sponsors, :speakers, {:talks, :speakers}])
   end
 
   def create_event(%User{} = user, attrs) do

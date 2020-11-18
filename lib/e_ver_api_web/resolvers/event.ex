@@ -1,15 +1,16 @@
-defmodule EVerApiWeb.Resolvers.Ever do
+defmodule EVerApiWeb.Resolvers.Event do
   alias EVerApi.Ever
+  alias EVerApiWeb.Schema.ChangesetErrors
 
-  def event(_, %{id: id}, _) do
-    {:ok, Ever.get_event!(id)}
+  def get_event(_, %{id: id}, _) do
+    {:ok, Ever.get_event(id)}
   end
 
-  def events(_, _, _) do
+  def list_events(_, _, _) do
     {:ok, Ever.list_events_no_preload}
   end
 
-  def create_event(_, args, %{context: %{current_user: user}}) do
+  def create_event(_, %{create_event_input: args}, %{context: %{current_user: user}}) do
     case Ever.create_event(user, args) do
       {:error, changeset} ->
         {
