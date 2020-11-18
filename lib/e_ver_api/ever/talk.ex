@@ -1,5 +1,6 @@
 defmodule EVerApi.Ever.Talk do
   use Ecto.Schema
+  import Ecto.SoftDelete.Schema
   import Ecto.Changeset
 
   schema "talks" do
@@ -10,6 +11,7 @@ defmodule EVerApi.Ever.Talk do
     field :duration, :integer
     field :tags, {:array, :string}
     field :allow_comments, :boolean, default: false
+    soft_delete_schema()
 
     embeds_one :video, EVerApi.Ever.Video
 

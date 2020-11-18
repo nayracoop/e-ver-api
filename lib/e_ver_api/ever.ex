@@ -160,8 +160,12 @@ defmodule EVerApi.Ever do
       ** (Ecto.NoResultsError)
 
   """
-  def get_talk!(id), do: Repo.get!(Talk, id) |> Repo.preload(:speakers)
-
+  def get_talk!(id) do
+    # filter soft-deleted associations
+    speakers_query = from(s in EVerApi.Ever.Speaker, select: s)
+      |> with_undeleted()
+    Repo.get!(Talk, id) |> Repo.preload([speakers: speakers_query])
+  end
   @doc """
   Creates a talk.
 

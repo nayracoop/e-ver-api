@@ -3,7 +3,7 @@ defmodule EVerApi.Factory do
   alias ExMachina.Sequence
   import Bcrypt, only: [hash_pwd_salt: 1]
 
-  @names ["Richard", "Feche", "Elsa", "Refalosa", "Quiqui", "Ana"]
+  @names ["Richard", "Feche", "Elsa", "Refalosa", "Quiqui", "Ana", "Raquel", "Pablito", "Wenceslao"]
   @topics ["programming in KOVOL", "Decentralized life",
     "Cooperativismo mágico", "Sound sculptures", "Wine & enology",
     "Innovation in Media Arts", "AR/VR für alles", "Innovationsgenossenschaften",

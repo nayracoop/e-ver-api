@@ -11,12 +11,18 @@ defmodule EVerApiWeb.TalkController do
   #   render(conn, "index.json", talks: talks)
   # end
 
-  def create(conn, %{"talk" => talk_params}) do
-    with {:ok, %Talk{} = talk} <- Ever.create_talk(talk_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.talk_path(conn, :show, talk))
-      |> render("show.json", talk: talk)
+  def create(conn, %{"event_id" => event_id, "talk" => talk_params}) do
+    # Next time use Ecto relationship and update event
+
+    case Ever.get_event(event_id) do
+      nil ->  {:error, :not_found}
+      event ->
+        params = Map.put_new(talk_params, "event_id", event.id)
+        with {:ok, %Talk{} = talk} <- Ever.create_talk(params) do
+          conn
+          |> put_status(:created)
+          |> render("show.json", talk: talk)
+        end
     end
   end
 
