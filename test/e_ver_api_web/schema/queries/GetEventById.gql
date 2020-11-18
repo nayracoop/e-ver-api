@@ -1,5 +1,5 @@
-query {
-  event(id: 1) {
+query GetEventById($id: ID!) {
+  event(id: $id) {
     id
     name
     sponsors {
