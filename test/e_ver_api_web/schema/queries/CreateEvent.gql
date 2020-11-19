@@ -1,5 +1,5 @@
-mutation CreateEvent($createEventInput: CreateEventInput!) {
-  createEvent(createEventInput: $createEventInput) {
+mutation CreateEvent($createEventParams: CreateEventParams!) {
+  createEvent(createEventParams: $createEventParams) {
     name
     description
   }

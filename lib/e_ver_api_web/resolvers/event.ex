@@ -10,7 +10,7 @@ defmodule EVerApiWeb.Resolvers.Event do
     {:ok, Ever.list_events_no_preload}
   end
 
-  def create_event(_, %{create_event_input: args}, %{context: %{current_user: user}}) do
+  def create_event(_, %{create_event_params: args}, %{context: %{current_user: user}}) do
     case Ever.create_event(user, args) do
       {:error, changeset} ->
         {

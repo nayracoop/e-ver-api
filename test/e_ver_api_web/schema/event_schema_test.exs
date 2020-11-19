@@ -23,26 +23,45 @@ defmodule EVerApiWeb.EventSchemaTest do
       assert {:ok, %{data: %{"events" => events}}} = result
       assert Enum.count(events) == 3
     end
+
+    test "should Authorize get all Events action" do
+      events = insert_list(3, :event)
+      result = query_gql_by(:get_events)
+      assert {:ok, %{data: %{"events" => nil}, errors: [%{message: "Unauthorized"} | _]}} = result
+    end
   end
 
   describe "get event by Id" do
-    test "should get an Event by id" do
-      event = build(:event)
-      result = query_gql_by(:get_event_by_id, variables: %{"id" => 99})
-      assert {:ok, event} = result
+    test "should get an Event by id with no user" do
+      %{id: id} = insert(:event)
+      id = Integer.to_string(id)
+      result = query_gql_by(:get_event_by_id, variables: %{"id" => id})
+      assert {:ok, %{data: %{"event" => %{"id" => ^id}}}} = result
     end
   end
 
   describe "create event" do
-    test "should succesfully create an Event" do
-      event = build(:event)
+    test "should succesfully create an Event", %{user: user} do
+      create_event_params = create_event_params()
+      %{"name" => name, "description" => description} = create_event_params
+
       result = query_gql_by(
         :create_event,
         variables: %{
-          "create_event_input" => event
-        }
+          "createEventParams" => create_event_params
+        },
+        context: %{current_user: user}
       )
-      assert {:ok, event} = result
+
+      assert {:ok,
+      %{
+        data: %{
+          "createEvent" => %{
+            "name" => ^name,
+            "description" => ^description
+          }
+        }
+      }} = result
     end
   end
 end

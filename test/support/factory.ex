@@ -68,14 +68,29 @@ defmodule EVerApi.Factory do
     sponsors = insert_list(2, :sponsor)
 
     %EVerApi.Ever.Event{
-      summary: "some summary",
-      end_time: "2010-04-17T14:00:00Z",
       name: Sequence.next(:topics, @topics),
+      description: sequence("Event description"),
+      summary: sequence("Some summary"),
+      url: sequence("http://url.com"),
+      end_time: "2010-04-17T14:00:00Z",
       start_time: "2010-04-17T14:00:00Z",
       user: build(:user),
       talks: Enum.concat([talk], talks),
       speakers: Enum.concat([speaker], speakers),
       sponsors: sponsors
     }
+  end
+
+  def create_event_params do
+    with event = build(:event) do
+      %{
+        "name" => event.name,
+        "description" => event.description,
+        "summary" => event.summary,
+        "url" => event.url,
+        "start_time" => event.start_time,
+        "end_time" => event.end_time
+      }
+    end
   end
 end

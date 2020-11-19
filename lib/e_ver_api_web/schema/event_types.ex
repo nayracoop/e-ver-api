@@ -10,9 +10,9 @@ defmodule EVerApiWeb.Schema.EventTypes do
   object :event, description: "an e-ver event" do
     field :id, non_null(:id)
     field :name, non_null(:string)
-    field :description, non_null(:string)
+    field :description, :string
     field :summary, non_null(:string)
-    field :url, non_null(:string)
+    field :url, :string
     field :start_time, non_null(:datetime)
     field :end_time, non_null(:datetime)
 
@@ -24,16 +24,16 @@ defmodule EVerApiWeb.Schema.EventTypes do
 
   input_object :create_event_params, description: "create an event" do
     field :name, non_null(:string)
-    field :description, non_null(:string)
+    field :description, :string
     field :summary, non_null(:string)
-    field :url, non_null(:string)
+    field :url, :string
     field :start_time, non_null(:datetime)
     field :end_time, non_null(:datetime)
   end
 
   object :event_mutations do
     field :create_event, type: :event, description: "create a new event" do
-      arg :event, :create_event_params
+      arg :create_event_params, :create_event_params
       middleware Middleware.Authenticate
       resolve &EventResolver.create_event/3
     end
