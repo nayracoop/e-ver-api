@@ -13,7 +13,7 @@ defmodule EVerApi.Ever.Talk do
     field :allow_comments, :boolean, default: false
     soft_delete_schema()
 
-    embeds_one :video, EVerApi.Ever.Video
+    embeds_one :video, EVerApi.Ever.Video, on_replace: :delete
 
     belongs_to :event, EVerApi.Ever.Event
     many_to_many :speakers, EVerApi.Ever.Speaker, join_through: EVerApi.Ever.SpeakerTalk, on_replace: :delete

@@ -18,7 +18,7 @@ defmodule EVerApiWeb.TalkControllerTest do
     title: "some updated title",
     details: "some updated details",
     summary: "some updated summary",
-    start_time: "2010-04-1T14:00:00Z",
+    start_time: "2010-04-17T14:00:00Z",
     duration: 42,
     tags: ["elsa", "pablito"],
     allow_comments: true,
@@ -91,41 +91,62 @@ defmodule EVerApiWeb.TalkControllerTest do
       } = resp
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.talk_path(conn, :create), talk: @invalid_attrs)
+    @tag individual_test: "talks_create", login_as: "email@email.com"
+    test "renders errors when trying to add a talk to non existent event", %{conn: conn, user: user, event: event} do
+      conn = post(conn, Routes.talk_path(conn, :create, "666"), talk: @create_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "talks_create", login_as: "email@email.com"
+    test "renders errors when data is invalid", %{conn: conn, user: user, event: event} do
+      conn = post(conn, Routes.talk_path(conn, :create, event.id), talk: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
-  end
 
-  describe "update talk" do
-    setup [:create_talk]
+    # CREATE with associated speakers
+      # -- TODO
 
-    test "renders talk when data is valid", %{conn: conn, talk: %Talk{id: id} = talk} do
-      conn = put(conn, Routes.talk_path(conn, :update, talk), talk: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, Routes.talk_path(conn, :show, id))
+    # UPDATE
+    @tag individual_test: "talks_update", login_as: "email@email.com"
+    test "renders an updated talk when data is valid", %{conn: conn, user: user, event: event} do
+      %Talk{id: talk_id} = List.first(event.talks)
+      conn = put(conn, Routes.talk_path(conn, :update, event.id, talk_id), talk: @update_attrs)
 
       assert %{
-               "id" => id,
-               "body" => "some updated body",
-               "duration" => 43,
-               "name" => "some updated name",
-               "start_time" => "2011-05-18T15:01:01Z",
-               "tags" => [],
-               "video_url" => "some updated video_url"
-             } = json_response(conn, 200)["data"]
+        "id" => id,
+        "title" => "some updated title",
+        "details" => "some updated details",
+        "summary" => "some updated summary",
+        "start_time" => "2010-04-17T14:00:00Z",
+        "duration" => 42,
+        "tags" => ["elsa", "pablito"],
+        "allow_comments" => true,
+        "video" => %{"uri" => "some updated video_uri", "type" => "live video", "autoplay" => true}
+      } = json_response(conn, 200)["data"]
+      assert id == talk_id
+
+      # fetch event and check updated talk
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      resp = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == talk_id end)
+      assert %{
+        "id" => id,
+        "title" => "some updated title",
+        "details" => "some updated details",
+        "summary" => "some updated summary",
+        "start_time" => "2010-04-17T14:00:00Z",
+        "duration" => 42,
+        "tags" => ["elsa", "pablito"],
+        "allow_comments" => true,
+        "video" => %{"uri" => "some updated video_uri", "type" => "live video", "autoplay" => true}
+      } = resp
     end
 
-    test "renders errors when data is invalid", %{conn: conn, talk: talk} do
+    test "renders errors when update data is invalid", %{conn: conn, talk: talk} do
       conn = put(conn, Routes.talk_path(conn, :update, talk), talk: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
-  end
 
-  describe "delete talk" do
-    setup [:create_talk]
-
+    # DELETE
     test "deletes chosen talk", %{conn: conn, talk: talk} do
       conn = delete(conn, Routes.talk_path(conn, :delete, talk))
       assert response(conn, 204)

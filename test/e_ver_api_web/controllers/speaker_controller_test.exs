@@ -89,8 +89,8 @@ defmodule EVerApiWeb.SpeakerControllerTest do
     end
 
     @tag individual_test: "speakers_create", login_as: "email@email.com"
-    test "renders errors when trying to add speaker to non existent event", %{conn: conn, user: user, event: event} do
-      conn = post(conn, Routes.speaker_path(conn, :create, "666"), speaker: @valid_attrs)
+    test "renders errors when trying to add a speaker to non existent event", %{conn: conn, user: user, event: event} do
+      conn = post(conn, Routes.speaker_path(conn, :create, "666"), speaker: @create_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
