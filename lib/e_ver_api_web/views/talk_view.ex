@@ -19,11 +19,12 @@ defmodule EVerApiWeb.TalkView do
       duration: talk.duration,
       video: video(talk.video),
       tags: talk.tags,
+      allow_comments: talk.allow_comments,
       speakers: render_many(speakers(talk.speakers), SpeakerView, "speaker.json")}
   end
 
   defp speakers(%Ecto.Association.NotLoaded{}), do: []
-  defp speakers(s = []), do: s
+  defp speakers(s), do: s
 
   defp video(nil), do: %{uri: nil, type: nil, autoplay: nil}
   defp video(v = %{}), do: %{uri: v.uri, type: v.type, autoplay: v.autoplay}

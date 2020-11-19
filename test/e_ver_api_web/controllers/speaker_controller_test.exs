@@ -185,11 +185,7 @@ defmodule EVerApiWeb.SpeakerControllerTest do
 
   end
 
-  defp create_speaker(_) do
-    speaker = fixture(:speaker)
-    %{speaker: speaker}
-  end
-
+    # 401 Unauthorized
   @tag individual_test: "speakers_401"
   test "requires user authentication on all actions", %{conn: conn} do
     Enum.each([
@@ -199,5 +195,10 @@ defmodule EVerApiWeb.SpeakerControllerTest do
     ], fn conn ->
       assert json_response(conn, 401)["message"] == "unauthenticated"
     end)
+  end
+
+  defp create_speaker(_) do
+    speaker = fixture(:speaker)
+    %{speaker: speaker}
   end
 end
