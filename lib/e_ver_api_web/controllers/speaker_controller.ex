@@ -54,7 +54,6 @@ defmodule EVerApiWeb.SpeakerController do
         with speaker when not is_nil(speaker) <- Ever.get_speaker(id),
         true <- is_valid_speaker(speaker, event.id),
         {:ok, %Speaker{}} <- Ever.delete_speaker(speaker) do
-
           send_resp(conn, :no_content, "")
         else
           {:error,  %Ecto.Changeset{} = changeset} -> {:error, changeset}

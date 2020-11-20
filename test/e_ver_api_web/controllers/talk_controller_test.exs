@@ -164,13 +164,21 @@ defmodule EVerApiWeb.TalkControllerTest do
 
     # DELETE
     @tag individual_test: "talks_delete", login_as: "email@email.com"
-    test "deletes chosen talk", %{conn: conn, talk: talk} do
-      conn = delete(conn, Routes.talk_path(conn, :delete, talk))
-      assert response(conn, 204)
+    test "deletes chosen talk", %{conn: conn, user: user, event: event} do
+      %Talk{id: talk_id} = List.first(event.talks)
 
-      assert_error_sent 404, fn ->
-        get(conn, Routes.talk_path(conn, :show, talk))
-      end
+      conn = delete(conn, Routes.talk_path(conn, :delete, event.id, talk_id))
+      assert response(conn, 204)
+      assert Ever.get_talk(talk_id) == nil
+
+      # check the event is not rendering the deleted talk
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      resp = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == talk_id end)
+      assert resp == nil
+
+      # trying to re delete :(
+      conn = delete(conn, Routes.talk_path(conn, :delete, event.id, talk_id))
+      assert response(conn, 404)
     end
   end
 

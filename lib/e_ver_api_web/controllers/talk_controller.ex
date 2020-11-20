@@ -46,12 +46,21 @@ defmodule EVerApiWeb.TalkController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    talk = Ever.get_talk!(id)
+  def delete(conn, %{"event_id" => event_id, "id" => id}) do
 
-    with {:ok, %Talk{}} <- Ever.delete_talk(talk) do
-      send_resp(conn, :no_content, "")
-    end
+
+    case Ever.get_event(event_id) do
+      nil ->  {:error, :not_found}
+      event ->
+        with talk when not is_nil(talk) <- Ever.get_talk(id),
+        true <- is_valid_talk(talk, event.id),
+        {:ok, %Talk{}} <- Ever.delete_talk(talk) do
+          send_resp(conn, :no_content, "")
+        else
+          {:error,  %Ecto.Changeset{} = changeset} -> {:error, changeset}
+          _ -> {:error, :not_found}  # talk not found
+        end
+      end
   end
 
   defp is_valid_talk(talk, event_id) do

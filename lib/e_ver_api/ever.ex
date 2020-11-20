@@ -62,9 +62,14 @@ defmodule EVerApi.Ever do
     # filter soft-deleted associations
     speakers_query = from(s in EVerApi.Ever.Speaker, select: s)
       |> with_undeleted()
+
+      talks_query = from(t in EVerApi.Ever.Talk, select: t)
+      |> with_undeleted() |> preload(:speakers)
+
     query = from(e in Event, select: e)
       |> with_undeleted()
-    Repo.get(query, id) |> Repo.preload([:user, :sponsors, [speakers: speakers_query], {:talks, :speakers}])
+    Repo.get(query, id)
+      |> Repo.preload([:user, :sponsors, [speakers: speakers_query], [talks: talks_query]])
   end
   @doc """
   Creates a event.
@@ -164,6 +169,7 @@ defmodule EVerApi.Ever do
     # filter soft-deleted associations
     speakers_query = from(s in EVerApi.Ever.Speaker, select: s)
       |> with_undeleted()
+    # intentionaly not using soft delete for evaluating its usage en this function
     Repo.get!(Talk, id) |> Repo.preload([speakers: speakers_query])
   end
 
@@ -185,7 +191,8 @@ defmodule EVerApi.Ever do
     # filter soft-deleted associations
     speakers_query = from(s in EVerApi.Ever.Speaker, select: s)
       |> with_undeleted()
-    Repo.get(Talk, id) |> Repo.preload([speakers: speakers_query])
+    query = from(t in Talk, select: t) |> with_undeleted()
+    Repo.get(query, id) |> Repo.preload([speakers: speakers_query])
   end
 
   @doc """
@@ -237,7 +244,7 @@ defmodule EVerApi.Ever do
 
   """
   def delete_talk(%Talk{} = talk) do
-    Repo.delete(talk)
+    Repo.soft_delete(talk)
   end
 
   @doc """

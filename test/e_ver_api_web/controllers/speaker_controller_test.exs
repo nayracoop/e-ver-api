@@ -165,7 +165,6 @@ defmodule EVerApiWeb.SpeakerControllerTest do
       resp = Enum.find(json_response(conn, 200)["data"]["speakers"], fn x -> x["id"] == id end)
       assert resp == nil
 
-      #IO.inspect json_response(conn, 200)["data"]["speakers"]
       # trying to re delete
       conn = delete(conn, Routes.speaker_path(conn, :delete, event.id, id))
       assert response(conn, 404)
