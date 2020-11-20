@@ -37,7 +37,7 @@ defmodule EVerApiWeb.SpeakerController do
       nil ->  {:error, :not_found}
       event ->
         with speaker when not is_nil(speaker) <- Ever.get_speaker(id),
-        true <- is_valid_speaker?(speaker, event.id),
+        true <- is_valid_speaker(speaker, event.id),
         {:ok, %Speaker{} = speaker}  <- Ever.update_speaker(speaker, speaker_params) do
           render(conn, "show.json", speaker: speaker)
         else
@@ -52,7 +52,7 @@ defmodule EVerApiWeb.SpeakerController do
       nil ->  {:error, :not_found}
       event ->
         with speaker when not is_nil(speaker) <- Ever.get_speaker(id),
-        true <- is_valid_speaker?(speaker, event.id),
+        true <- is_valid_speaker(speaker, event.id),
         {:ok, %Speaker{}} <- Ever.delete_speaker(speaker) do
 
           send_resp(conn, :no_content, "")
@@ -63,7 +63,7 @@ defmodule EVerApiWeb.SpeakerController do
       end
   end
 
-  defp is_valid_speaker?(speaker, event_id) do
+  defp is_valid_speaker(speaker, event_id) do
     speaker.event_id == event_id
   end
 end

@@ -4,6 +4,8 @@ defmodule EVerApiWeb.TalkControllerTest do
   alias EVerApi.Ever
   alias EVerApi.Ever.Talk
 
+  @moduletag :talks_controller_case
+
   @create_attrs %{
     title: "some title",
     details: "some details",
@@ -141,12 +143,27 @@ defmodule EVerApiWeb.TalkControllerTest do
       } = resp
     end
 
-    test "renders errors when update data is invalid", %{conn: conn, talk: talk} do
-      conn = put(conn, Routes.talk_path(conn, :update, talk), talk: @invalid_attrs)
+    @tag individual_test: "talks_update", login_as: "email@email.com"
+    test "renders errors when update data is invalid",  %{conn: conn, user: user, event: event} do
+      %Talk{id: talk_id} = List.first(event.talks)
+      conn = put(conn, Routes.talk_path(conn, :update, event.id, talk_id), talk: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
 
+    @tag individual_test: "talks_update", login_as: "email@email.com"
+    test "renders errors when trying to update a talk to non existent event", %{conn: conn, user: user, event: event} do
+      conn = put(conn, Routes.talk_path(conn, :update, "666", "999"), talk: @update_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "talks_update", login_as: "email@email.com"
+    test "renders errors when trying to update non existent talk for a valid event", %{conn: conn, user: user, event: event} do
+      conn = put(conn, Routes.talk_path(conn, :update, event.id, "999"), talk: @update_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
     # DELETE
+    @tag individual_test: "talks_delete", login_as: "email@email.com"
     test "deletes chosen talk", %{conn: conn, talk: talk} do
       conn = delete(conn, Routes.talk_path(conn, :delete, talk))
       assert response(conn, 204)

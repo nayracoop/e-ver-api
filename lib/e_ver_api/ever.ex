@@ -166,6 +166,28 @@ defmodule EVerApi.Ever do
       |> with_undeleted()
     Repo.get!(Talk, id) |> Repo.preload([speakers: speakers_query])
   end
+
+  @doc """
+  Gets a single talk.
+
+  Returns nil if the Talk does not exist.
+
+  ## Examples
+
+      iex> get_talk!(123)
+      %Talk{}
+
+      iex> get_talk!(456)
+      nil
+
+  """
+  def get_talk(id) do
+    # filter soft-deleted associations
+    speakers_query = from(s in EVerApi.Ever.Speaker, select: s)
+      |> with_undeleted()
+    Repo.get(Talk, id) |> Repo.preload([speakers: speakers_query])
+  end
+
   @doc """
   Creates a talk.
 

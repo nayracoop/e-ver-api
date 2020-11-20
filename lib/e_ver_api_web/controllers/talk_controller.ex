@@ -31,11 +31,18 @@ defmodule EVerApiWeb.TalkController do
   #   render(conn, "show.json", talk: talk)
   # end
 
-  def update(conn, %{"id" => id, "talk" => talk_params}) do
-    talk = Ever.get_talk!(id)
-
-    with {:ok, %Talk{} = talk} <- Ever.update_talk(talk, talk_params) do
-      render(conn, "show.json", talk: talk)
+  def update(conn, %{"event_id" => event_id, "id" => id, "talk" => talk_params}) do
+    case Ever.get_event(event_id) do
+      nil ->  {:error, :not_found}
+      event ->
+        with talk when not is_nil(talk) <- Ever.get_talk(id),
+        true <- is_valid_talk(talk, event.id),
+        {:ok, %Talk{} = talk} <- Ever.update_talk(talk, talk_params) do
+          render(conn, "show.json", talk: talk)
+        else
+          {:error,  %Ecto.Changeset{} = changeset} -> {:error, changeset}
+          _ -> {:error, :not_found}  # speaker not found
+        end
     end
   end
 
@@ -45,5 +52,9 @@ defmodule EVerApiWeb.TalkController do
     with {:ok, %Talk{}} <- Ever.delete_talk(talk) do
       send_resp(conn, :no_content, "")
     end
+  end
+
+  defp is_valid_talk(talk, event_id) do
+    talk.event_id == event_id
   end
 end
