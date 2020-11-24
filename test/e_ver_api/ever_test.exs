@@ -138,7 +138,7 @@ defmodule EVerApi.EverTest do
     end
 
     @valid_attrs %{title: "some title", duration: 42, start_time: "2010-04-17T14:00:00Z", tags: ["vino"], video: %{uri: "some video"}}
-    @update_attrs %{title: "some title body", duration: 43, start_time: "2011-05-18T15:01:01Z", tags: ["cerveza"], video: %{uri: "some video"}}
+    @update_attrs %{title: "some updated title", duration: 43, start_time: "2011-05-18T15:01:01Z", tags: ["cerveza"], video: %{uri: "some updated video"}}
     @invalid_attrs %{title: nil, duration: nil, start_time: nil, tags: nil, video: nil}
 
     def talk_fixture(attrs \\ %{}) do
@@ -192,7 +192,7 @@ defmodule EVerApi.EverTest do
         title: "some title",
         duration: 42,
         start_time: ~U[2010-04-17T14:00:00Z],
-        tags: ["vinos"],
+        tags: ["vino"],
         video: %{uri: "some video"}
         } = Ever.get_talk(talk.id)
 
@@ -219,21 +219,28 @@ defmodule EVerApi.EverTest do
       assert {:error, %Ecto.Changeset{}} = Ever.create_talk(Map.put(@valid_attrs, :event_id, "666"))
     end
 
-    test "update_talk/2 with valid data updates the talk" do
-      talk = talk_fixture()
+    @tag individual_test: "update_talk"
+    test "update_talk/2 with valid data updates the talk", %{event: event} do
+      talk = talk_fixture(%{event_id: event.id})
       assert {:ok, %Talk{} = talk} = Ever.update_talk(talk, @update_attrs)
-      assert talk.body == "some updated body"
+      assert talk.title == "some updated title"
       assert talk.duration == 43
-      assert talk.name == "some updated name"
       assert talk.start_time == DateTime.from_naive!(~N[2011-05-18T15:01:01Z], "Etc/UTC")
-      assert talk.tags == []
-      assert talk.video_url == "some updated video_url"
+      assert talk.tags == ["cerveza"]
+      assert %{uri: "some updated video", autoplay: true, type: nil} = talk.video
     end
 
-    test "update_talk/2 with invalid data returns error changeset" do
-      talk = talk_fixture()
+    @tag individual_test: "update_talk"
+    test "update_talk/2 with invalid data returns error changeset", %{event: event} do
+      talk = talk_fixture(%{event_id: event.id})
       assert {:error, %Ecto.Changeset{}} = Ever.update_talk(talk, @invalid_attrs)
-      assert talk == Ever.get_talk!(talk.id)
+      # test if change. It seems no needed
+    end
+
+    @tag individual_test: "update_talk"
+    test "update_talk/2 with an inexistent event returns error changeset", %{event: event} do
+      talk = talk_fixture(%{event_id: event.id})
+      assert {:error, %Ecto.Changeset{}} = Ever.update_talk(talk, Map.put(@valid_attrs, :event_id, "666"))
     end
 
     test "delete_talk/1 deletes the talk" do
