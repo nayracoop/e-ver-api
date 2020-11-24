@@ -148,7 +148,14 @@ defmodule EVerApi.Ever do
 
   """
   def list_talks do
-    Repo.all(Talk) |> Repo.preload(:speakers)
+    query = from(t in Talk, select: t)
+      |> with_undeleted()
+
+      # filter soft-deleted associations
+    speakers_query = from(s in EVerApi.Ever.Speaker, select: s)
+      |> with_undeleted()
+
+    Repo.all(query) |> Repo.preload([speakers: speakers_query])
   end
 
   @doc """

@@ -131,10 +131,15 @@ defmodule EVerApi.EverTest do
 
   describe "talks" do
     alias EVerApi.Ever.Talk
+    setup do
+      e = insert(:event)
+      #IO.inspect(e)
+      %{event: e}
+    end
 
-    @valid_attrs %{body: "some body", duration: 42, name: "some name", start_time: "2010-04-17T14:00:00Z", tags: [], video_url: "some video_url"}
-    @update_attrs %{body: "some updated body", duration: 43, name: "some updated name", start_time: "2011-05-18T15:01:01Z", tags: [], video_url: "some updated video_url"}
-    @invalid_attrs %{body: nil, duration: nil, name: nil, start_time: nil, tags: nil, video_url: nil}
+    @valid_attrs %{title: "some title", duration: 42, start_time: "2010-04-17T14:00:00Z", tags: ["vino"], video: %{uri: "some video"}}
+    @update_attrs %{title: "some title body", duration: 43, start_time: "2011-05-18T15:01:01Z", tags: ["cerveza"], video: %{uri: "some video"}}
+    @invalid_attrs %{title: nil, duration: nil, start_time: nil, tags: nil, video: nil}
 
     def talk_fixture(attrs \\ %{}) do
       {:ok, talk} =
@@ -145,9 +150,25 @@ defmodule EVerApi.EverTest do
       talk
     end
 
-    test "list_talks/0 returns all talks" do
-      talk = talk_fixture()
-      assert Ever.list_talks() == [talk]
+    @tag individual_test: "list_talks"
+    test "list_talks/0 returns all talks", %{event: event} do
+      new_talk = talk_fixture(%{event_id: event.id})
+      # test with_undeleted
+      deleted_talk = talk_fixture(%{event_id: event.id, title: "goodbye"})
+      Ever.delete_talk(deleted_talk)
+      talks = Ever.list_talks()
+      assert is_list(talks)
+      # 3 defined in factory and new_talk
+      assert Enum.count(talks) == 4
+      # validate a single talk
+      t = Enum.find(talks, fn x -> x.id == new_talk.id end)
+      assert t != nil
+      assert %{
+        title: "some title",
+        duration: 42,
+        start_time: ~U[2010-04-17T14:00:00Z],
+        tags: ["vino"],
+        video: %{uri: "some video"}} = t
     end
 
     test "get_talk!/1 returns the talk with given id" do
@@ -232,6 +253,8 @@ defmodule EVerApi.EverTest do
       # 3 defined in factory and new_speaker
       assert Enum.count(speakers) == 4
       # validate a single speaker
+      s = Enum.find(speakers, fn x -> x.id == new_speaker.id end)
+      assert s != nil
       assert %{
         id: _,
         avatar: "some avatar",
@@ -241,7 +264,7 @@ defmodule EVerApi.EverTest do
         last_name: "some last_name",
         name: "some name",
         role: "some role"
-      } = new_speaker
+      } = s
     end
 
     @tag individual_test: "get_speaker"
