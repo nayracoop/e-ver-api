@@ -199,18 +199,24 @@ defmodule EVerApi.EverTest do
       assert Ever.get_talk("666") == nil
     end
 
-    test "create_talk/1 with valid data creates a talk" do
-      assert {:ok, %Talk{} = talk} = Ever.create_talk(@valid_attrs)
-      assert talk.body == "some body"
+    @tag individual_test: "create_talk"
+    test "create_talk/1 with valid data creates a talk", %{event: event} do
+      assert {:ok, %Talk{} = talk} = Ever.create_talk(Map.put(@valid_attrs, :event_id, event.id))
+      assert talk.title == "some title"
       assert talk.duration == 42
-      assert talk.name == "some name"
       assert talk.start_time == DateTime.from_naive!(~N[2010-04-17T14:00:00Z], "Etc/UTC")
-      assert talk.tags == []
-      assert talk.video_url == "some video_url"
+      assert talk.tags == ["vino"]
+      assert %{uri: "some video", autoplay: true, type: nil} = talk.video
     end
 
-    test "create_talk/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Ever.create_talk(@invalid_attrs)
+    @tag individual_test: "create_talk"
+    test "create_talk/1 with invalid data returns error changeset", %{event: event} do
+      assert {:error, %Ecto.Changeset{}} = Ever.create_talk(Map.put(@invalid_attrs, :event_id, event.id))
+    end
+
+    @tag individual_test: "create_talk"
+    test "create_talk/1 with an inexistent event returns error changeset", %{event: event} do
+      assert {:error, %Ecto.Changeset{}} = Ever.create_talk(Map.put(@valid_attrs, :event_id, "666"))
     end
 
     test "update_talk/2 with valid data updates the talk" do
