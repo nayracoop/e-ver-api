@@ -243,14 +243,19 @@ defmodule EVerApi.EverTest do
       assert {:error, %Ecto.Changeset{}} = Ever.update_talk(talk, Map.put(@valid_attrs, :event_id, "666"))
     end
 
-    test "delete_talk/1 deletes the talk" do
-      talk = talk_fixture()
+    @tag individual_test: "delete_talk"
+    test "delete_talk/1 deletes the talk", %{event: event} do
+      talk = talk_fixture(%{event_id: event.id})
       assert {:ok, %Talk{}} = Ever.delete_talk(talk)
-      assert_raise Ecto.NoResultsError, fn -> Ever.get_talk!(talk.id) end
+      # get_talk/1 filters deleted
+      assert nil == Ever.get_talk(talk.id)
+     # EXPERIMENTAL get_talk!/1 retrieves deleted
+      #assert %{...} = Ever.get_talk!(talk.id)
     end
 
-    test "change_talk/1 returns a talk changeset" do
-      talk = talk_fixture()
+    @tag individual_test: "change_talk"
+    test "change_talk/1 returns a talk changeset", %{event: event} do
+      talk = talk_fixture(%{event_id: event.id})
       assert %Ecto.Changeset{} = Ever.change_talk(talk)
     end
   end
@@ -372,6 +377,7 @@ defmodule EVerApi.EverTest do
     test "delete_speaker/1 deletes the speaker", %{event: event} do
       speaker = speaker_fixture(%{event_id: event.id})
       assert {:ok, %Speaker{}} = Ever.delete_speaker(speaker)
+      assert nil == Ever.get_speaker(speaker.id)
       assert_raise Ecto.NoResultsError, fn -> Ever.get_speaker!(speaker.id) end
     end
 
