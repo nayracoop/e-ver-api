@@ -171,9 +171,32 @@ defmodule EVerApi.EverTest do
         video: %{uri: "some video"}} = t
     end
 
-    test "get_talk!/1 returns the talk with given id" do
-      talk = talk_fixture()
-      assert Ever.get_talk!(talk.id) == talk
+    @tag individual_test: "get_talk"
+    test "get_talk!/1 returns the talk with given id", %{event: event} do
+      talk = talk_fixture(event_id: event.id)
+      assert assert %{
+        title: "some title",
+        duration: 42,
+        start_time: ~U[2010-04-17T14:00:00Z],
+        tags: ["vino"],
+        video: %{uri: "some video"}
+        } = Ever.get_talk!(talk.id)
+
+      assert_raise Ecto.NoResultsError, fn -> Ever.get_talk!("666") end
+    end
+
+    @tag individual_test: "get_talk"
+    test "get_talk/1 returns the talk with given id", %{event: event} do
+      talk = talk_fixture(event_id: event.id)
+      assert %{
+        title: "some title",
+        duration: 42,
+        start_time: ~U[2010-04-17T14:00:00Z],
+        tags: ["vinos"],
+        video: %{uri: "some video"}
+        } = Ever.get_talk(talk.id)
+
+      assert Ever.get_talk("666") == nil
     end
 
     test "create_talk/1 with valid data creates a talk" do
