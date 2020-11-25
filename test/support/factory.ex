@@ -39,12 +39,12 @@ defmodule EVerApi.Factory do
     }
   end
 
-  def speaker_talk_factory do
-    %EVerApi.Ever.SpeakerTalk{
-      speaker_id: nil,
-      talk_id: nil
-    }
-  end
+  # def speaker_talk_factory do
+  #   %EVerApi.Ever.SpeakerTalk{
+  #     speaker_id: nil,
+  #     talk_id: nil
+  #   }
+  # end
 
   def sponsor_factory do
     %EVerApi.Sponsors.Sponsor{
@@ -57,11 +57,10 @@ defmodule EVerApi.Factory do
   def event_factory do
     # speaker & talks
     [speaker | speakers] = insert_list(3, :speaker)
-    [talk | talks] = insert_list(3, :talk)
 
-    insert(:speaker_talk, %{speaker_id: speaker.id, talk_id: talk.id})
-    insert(:speaker_talk, %{speaker_id: List.first(speakers).id, talk_id: talk.id})
-    insert(:speaker_talk, %{speaker_id: List.first(speakers).id, talk_id: List.first(talks).id})
+    talk1 = build(:talk, %{speakers: [speaker, List.first(speakers)]})
+    talk2 = build(:talk,  %{speakers: [List.first(speakers)]})
+    talk3 = build(:talk)
     # NOTE an orphan speaker exists
 
     #sponsor
@@ -73,7 +72,7 @@ defmodule EVerApi.Factory do
       name: Sequence.next(:topics, @topics),
       start_time: "2010-04-17T14:00:00Z",
       user: build(:user),
-      talks: Enum.concat([talk], talks),
+      talks: [talk1, talk2, talk3],
       speakers: Enum.concat([speaker], speakers),
       sponsors: sponsors
     }

@@ -81,6 +81,38 @@ Repo.insert!(%Event{
   user_id: 1
 })
 
+# SPEAKERS
+s1 = Repo.insert!(%Speaker{
+  first_name: nil,
+  last_name: nil,
+  name: "nayrita coop",
+  role: "cooperative",
+  company: "nayra coop ltda",
+  avatar: "nayra.png",
+  event_id: 3
+})
+
+s2 = Repo.insert!(%Speaker{
+  first_name: "Cristina",
+  last_name: "Laguardia",
+  name: "Laguardia Cristina",
+  role: "Kommander",
+  company: "IMF",
+  avatar: "nayra.png",
+  event_id: 3
+})
+
+s3 = Repo.insert!(%Speaker{
+  first_name: "Mikel",
+  last_name: "Louis",
+  name: "Louis Mikel",
+  role: "Ph D",
+  company: "Paco Am Plus",
+  avatar: "nayra.png",
+  event_id: 3
+})
+
+# TALKS
 
 Repo.insert!(%Talk{
   title: "Why e-ver",
@@ -93,7 +125,8 @@ Repo.insert!(%Talk{
     type: "recorded",
     autoplay: false
   },
-  event_id: 3
+  event_id: 3,
+  speakers: [s1]
 })
 
 Repo.insert!(%Talk{
@@ -111,52 +144,21 @@ Repo.insert!(%Talk{
   tags: ["virtual events", "e-ver"]
 })
 
+# Repo.insert!(%SpeakerTalk{
+#   talk_id: 1, speaker_id: 1
+# })
 
-Repo.insert!(%Speaker{
-  first_name: nil,
-  last_name: nil,
-  name: "nayrita coop",
-  role: "cooperative",
-  company: "nayra coop ltda",
-  avatar: "nayra.png",
-  event_id: 3
-})
+# Repo.insert!(%SpeakerTalk{
+#   talk_id: 1, speaker_id: 2
+# })
 
-Repo.insert!(%Speaker{
-  first_name: "Cristina",
-  last_name: "Laguardia",
-  name: "Laguardia Cristina",
-  role: "Kommander",
-  company: "IMF",
-  avatar: "nayra.png",
-  event_id: 3
-})
+# Repo.insert!(%SpeakerTalk{
+#   talk_id: 1, speaker_id: 3
+# })
 
-Repo.insert!(%Speaker{
-  first_name: "Mikel",
-  last_name: "Louis",
-  name: "Louis Mikel",
-  role: "Ph D",
-  company: "Paco Am Plus",
-  avatar: "nayra.png",
-  event_id: 3
-})
-
-Repo.insert!(%SpeakerTalk{
-  talk_id: 1, speaker_id: 1
-})
-
-Repo.insert!(%SpeakerTalk{
-  talk_id: 1, speaker_id: 2
-})
-
-Repo.insert!(%SpeakerTalk{
-  talk_id: 1, speaker_id: 3
-})
-
-Repo.insert!(%SpeakerTalk{
-  talk_id: 2, speaker_id: 2
-})
+# Repo.insert!(%SpeakerTalk{
+#   talk_id: 2, speaker_id: 2
+# })
 
 # Sponsors context
 Repo.insert!(%Sponsor{
