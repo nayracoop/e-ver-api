@@ -106,7 +106,38 @@ defmodule EVerApiWeb.TalkControllerTest do
     end
 
     # CREATE with associated speakers
-      # -- TODO
+    @tag individual_test: "talks_create_add_speaker", login_as: "email@email.com"
+    test "create a talk with speakers then renders talk when data is valid", %{conn: conn, user: user, event: event} do
+      conn = post(conn, Routes.talk_path(conn, :create, event.id), talk: @create_attrs)
+      assert  %{
+          "id" => id,
+          "title" => "some title",
+          "details" => "some details",
+          "summary" => "some summary",
+          "start_time" => "2010-04-17T14:00:00Z",
+          "duration" => 42,
+          "tags" => ["elsa", "raquel"],
+          "allow_comments" => true,
+          "video" => %{"uri" => "some video_uri", "type" => "video", "autoplay" => false},
+          "speakers" => []
+        } = json_response(conn, 201)["data"]
+
+      # check if the event has the talk
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      resp = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == id end)
+      assert  %{
+        "id" => id,
+        "title" => "some title",
+        "details" => "some details",
+        "summary" => "some summary",
+        "start_time" => "2010-04-17T14:00:00Z",
+        "duration" => 42,
+        "tags" => ["elsa", "raquel"],
+        "allow_comments" => true,
+        "video" => %{"uri" => "some video_uri", "type" => "video", "autoplay" => false},
+        "speakers" => []
+      } = resp
+    end
 
     # UPDATE
     @tag individual_test: "talks_update", login_as: "email@email.com"

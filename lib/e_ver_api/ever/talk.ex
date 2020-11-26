@@ -38,9 +38,12 @@ defmodule EVerApi.Ever.Talk do
     |> cast(attrs, [:uri, :type, :autoplay])
   end
 
-  # SPEAKERS assocition
+  # SPEAKERS association
   defp changeset_update_speakers(talk, %{"speakers" => speaker_ids}) do
-    put_assoc(talk, :speakers, upsert_speakers(talk, speaker_ids))
+    case valid_speakers_ids(speaker_ids) do
+      true -> put_assoc(talk, :speakers, upsert_speakers(talk, speaker_ids))
+      _ -> add_error(talk, :speakers, "Speakers array must contain only integers")
+    end
   end
   defp changeset_update_speakers(talk, _), do: talk # when no changes then no changes
 
@@ -50,5 +53,9 @@ defmodule EVerApi.Ever.Talk do
     |> where([speaker], speaker.id in ^speaker_ids and speaker.event_id == ^talk.data.event_id)
     |> with_undeleted()
     |> EVerApi.Repo.all()
+  end
+
+  defp valid_speakers_ids(ids) do
+    is_list(ids) and Enum.all?(ids, fn s -> is_number(s) end)
   end
 end
