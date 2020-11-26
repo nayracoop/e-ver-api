@@ -256,7 +256,30 @@ defmodule EVerApi.EverTest do
     @tag individual_test: "change_talk"
     test "change_talk/1 returns a talk changeset", %{event: event} do
       talk = talk_fixture(%{event_id: event.id})
-      assert %Ecto.Changeset{} = Ever.change_talk(talk)
+      changeset = Ever.change_talk(talk)
+      assert %Ecto.Changeset{} = changeset
+      assert changeset.valid?
+    end
+
+    @tag individual_test: "change_talk"
+    test "change_talk/1 returns a talk changeset with associated speakers", %{event: event} do
+      speaker = speaker_fixture(%{event_id: event.id})
+      talk = talk_fixture(%{event_id: event.id})
+      # with preload
+      talk = Ever.get_talk!(talk.id)
+      changeset = Ever.change_talk(talk, %{"speakers" => [speaker.id]})
+      assert %Ecto.Changeset{} = changeset
+      assert changeset.valid?
+    end
+
+    @tag individual_test: "change_talk"
+    test "change_talk/1 returns a invalid talk changeset when speakers has bad format", %{event: event} do
+      speaker = speaker_fixture(%{event_id: event.id})
+      talk = talk_fixture(%{event_id: event.id})
+      changeset = Ever.change_talk(talk, %{"speakers" => ["holis"]})
+      assert %Ecto.Changeset{} = changeset
+      assert [{:speakers, _}] = changeset.errors
+      refute changeset.valid?
     end
   end
 
