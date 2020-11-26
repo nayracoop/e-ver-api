@@ -3,6 +3,7 @@ defmodule EVerApi.Ever.Talk do
   import Ecto.SoftDelete.Schema
   import Ecto.Changeset
   import Ecto.Query, warn: false
+  import Ecto.SoftDelete.Query
 
   schema "talks" do
     field :title, :string
@@ -29,8 +30,7 @@ defmodule EVerApi.Ever.Talk do
     |> cast_embed(:video, with: &video_changeset/2)
     |> validate_required([:title, :event_id])
     |> foreign_key_constraint(:event_id)
-    # FIX this:
-    |> upsert_talk_speakers(attrs["speakers"])
+    |> changeset_update_speakers(attrs)
   end
 
   defp video_changeset(video, attrs) do
@@ -38,26 +38,17 @@ defmodule EVerApi.Ever.Talk do
     |> cast(attrs, [:uri, :type, :autoplay])
   end
 
-  def changeset_update_speakers(talk, speakers) do
-    talk
-    |> put_assoc(:speakers, speakers)
+  # SPEAKERS assocition
+  defp changeset_update_speakers(talk, %{"speakers" => speaker_ids}) do
+    put_assoc(talk, :speakers, upsert_speakers(talk, speaker_ids))
   end
+  defp changeset_update_speakers(talk, _), do: talk # when no changes then no changes
 
-  def upsert_talk_speakers(talk, speaker_ids) when is_list(speaker_ids) do
-
-    speakers =
-      EVerApi.Ever.Speaker
-      |> where([speaker], speaker.id in ^speaker_ids)
-      |> EVerApi.Repo.all()
-
-    with {:ok, _struct} <-
-      talk
-        |> changeset_update_speakers(speakers) do
-        #|> EVerApi.Repo.insert() do
-      {:ok, EVerApi.Ever.get_talk(talk.id)}
-    else
-      error -> error
-    end
+  defp upsert_speakers(talk, speaker_ids) do
+    # TODO maybe check for errors ?
+    EVerApi.Ever.Speaker
+    |> where([speaker], speaker.id in ^speaker_ids and speaker.event_id == ^talk.data.event_id)
+    |> with_undeleted()
+    |> EVerApi.Repo.all()
   end
-  def upsert_talk_speakers(talk, nil), do: talk
 end
