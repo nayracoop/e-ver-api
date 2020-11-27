@@ -164,6 +164,15 @@ defmodule EVerApiWeb.TalkControllerTest do
       assert Enum.find(speakers, fn x -> x["id"] == s2.id end)
     end
 
+    @tag individual_test: "talks_create_add_speaker", login_as: "email@email.com"
+    test "rensers an error speaker is not a number", %{conn: conn, user: user, event: event} do
+      s1 = insert(:speaker, %{event_id: event.id})
+
+      # try to add 2 valid speakers - 1 inexistent speaker - a foreign speaker
+      conn = post(conn, Routes.talk_path(conn, :create, event.id), talk: Map.put(@create_attrs, :speakers, [s1.id, "fake"]))
+      assert json_response(conn, 422)["errors"] != %{}
+    end
+
     # UPDATE
     @tag individual_test: "talks_update", login_as: "email@email.com"
     test "renders an updated talk when data is valid", %{conn: conn, user: user, event: event} do
