@@ -108,9 +108,19 @@ defmodule EVerApiWeb.TalkControllerTest do
     # CREATE with associated speakers
     @tag individual_test: "talks_create_add_speaker", login_as: "email@email.com"
     test "create a talk with speakers then renders talk when data is valid", %{conn: conn, user: user, event: event} do
-      conn = post(conn, Routes.talk_path(conn, :create, event.id), talk: @create_attrs)
+      s1 = insert(:speaker, %{event_id: event.id})
+      s2 = insert(:speaker, %{event_id: event.id})
+
+      # create other event to test if the speaker is being added by error in the former test event
+      other_event = insert(:event)
+      s3 = insert(:speaker, %{event_id: other_event.id})
+
+      # try to add 2 valid speakers - 1 inexistent speaker - a foreign speaker
+      conn = post(conn, Routes.talk_path(conn, :create, event.id), talk: Map.put(@create_attrs, :speakers, [s1.id, s2.id, s3.id, 666]))
+
+      response = json_response(conn, 201)["data"]
       assert  %{
-          "id" => id,
+          "id" => talk_id,
           "title" => "some title",
           "details" => "some details",
           "summary" => "some summary",
@@ -119,12 +129,22 @@ defmodule EVerApiWeb.TalkControllerTest do
           "tags" => ["elsa", "raquel"],
           "allow_comments" => true,
           "video" => %{"uri" => "some video_uri", "type" => "video", "autoplay" => false},
-          "speakers" => []
-        } = json_response(conn, 201)["data"]
+          "speakers" => speakers
+        } = response
+      #assert %Ever.Speaker{} = s_.id
+
+      assert is_list(speakers)
+      assert Enum.count(speakers) == 2
+      assert Enum.find(speakers, fn x -> x["id"] == s1.id end)
+      assert Enum.find(speakers, fn x -> x["id"] == s2.id end)
+
+
+      # TODO test helper
+      # assert match_view(:speaker, List.first(speaker))
 
       # check if the event has the talk
       conn = get(conn, Routes.event_path(conn, :show, event.id))
-      resp = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == id end)
+      resp = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == talk_id end)
       assert  %{
         "id" => id,
         "title" => "some title",
@@ -135,8 +155,13 @@ defmodule EVerApiWeb.TalkControllerTest do
         "tags" => ["elsa", "raquel"],
         "allow_comments" => true,
         "video" => %{"uri" => "some video_uri", "type" => "video", "autoplay" => false},
-        "speakers" => []
+        "speakers" => speakers
       } = resp
+
+      assert is_list(speakers)
+      assert Enum.count(speakers) == 2
+      assert Enum.find(speakers, fn x -> x["id"] == s1.id end)
+      assert Enum.find(speakers, fn x -> x["id"] == s2.id end)
     end
 
     # UPDATE

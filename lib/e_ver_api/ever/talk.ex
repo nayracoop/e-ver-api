@@ -40,6 +40,7 @@ defmodule EVerApi.Ever.Talk do
 
   # SPEAKERS association
   defp changeset_update_speakers(talk, %{"speakers" => speaker_ids}) do
+
     case valid_speakers_ids(speaker_ids) do
       true -> put_assoc(talk, :speakers, upsert_speakers(talk, speaker_ids))
       _ -> add_error(talk, :speakers, "Speakers array must contain only integers")
@@ -48,9 +49,11 @@ defmodule EVerApi.Ever.Talk do
   defp changeset_update_speakers(talk, _), do: talk # when no changes then no changes
 
   defp upsert_speakers(talk, speaker_ids) do
+    # use either new talk_id from changes otherwise the data event_id.
+    event_id = Map.get(talk.changes, :event_id) || Map.get(talk.data, :event_id)
     # TODO maybe check for errors ?
     EVerApi.Ever.Speaker
-    |> where([speaker], speaker.id in ^speaker_ids and speaker.event_id == ^talk.data.event_id)
+    |> where([speaker], speaker.id in ^speaker_ids and speaker.event_id == ^event_id)
     |> with_undeleted()
     |> EVerApi.Repo.all()
   end
