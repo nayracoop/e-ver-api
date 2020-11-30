@@ -32,11 +32,18 @@ defmodule EVerApiWeb.SponsorController do
   #   render(conn, "show.json", sponsor: sponsor)
   # end
 
-  def update(conn, %{"id" => id, "sponsor" => sponsor_params}) do
-    sponsor = Sponsors.get_sponsor!(id)
-
-    with {:ok, %Sponsor{} = sponsor} <- Sponsors.update_sponsor(sponsor, sponsor_params) do
-      render(conn, "show.json", sponsor: sponsor)
+  def update(conn, %{"event_id" => event_id, "id" => id, "sponsor" => sponsor_params}) do
+    case Ever.get_event(event_id) do
+      nil -> {:error, :not_found}
+      event ->
+        with sponsor when not is_nil(sponsor) <- Sponsors.get_sponsor(id),
+        true <- is_valid_sponsor(sponsor, event.id),
+        {:ok, %Sponsor{} = sponsor} <- Sponsors.update_sponsor(sponsor, sponsor_params) do
+          render(conn, "show.json", sponsor: sponsor)
+        else
+          {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
+          _ -> {:error, :not_found}
+        end
     end
   end
 
@@ -46,5 +53,9 @@ defmodule EVerApiWeb.SponsorController do
     with {:ok, %Sponsor{}} <- Sponsors.delete_sponsor(sponsor) do
       send_resp(conn, :no_content, "")
     end
+  end
+
+  defp is_valid_sponsor(sponsor, event_id) do
+    sponsor.event_id == event_id
   end
 end

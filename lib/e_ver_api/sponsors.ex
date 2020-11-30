@@ -1,13 +1,12 @@
 defmodule EVerApi.Sponsors do
   @moduledoc """
-  The Ever context.
+  The Sponsors context.
   """
 
   import Ecto.Query, warn: false
   alias EVerApi.Repo
 
-  #import Ecto.SoftDelete.Query
-
+  import Ecto.SoftDelete.Query
   alias EVerApi.Sponsors.Sponsor
 
   @doc """
@@ -38,6 +37,26 @@ defmodule EVerApi.Sponsors do
 
   """
   def get_sponsor!(id), do: Repo.get!(Sponsor, id)
+
+  @doc """
+  Gets a single sponsor.
+
+  Returns nil if the Sponsor does not exist.
+
+  ## Examples
+
+      iex> get_sponsor(123)
+      %Sponsor{}
+
+      iex> get_sponsor(456)
+      nil
+
+  """
+  def get_sponsor(id) do
+    query = from(s in Sponsor, select: s)
+      |> with_undeleted()
+    Repo.get(query, id)
+  end
 
   @doc """
   Creates a sponsor.

@@ -68,7 +68,7 @@ defmodule EVerApiWeb.SponsorControllerTest do
       assert Enum.count(sponsors) == 3
       sp = Enum.find(sponsors, fn x -> x["id"] == sponsor_id end)
       assert %{
-        "id" => sponsor_id,
+        "id" => ^sponsor_id,
         "logo" => "some logo",
         "name" => "some name",
         "website" => "some website"
@@ -76,20 +76,22 @@ defmodule EVerApiWeb.SponsorControllerTest do
     end
 
     @tag individual_test: "sponsors_create", login_as: "email@email.com"
+    test "renders errors when trying to add a sponsor to non existent event", %{conn: conn, user: user, event: event} do
+      conn = post(conn, Routes.sponsor_path(conn, :create, "666"), sponsor: @create_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "sponsors_create", login_as: "email@email.com"
     test "renders errors when data is invalid", %{conn: conn, user: user, event: event} do
       conn = post(conn, Routes.sponsor_path(conn, :create, event.id), sponsor: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
-  end
 
-  describe "update sponsor" do
-    setup [:create_sponsor]
-
-    test "renders sponsor when data is valid", %{conn: conn, sponsor: %Sponsor{id: id} = sponsor} do
-      conn = put(conn, Routes.sponsor_path(conn, :update, sponsor), sponsor: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, Routes.sponsor_path(conn, :show, id))
+    # UPDATE
+    @tag individual_test: "sponsors_update", login_as: "email@email.com"
+    test "renders sponsor when update data is valid",%{conn: conn, user: user, event: event} do
+      %Sponsor{id: sponsor_id} = List.first(event.sponsors)
+      conn = put(conn, Routes.sponsor_path(conn, :update, event.id, sponsor_id), sponsor: @update_attrs)
 
       assert %{
                "id" => id,
@@ -97,10 +99,23 @@ defmodule EVerApiWeb.SponsorControllerTest do
                "name" => "some updated name",
                "website" => "some updated website"
              } = json_response(conn, 200)["data"]
+
+      assert id == sponsor_id
+      # fetch event and check updated speaker
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      sp = Enum.find(json_response(conn, 200)["data"]["sponsors"], fn x -> x["id"] == id end)
+      assert %{
+        "id" => ^sponsor_id,
+        "logo" => "some updated logo",
+        "name" => "some updated name",
+        "website" => "some updated website"
+      } = sp
     end
 
-    test "renders errors when data is invalid", %{conn: conn, sponsor: sponsor} do
-      conn = put(conn, Routes.sponsor_path(conn, :update, sponsor), sponsor: @invalid_attrs)
+    @tag individual_test: "sponsors_update", login_as: "email@email.com"
+    test "renders errors when update data is invalid", %{conn: conn, user: user, event: event} do
+      %Sponsor{id: sponsor_id} = List.first(event.sponsors)
+      conn = put(conn, Routes.sponsor_path(conn, :update, event.id, sponsor_id), sponsor: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
