@@ -165,7 +165,7 @@ defmodule EVerApiWeb.TalkControllerTest do
     end
 
     @tag individual_test: "talks_create_add_speaker", login_as: "email@email.com"
-    test "rensers an error speaker is not a number", %{conn: conn, user: user, event: event} do
+    test "renders an error speaker is not a number", %{conn: conn, user: user, event: event} do
       s1 = insert(:speaker, %{event_id: event.id})
 
       # try to add 2 valid speakers - 1 inexistent speaker - a foreign speaker
@@ -225,6 +225,78 @@ defmodule EVerApiWeb.TalkControllerTest do
     test "renders errors when trying to update non existent talk for a valid event", %{conn: conn, user: user, event: event} do
       conn = put(conn, Routes.talk_path(conn, :update, event.id, "999"), talk: @update_attrs)
       assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    # UPDATE with associated speakers
+    @tag individual_test: "talks_update_speaker_", login_as: "email@email.com"
+    test "updates a list of speakers in a talk adding one", %{conn: conn, user: user, event: event} do
+      %Talk{id: talk_id, speakers: talk_speakers} = List.first(event.talks)
+      [s1, s2] = Enum.map(talk_speakers, fn s -> s.id end)
+      %Ever.Speaker{id: s3} = insert(:speaker, %{event_id: event.id})
+      # create other event to test if the speaker is being added by error in the former test event
+      other_event = insert(:event)
+      %Ever.Speaker{id: s4} = insert(:speaker, %{event_id: other_event.id})
+
+      conn = put(conn, Routes.talk_path(conn, :update, event.id, talk_id), talk: %{speakers: [s1, s2, 666, s3, s4]})
+      # check the update response view
+      assert data = json_response(conn, 200)["data"]
+      assert Enum.count(data["speakers"]) == 3
+      # compare the ids with the talk response
+      Enum.each([s1, s2, s3], fn s ->
+        assert Enum.find(data["speakers"], fn x -> x["id"] == s end)
+      end)
+
+      # fetch event and check updated talk
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      talk = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == talk_id end)
+      assert Enum.count(talk["speakers"]) == 3
+      # compare the ids with the event talk
+      Enum.each([s1, s2, s3], fn s ->
+        assert Enum.find(talk["speakers"], fn x -> x["id"] == s end)
+      end)
+    end
+
+    @tag individual_test: "talks_update_speaker", login_as: "email@email.com"
+    test "updates a list of speakers in a talk removing one of them", %{conn: conn, user: user, event: event} do
+      %Talk{id: talk_id, speakers: talk_speakers} = List.first(event.talks)
+      [s1, s2] = Enum.map(talk_speakers, fn s -> s.id end)
+      conn = put(conn, Routes.talk_path(conn, :update, event.id, talk_id), talk: %{speakers: [s1]})
+      # check the update response view
+      assert data = json_response(conn, 200)["data"]
+      assert Enum.count(data["speakers"]) == 1
+      s = List.first(data["speakers"])
+      assert s["id"] == s1
+
+      # fetch event and check updated talk
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      talk = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == talk_id end)
+      assert Enum.count(talk["speakers"]) == 1
+      assert List.first(talk["speakers"])["id"] == s1
+    end
+
+    @tag individual_test: "talks_update_speaker", login_as: "email@email.com"
+    test "updates a list of speakers in a talk removing ALL of them", %{conn: conn, user: user, event: event} do
+      %Talk{id: talk_id, speakers: talk_speakers} = List.first(event.talks)
+
+      conn = put(conn, Routes.talk_path(conn, :update, event.id, talk_id), talk: %{speakers: []})
+      # check the update response view
+      assert data = json_response(conn, 200)["data"]
+      assert data["speakers"] == []
+
+      # fetch event and check updated talk
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      talk = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == talk_id end)
+      assert talk["speakers"] == []
+    end
+
+    @tag individual_test: "talks_update_speaker", login_as: "email@email.com"
+    test "renders an error speaker is not a number when updating talk", %{conn: conn, user: user, event: event} do
+      %Talk{id: talk_id} = List.first(event.talks)
+      s1 = insert(:speaker, %{event_id: event.id})
+
+      # try to add 2 valid speakers - 1 inexistent speaker - a foreign speaker
+      conn = put(conn, Routes.talk_path(conn, :update, event.id, talk_id), talk: Map.put(@update_attrs, :speakers, [s1.id, "fake"]))
+      assert json_response(conn, 422)["errors"] != %{}
     end
 
     # DELETE

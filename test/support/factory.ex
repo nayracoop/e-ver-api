@@ -3,13 +3,13 @@ defmodule EVerApi.Factory do
   alias ExMachina.Sequence
   import Bcrypt, only: [hash_pwd_salt: 1]
 
-  @names ["Richard", "Feche", "Elsa", "Refalosa", "Quiqui", "Ana", "Raquel", "Pablito", "Wenceslao"]
+  @names ["Richard", "Feche", "Elsa", "Refalosa", "Quiqui", "Ana", "Raquel", "Pablito", "Wenceslao", "Abel"]
   @topics ["programming in KOVOL", "Decentralized life",
     "Cooperativismo mágico", "Sound sculptures", "Wine & enology",
     "Innovation in Media Arts", "AR/VR für alles", "Innovationsgenossenschaften",
     "The void in XXI Century litterature", "Tout est virtuel"
   ]
-  @roles ["Supreme King", "A simple human", "AI chief", "CEO", "Inventor", "PO"]
+  @roles ["Supreme King", "A simple human", "AI chief", "CEO", "Inventor", "PO", "Evangelist"]
   @sponsors ["The Air Conditioner Fundamentalism co.", "nayracoop"]
 
   def user_factory do
