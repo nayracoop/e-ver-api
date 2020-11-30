@@ -184,7 +184,7 @@ defmodule EVerApiWeb.SpeakerControllerTest do
 
   end
 
-    # 401 Unauthorized
+  # 401 Unauthorized
   @tag individual_test: "speakers_401"
   test "requires user authentication on all actions", %{conn: conn} do
     Enum.each([

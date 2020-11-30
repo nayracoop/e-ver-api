@@ -118,6 +118,18 @@ defmodule EVerApiWeb.SponsorControllerTest do
     end
   end
 
+  # 401 Unauthorized
+  @tag individual_test: "sponsors_401"
+  test "requires user authentication on all actions", %{conn: conn} do
+    Enum.each([
+      post(conn, Routes.sponsor_path(conn, :create, "666", %{})),
+      put(conn, Routes.sponsor_path(conn, :update, "666", "123", %{})),
+      delete(conn, Routes.sponsor_path(conn, :delete, "666", "234"))
+    ], fn conn ->
+      assert json_response(conn, 401)["message"] == "unauthenticated"
+    end)
+  end
+
   defp create_sponsor(_) do
     sponsor = fixture(:sponsor)
     %{sponsor: sponsor}
