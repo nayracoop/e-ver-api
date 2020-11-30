@@ -3,6 +3,7 @@ defmodule EVerApiWeb.SponsorController do
 
   alias EVerApi.Sponsors
   alias EVerApi.Sponsors.Sponsor
+  alias EVerApi.Ever
 
   action_fallback EVerApiWeb.FallbackController
 
@@ -11,12 +12,18 @@ defmodule EVerApiWeb.SponsorController do
   #   render(conn, "index.json", sponsors: sponsors)
   # end
 
-  def create(conn, %{"sponsor" => sponsor_params}) do
-    with {:ok, %Sponsor{} = sponsor} <- Sponsors.create_sponsor(sponsor_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.sponsor_path(conn, :show, sponsor))
-      |> render("show.json", sponsor: sponsor)
+  def create(conn, %{"event_id" => event_id, "sponsor" => sponsor_params}) do
+
+    case Ever.get_event(event_id) do
+      nil -> {:error, :not_found}
+      event ->
+        params = Map.put_new(sponsor_params, "event_id", event.id)
+        with {:ok, %Sponsor{} = sponsor} <- Sponsors.create_sponsor(params) do
+
+          conn
+          |> put_status(:created)
+          |> render("show.json", sponsor: sponsor)
+        end
     end
   end
 

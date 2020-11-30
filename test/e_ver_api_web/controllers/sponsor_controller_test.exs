@@ -32,23 +32,52 @@ defmodule EVerApiWeb.SponsorControllerTest do
   #   end
   # end
 
-  describe "create sponsor" do
-    test "renders sponsor when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.sponsor_path(conn, :create), sponsor: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+  describe "with a logged-in user" do
+    setup %{conn: conn, login_as: email} do
+      user = insert(:user, email: email)
+      event = insert(:event, %{user: user})
+      {:ok, jwt_string, _} = EVerApi.Accounts.token_sign_in(email, "123456")
 
-      conn = get(conn, Routes.sponsor_path(conn, :show, id))
+      conn =
+        conn
+        |> put_req_header("accept", "application/json")
+        |> put_req_header("content-type", "application/json")
+        |> put_req_header("authorization", "Bearer #{jwt_string}")
+
+      {:ok, conn: conn, user: user, event: event}
+    end
+
+    # CREATE SPONSOR
+    @tag individual_test: "sponsors_create", login_as: "email@email.com"
+    test "renders sponsor when data is valid", %{conn: conn, user: user, event: event} do
+      conn = post(conn, Routes.sponsor_path(conn, :create, event.id), sponsor: @create_attrs)
 
       assert %{
-               "id" => id,
+               "id" => sponsor_id,
                "logo" => "some logo",
                "name" => "some name",
                "website" => "some website"
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 201)["data"]
+
+      # fetch the event and check
+      conn = get(conn, Routes.event_path(conn, :show, event.id))
+      assert response = json_response(conn, 200)["data"]
+
+      sponsors = response["sponsors"]
+
+      assert Enum.count(sponsors) == 3
+      sp = Enum.find(sponsors, fn x -> x["id"] == sponsor_id end)
+      assert %{
+        "id" => sponsor_id,
+        "logo" => "some logo",
+        "name" => "some name",
+        "website" => "some website"
+      } = sp
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.sponsor_path(conn, :create), sponsor: @invalid_attrs)
+    @tag individual_test: "sponsors_create", login_as: "email@email.com"
+    test "renders errors when data is invalid", %{conn: conn, user: user, event: event} do
+      conn = post(conn, Routes.sponsor_path(conn, :create, event.id), sponsor: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
