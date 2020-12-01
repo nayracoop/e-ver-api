@@ -141,7 +141,8 @@ defmodule EVerApiWeb.SpeakerControllerTest do
 
     @tag individual_test: "speakers_update", login_as: "email@email.com"
     test "renders errors when trying to update a speaker to non existent event", %{conn: conn, user: user, event: event} do
-      conn = put(conn, Routes.speaker_path(conn, :update, "666", "999"), speaker: @update_attrs)
+      %Speaker{id: speaker_id} = List.first(event.speakers)
+      conn = put(conn, Routes.speaker_path(conn, :update, "666", speaker_id), speaker: @update_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
