@@ -107,7 +107,7 @@ defmodule EVerApi.Sponsors do
 
   """
   def delete_sponsor(%Sponsor{} = sponsor) do
-    Repo.delete(sponsor)
+    Repo.soft_delete(sponsor)
   end
 
   @doc """

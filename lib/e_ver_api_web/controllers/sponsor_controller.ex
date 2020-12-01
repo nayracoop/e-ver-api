@@ -47,12 +47,26 @@ defmodule EVerApiWeb.SponsorController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    sponsor = Sponsors.get_sponsor!(id)
-
-    with {:ok, %Sponsor{}} <- Sponsors.delete_sponsor(sponsor) do
-      send_resp(conn, :no_content, "")
+  def delete(conn, %{"event_id" => event_id, "id" => id}) do
+    case Ever.get_event(event_id) do
+      nil -> {:error, :not_found}
+      event ->
+        with sponsor when not is_nil(sponsor) <- Sponsors.get_sponsor(id),
+        true <- is_valid_sponsor(sponsor, event.id),
+        {:ok, %Sponsor{}} <- Sponsors.delete_sponsor(sponsor) do
+          send_resp(conn, :no_content, "")
+        else
+          {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
+          _ -> {:error, :not_found}
+        end
     end
+
+
+    # sponsor = Sponsors.get_sponsor!(id)
+
+    # with {:ok, %Sponsor{}} <- Sponsors.delete_sponsor(sponsor) do
+    #   send_resp(conn, :no_content, "")
+    # end
   end
 
   defp is_valid_sponsor(sponsor, event_id) do

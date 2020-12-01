@@ -63,13 +63,16 @@ defmodule EVerApi.Ever do
     speakers_query = from(s in EVerApi.Ever.Speaker, select: s)
       |> with_undeleted()
 
-      talks_query = from(t in EVerApi.Ever.Talk, select: t)
+    talks_query = from(t in EVerApi.Ever.Talk, select: t)
       |> with_undeleted() |> preload(:speakers)
+
+    sponsors_query = from(sp in EVerApi.Sponsors.Sponsor, select: sp)
+      |> with_undeleted()
 
     query = from(e in Event, select: e)
       |> with_undeleted()
     Repo.get(query, id)
-      |> Repo.preload([:user, :sponsors, [speakers: speakers_query], [talks: talks_query]])
+      |> Repo.preload([:user, [sponsors: sponsors_query], [speakers: speakers_query], [talks: talks_query]])
   end
   @doc """
   Creates a event.

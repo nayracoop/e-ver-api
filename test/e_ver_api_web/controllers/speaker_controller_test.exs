@@ -173,7 +173,8 @@ defmodule EVerApiWeb.SpeakerControllerTest do
 
     @tag individual_test: "speakers_delete", login_as: "email@email.com"
     test "renders errors when trying to delete speaker to non existent event", %{conn: conn, user: user, event: event} do
-      conn = delete(conn, Routes.speaker_path(conn, :delete, "666", "999"))
+      %Speaker{id: speaker_id} = List.first(event.speakers)
+      conn = delete(conn, Routes.speaker_path(conn, :delete, "666", speaker_id))
       assert json_response(conn, 404)["errors"] != %{}
     end
 
