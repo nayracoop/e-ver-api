@@ -179,11 +179,18 @@ defmodule EVerApiWeb.SpeakerControllerTest do
     end
 
     @tag individual_test: "speakers_delete", login_as: "email@email.com"
-    test "renders errors when trying to delete non existen speaker for a valid event event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to delete non existen speaker for a valid event", %{conn: conn, user: user, event: event} do
       conn = delete(conn, Routes.speaker_path(conn, :delete, event.id, "999"))
       assert json_response(conn, 404)["errors"] != %{}
     end
 
+    @tag individual_test: "speakers_delete", login_as: "email@email.com"
+    test "renders errors when trying to delete a speaker which belongs to another event", %{conn: conn, user: user, event: event} do
+      e = insert(:event, %{name: "foreign event"})
+      s = insert(:speaker, %{event_id: e.id})
+      conn = delete(conn, Routes.speaker_path(conn, :delete, event.id, s.id))
+      assert json_response(conn, 404)["errors"] != %{}
+    end
   end
 
   # 401 Unauthorized

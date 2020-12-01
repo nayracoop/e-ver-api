@@ -317,6 +317,28 @@ defmodule EVerApiWeb.TalkControllerTest do
       conn = delete(conn, Routes.talk_path(conn, :delete, event.id, talk_id))
       assert response(conn, 404)
     end
+
+    @tag individual_test: "talks_delete", login_as: "email@email.com"
+    test "renders errors when trying to delete a talk to non existent event", %{conn: conn, user: user, event: event} do
+      %Talk{id: talk_id} = List.first(event.talks)
+      conn = delete(conn, Routes.talk_path(conn, :delete, "666", talk_id))
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "talks_delete", login_as: "email@email.com"
+    test "renders errors when trying to delete non existent talk for a valid event", %{conn: conn, user: user, event: event} do
+      %Talk{id: talk_id} = List.first(event.talks)
+      conn = delete(conn, Routes.talk_path(conn, :delete, event.id, "666"))
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "talks_delete", login_as: "email@email.com"
+    test "renders errors when trying to delete a talk which belongs to another event", %{conn: conn, user: user, event: event} do
+      e = insert(:event, %{name: "foreign event"})
+      t = insert(:talk, %{event_id: e.id})
+      conn = delete(conn, Routes.talk_path(conn, :delete, event.id, t.id))
+      assert json_response(conn, 404)["errors"] != %{}
+    end
   end
 
   # 401 Unauthorized

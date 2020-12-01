@@ -145,19 +145,31 @@ defmodule EVerApiWeb.SponsorControllerTest do
       conn = get(conn, Routes.event_path(conn, :show, event.id))
       sp = Enum.find(json_response(conn, 200)["data"]["sponsors"], fn x -> x["id"] == sponsor_id end)
       assert sp == nil
+
+      # trying to re delete :(
+      conn = delete(conn, Routes.sponsor_path(conn, :delete, event.id, sponsor_id))
+      assert response(conn, 404)
     end
 
     @tag individual_test: "sponsors_delete", login_as: "email@email.com"
-    test "renders errors when trying to delete sponsor to non existent event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to delete a sponsor to non existent event", %{conn: conn, user: user, event: event} do
       %Sponsor{id: sponsor_id} = List.first(event.sponsors)
       conn = delete(conn, Routes.sponsor_path(conn, :delete, "666", sponsor_id))
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "sponsors_delete", login_as: "email@email.com"
-    test "renders errors when trying to delete non existen sponsor for a valid event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to delete non existent sponsor for a valid event", %{conn: conn, user: user, event: event} do
       %Sponsor{id: sponsor_id} = List.first(event.sponsors)
       conn = delete(conn, Routes.sponsor_path(conn, :delete, event.id, "666"))
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "sponsors_delete", login_as: "email@email.com"
+    test "renders errors when trying to delete a sponsor which belongs to another event", %{conn: conn, user: user, event: event} do
+      e = insert(:event, %{name: "foreign event"})
+      s = insert(:sponsor, %{event_id: e.id})
+      conn = delete(conn, Routes.sponsor_path(conn, :delete, event.id, s.id))
       assert json_response(conn, 404)["errors"] != %{}
     end
   end
