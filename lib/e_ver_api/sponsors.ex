@@ -19,7 +19,9 @@ defmodule EVerApi.Sponsors do
 
   """
   def list_sponsors do
-    Repo.all(Sponsor)
+    query = from(sp in Sponsor, select: sp)
+      |> with_undeleted()
+    Repo.all(query)
   end
 
   @doc """

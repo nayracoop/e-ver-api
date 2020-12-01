@@ -5,7 +5,10 @@ defmodule EVerApi.SponsorsTest do
 
   describe "sponsors" do
     alias EVerApi.Sponsors.Sponsor
-
+    setup do
+      e = insert(:event)
+      %{event: e}
+    end
     @valid_attrs %{logo: "some logo", name: "some name", website: "some website"}
     @update_attrs %{logo: "some updated logo", name: "some updated name", website: "some updated website"}
     @invalid_attrs %{logo: nil, name: nil, website: nil}
@@ -19,9 +22,26 @@ defmodule EVerApi.SponsorsTest do
       sponsor
     end
 
-    test "list_sponsors/0 returns all sponsors" do
-      sponsor = sponsor_fixture()
-      assert Sponsors.list_sponsors() == [sponsor]
+    @tag individual_test: "list_sponsors"
+    test "list_sponsors/0 returns all sponsors", %{event: event} do
+      sponsor = sponsor_fixture(%{event_id: event.id})
+      # should not list undeleted
+      sponsor_del = sponsor_fixture(%{event_id: event.id, name: "neike"})
+      Sponsors.delete_sponsor(sponsor_del)
+      # 2 sponsors were defined in factory
+      sponsors = Sponsors.list_sponsors()
+      assert is_list(sponsors)
+      assert Enum.count(sponsors) == 3
+      # look for added sponsor
+      sp = Enum.find(sponsors, fn s -> s.id == sponsor.id end)
+
+      assert nil != sp
+      assert %{
+        logo: "some logo",
+        name: "some name",
+        website: "some website"
+        } = sp
+      assert event.id == sp.event_id
     end
 
     test "get_sponsor!/1 returns the sponsor with given id" do

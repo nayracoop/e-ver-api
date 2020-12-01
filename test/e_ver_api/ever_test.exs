@@ -133,7 +133,6 @@ defmodule EVerApi.EverTest do
     alias EVerApi.Ever.Talk
     setup do
       e = insert(:event)
-      #IO.inspect(e)
       %{event: e}
     end
 
