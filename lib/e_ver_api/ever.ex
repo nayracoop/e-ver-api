@@ -9,6 +9,9 @@ defmodule EVerApi.Ever do
   alias EVerApi.Ever.{Event, Talk}
   import Ecto.SoftDelete.Query
 
+  defp filter_user(query, nil), do: query
+  defp filter_user(query, id), do: where(query, user_id: ^id)
+
   @doc """
   Returns the list of events.
 
@@ -18,8 +21,9 @@ defmodule EVerApi.Ever do
       [%Event{}, ...]
 
   """
-  def list_events do
+  def list_events(user_id \\ nil) do
     query = from(e in Event, select: e)
+      |> filter_user(user_id) # check the user owns the events
       |> with_undeleted()
     Repo.all(query) |> Repo.preload([:user, :sponsors, :speakers, {:talks, :speakers}])
   end
@@ -58,7 +62,7 @@ defmodule EVerApi.Ever do
       nil
 
   """
-  def get_event(id) do
+  def get_event(id, user_id \\ nil) do
     # filter soft-deleted associations
     speakers_query = from(s in EVerApi.Ever.Speaker, select: s)
       |> with_undeleted()
@@ -70,7 +74,9 @@ defmodule EVerApi.Ever do
       |> with_undeleted()
 
     query = from(e in Event, select: e)
+      |> filter_user(user_id)
       |> with_undeleted()
+
     Repo.get(query, id)
       |> Repo.preload([:user, [sponsors: sponsors_query], [speakers: speakers_query], [talks: talks_query]])
   end

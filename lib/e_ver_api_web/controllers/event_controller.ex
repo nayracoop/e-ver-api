@@ -6,12 +6,26 @@ defmodule EVerApiWeb.EventController do
 
   action_fallback EVerApiWeb.FallbackController
 
-  def index(conn, _params) do
-    events = Ever.list_events()
+  defp extract_user(conn) do
+    # using Guardian data for user id retrieving
+    case conn.private[:guardian_default_resource] do
+      nil -> nil
+      user -> user.id
+    end
+  end
+
+  def action(conn, _) do
+
+    args = [conn, conn.params, extract_user(conn)]
+    apply(__MODULE__, action_name(conn), args)
+  end
+
+  def index(conn, _params, current_user) do
+    events = Ever.list_events(current_user)
     render(conn, "index.json", events: events)
   end
 
-  def create(conn, %{"event" => event_params}) do
+  def create(conn, %{"event" => event_params}, _) do
     with {:ok, %Event{} = event} <- Ever.create_event(event_params) do
       # manually adding event owner data ?
 
@@ -22,7 +36,7 @@ defmodule EVerApiWeb.EventController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"id" => id}, _) do
     event = Ever.get_event(id)
     case event do
       nil -> {:error, :not_found}
@@ -30,8 +44,8 @@ defmodule EVerApiWeb.EventController do
     end
   end
 
-  def update(conn, %{"id" => id, "event" => event_params}) do
-    case Ever.get_event(id) do
+  def update(conn, %{"id" => id, "event" => event_params}, current_user) do
+    case Ever.get_event(id, current_user) do
       nil ->  {:error, :not_found}
       event ->
         with {:ok, %Event{} = event} <- Ever.update_event(event, event_params) do
@@ -40,8 +54,8 @@ defmodule EVerApiWeb.EventController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    with event when not is_nil(event) <- Ever.get_event(id),
+  def delete(conn, %{"id" => id}, current_user) do
+    with event when not is_nil(event) <- Ever.get_event(id, current_user),
         {:ok, %Event{}}  <- Ever.delete_event(event) do
       send_resp(conn, :no_content, "")
     else
