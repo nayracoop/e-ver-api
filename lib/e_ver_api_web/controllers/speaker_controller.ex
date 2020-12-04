@@ -3,18 +3,24 @@ defmodule EVerApiWeb.SpeakerController do
 
   alias EVerApi.Ever
   alias EVerApi.Ever.Speaker
+  alias EVerApiWeb.ControllerHelper
 
   action_fallback EVerApiWeb.FallbackController
+
+  def action(conn, _) do
+    args = [conn, conn.params, ControllerHelper.extract_user(conn)]
+    apply(__MODULE__, action_name(conn), args)
+  end
 
   # def index(conn, _params) do
   #   speakers = Ever.list_speakers()
   #   render(conn, "index.json", speakers: speakers)
   # end
 
-  def create(conn, %{"event_id" => event_id, "speaker" => speaker_params}) do
+  def create(conn, %{"event_id" => event_id, "speaker" => speaker_params}, current_user) do
     # Next time use Ecto relationship and update event
 
-    case Ever.get_event(event_id) do
+    case Ever.get_event(event_id, current_user) do
       nil ->  {:error, :not_found}
       event ->
         params = Map.put_new(speaker_params, "event_id", event.id)
@@ -31,9 +37,9 @@ defmodule EVerApiWeb.SpeakerController do
   #   render(conn, "show.json", speaker: speaker)
   # end
 
-  def update(conn, %{"event_id" => event_id, "id" => id, "speaker" => speaker_params}) do
+  def update(conn, %{"event_id" => event_id, "id" => id, "speaker" => speaker_params}, current_user) do
 
-    case Ever.get_event(event_id) do
+    case Ever.get_event(event_id, current_user) do
       nil ->  {:error, :not_found}
       event ->
         with speaker when not is_nil(speaker) <- Ever.get_speaker(id),
@@ -47,8 +53,8 @@ defmodule EVerApiWeb.SpeakerController do
     end
   end
 
-  def delete(conn, %{"event_id" => event_id, "id" => id}) do
-    case Ever.get_event(event_id) do
+  def delete(conn, %{"event_id" => event_id, "id" => id}, current_user) do
+    case Ever.get_event(event_id, current_user) do
       nil ->  {:error, :not_found}
       event ->
         with speaker when not is_nil(speaker) <- Ever.get_speaker(id),
