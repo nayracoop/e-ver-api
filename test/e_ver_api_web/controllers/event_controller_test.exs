@@ -35,22 +35,30 @@ defmodule EVerApiWeb.EventControllerTest do
         |> put_req_header("content-type", "application/json")
         |> put_req_header("authorization", "Bearer #{jwt_string}")
 
-      {:ok, conn: conn, user: user}
+      {:ok, conn: conn, user: user, evil_event: evil_event, evil_user: evil_user}
     end
-
+    # INDEX
     @tag individual_test: "events_index", login_as: "email@email.com"
     test "lists all events (with related data)", %{conn: conn, user: user} do
-      event = insert(:event, user: user)
+      e = insert(:event, user: user)
 
       conn = get(conn, Routes.event_path(conn, :index))
       response = json_response(conn, 200)["data"]
-
+      assert Enum.count(response) == 1
       assert [event] = response
+
+      # must be listing the event belonging to the current user
+      assert event["id"] == e.id
+
       assert [%{
         "talks" => talks,
         "sponsors" => sponsors,
-        "speakers" => speakers
+        "speakers" => speakers,
+        "user" => resp_user
       }] = response
+
+      # check the user OMT
+      assert resp_user["id"] == e.user_id && resp_user["id"] == user.id
 
       assert is_list(talks)
       assert Enum.count(talks) == 3
@@ -68,6 +76,7 @@ defmodule EVerApiWeb.EventControllerTest do
       assert [] == response
     end
 
+    # CREATE
     @tag individual_test: "events_create", login_as: "email@email.com"
     test "renders created event when data is valid", %{conn: conn, user: user} do
       attrs = Map.put_new(@create_attrs, :user_id, user.id)
@@ -93,6 +102,7 @@ defmodule EVerApiWeb.EventControllerTest do
       assert json_response(conn, 422)["errors"] != %{}
     end
 
+    # UPDATE
     @tag individual_test: "events_update", login_as: "email@email.com"
     test "renders updated event when data is valid", %{conn: conn, user: user} do
       event = insert(:event, %{user: user})
@@ -120,10 +130,17 @@ defmodule EVerApiWeb.EventControllerTest do
 
     @tag individual_test: "events_update", login_as: "email@email.com"
     test "renders update errors when event is inexistent", %{conn: conn} do
-      conn = put(conn, Routes.event_path(conn, :update, -1), event: @valid_attrs)
+      conn = put(conn, Routes.event_path(conn, :update, "666"), event: @update_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
+    @tag individual_test: "events_update", login_as: "email@email.com"
+    test "renders update errors when the event belongs to another user", %{conn: conn, evil_event: evil_event} do
+      conn = put(conn, Routes.event_path(conn, :update, evil_event.id), event: @update_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    # DELETE
     @tag individual_test: "events_delete", login_as: "email@email.com"
     test "deletes chosen event", %{conn: conn, user: user} do
       event = insert(:event, %{user: user})
@@ -135,12 +152,19 @@ defmodule EVerApiWeb.EventControllerTest do
     end
 
     @tag individual_test: "events_delete", login_as: "email@email.com"
-    test "404 for delete non existent event", %{conn: conn} do
+    test "renders 404 for delete non existent event", %{conn: conn} do
       conn = delete(conn, Routes.event_path(conn, :delete, -1))
+      assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
+    end
+
+    @tag individual_test: "events_delete_", login_as: "email@email.com"
+    test "renders 404 for delete an event which belongs to another user", %{conn: conn, evil_event: evil_event} do
+      conn = delete(conn, Routes.event_path(conn, :delete, evil_event.id))
       assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
     end
   end
 
+  # SHOW
   describe "with an event" do
     setup %{conn: conn} do
       event = insert(:event)
