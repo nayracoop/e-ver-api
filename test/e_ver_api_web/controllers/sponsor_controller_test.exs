@@ -97,6 +97,12 @@ defmodule EVerApiWeb.SponsorControllerTest do
       assert json_response(conn, 422)["errors"] != %{}
     end
 
+    @tag individual_test: "sponsors_create", login_as: "email@email.com"
+    test "renders 404 when trying to create a sponsor for an event which belongs to another user", %{conn: conn, user: user, evil_event: evil_event} do
+      conn = post(conn, Routes.sponsor_path(conn, :create, evil_event.id), sponsor: @valid_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
     # UPDATE
     @tag individual_test: "sponsors_update", login_as: "email@email.com"
     test "renders sponsor when update data is valid",%{conn: conn, user: user, event: event} do
@@ -206,7 +212,7 @@ defmodule EVerApiWeb.SponsorControllerTest do
     end
 
     @tag individual_test: "sponsors_delete_", login_as: "email@email.com"
-    test "renders 404 when trying to delete a sponsor in event which belongs to another user", %{conn: conn, user: user, evil_event: evil_event} do
+    test "renders 404 when trying to delete a sponsor in event which belongs to another user", %{conn: conn, evil_event: evil_event} do
       %Sponsor{id: sponsor_id} = List.first(evil_event.sponsors)
       conn = delete(conn, Routes.sponsor_path(conn, :delete, evil_event.id, sponsor_id))
       assert json_response(conn, 404)["errors"] != %{}
