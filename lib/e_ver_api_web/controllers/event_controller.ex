@@ -3,20 +3,13 @@ defmodule EVerApiWeb.EventController do
 
   alias EVerApi.Ever
   alias EVerApi.Ever.Event
+  alias EVerApiWeb.ControllerHelper
 
   action_fallback EVerApiWeb.FallbackController
 
-  defp extract_user(conn) do
-    # using Guardian data for user id retrieving
-    case conn.private[:guardian_default_resource] do
-      nil -> nil
-      user -> user.id
-    end
-  end
-
   def action(conn, _) do
 
-    args = [conn, conn.params, extract_user(conn)]
+    args = [conn, conn.params, ControllerHelper.extract_user(conn)]
     apply(__MODULE__, action_name(conn), args)
   end
 
