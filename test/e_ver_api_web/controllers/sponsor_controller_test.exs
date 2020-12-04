@@ -1,5 +1,6 @@
 defmodule EVerApiWeb.SponsorControllerTest do
   use EVerApiWeb.ConnCase
+  @moduletag :sponsors_controller_case
 
   alias EVerApi.Sponsors
   alias EVerApi.Sponsors.Sponsor
@@ -36,6 +37,11 @@ defmodule EVerApiWeb.SponsorControllerTest do
     setup %{conn: conn, login_as: email} do
       user = insert(:user, email: email)
       event = insert(:event, %{user: user})
+
+      # other user and event
+      evil_user = insert(:user, %{first_name: "Mauricio", email: "666@999.pro"})
+      evil_event = insert(:event, %{name: "in some places there is plenty of water and in others there is no", user: evil_user})
+
       {:ok, jwt_string, _} = EVerApi.Accounts.token_sign_in(email, "123456")
 
       conn =
@@ -44,7 +50,7 @@ defmodule EVerApiWeb.SponsorControllerTest do
         |> put_req_header("content-type", "application/json")
         |> put_req_header("authorization", "Bearer #{jwt_string}")
 
-      {:ok, conn: conn, user: user, event: event}
+      {:ok, conn: conn, user: user, event: event, evil_user: evil_user, evil_event: evil_event}
     end
 
     # CREATE SPONSOR
@@ -63,8 +69,12 @@ defmodule EVerApiWeb.SponsorControllerTest do
       conn = get(conn, Routes.event_path(conn, :show, event.id))
       assert response = json_response(conn, 200)["data"]
 
-      sponsors = response["sponsors"]
+      # event response
+      %{"sponsors" => sponsors,
+        "user" => resp_user
+      } = response
 
+      assert resp_user["id"] == user.id
       assert Enum.count(sponsors) == 3
       sp = Enum.find(sponsors, fn x -> x["id"] == sponsor_id end)
       assert %{
@@ -76,13 +86,13 @@ defmodule EVerApiWeb.SponsorControllerTest do
     end
 
     @tag individual_test: "sponsors_create", login_as: "email@email.com"
-    test "renders errors when trying to add a sponsor to non existent event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to add a sponsor to non existent event", %{conn: conn, event: event} do
       conn = post(conn, Routes.sponsor_path(conn, :create, "666"), sponsor: @create_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "sponsors_create", login_as: "email@email.com"
-    test "renders errors when data is invalid", %{conn: conn, user: user, event: event} do
+    test "renders errors when data is invalid", %{conn: conn, event: event} do
       conn = post(conn, Routes.sponsor_path(conn, :create, event.id), sponsor: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
@@ -101,9 +111,17 @@ defmodule EVerApiWeb.SponsorControllerTest do
              } = json_response(conn, 200)["data"]
 
       assert id == sponsor_id
+
       # fetch event and check updated speaker
       conn = get(conn, Routes.event_path(conn, :show, event.id))
-      sp = Enum.find(json_response(conn, 200)["data"]["sponsors"], fn x -> x["id"] == id end)
+
+      %{"sponsors" => sponsors,
+        "user" => resp_user
+      } = json_response(conn, 200)["data"]
+      # check user
+      assert resp_user["id"] == user.id
+      # check the updated sponsor
+      sp = Enum.find(sponsors, fn x -> x["id"] == id end)
       assert %{
         "id" => ^sponsor_id,
         "logo" => "some updated logo",
@@ -113,27 +131,34 @@ defmodule EVerApiWeb.SponsorControllerTest do
     end
 
     @tag individual_test: "sponsors_update", login_as: "email@email.com"
-    test "render errors when trying to update a sponsor to a non existent event", %{conn: conn, user: user, event: event} do
+    test "render errors when trying to update a sponsor to a non existent event", %{conn: conn, event: event} do
       %Sponsor{id: sponsor_id} = List.first(event.sponsors)
       conn = put(conn, Routes.sponsor_path(conn, :update, "666", sponsor_id), sponsor: @update_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "sponsors_update", login_as: "email@email.com"
-    test "render errors when trying to update a non  existen sponsor to a valid event", %{conn: conn, user: user, event: event} do
+    test "render errors when trying to update a non  existen sponsor to a valid event", %{conn: conn, event: event} do
       conn = put(conn, Routes.sponsor_path(conn, :update, event.id, "666"), sponsor: @update_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "sponsors_update", login_as: "email@email.com"
-    test "renders errors when update data is invalid", %{conn: conn, user: user, event: event} do
+    test "renders errors when update data is invalid", %{conn: conn, event: event} do
       %Sponsor{id: sponsor_id} = List.first(event.sponsors)
       conn = put(conn, Routes.sponsor_path(conn, :update, event.id, sponsor_id), sponsor: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
 
+    @tag individual_test: "sponsors_update", login_as: "email@email.com"
+    test "render 404 when trying to update a sponsor in event which belongs to another user", %{conn: conn, evil_event: evil_event} do
+      %Sponsor{id: sponsor_id} = List.first(evil_event.sponsors)
+      conn = put(conn, Routes.sponsor_path(conn, :update, evil_event.id, sponsor_id), sponsor: @update_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
     # DELETE
-    @tag individual_test: "sponsors_delete", login_as: "email@email.com"
+    @tag individual_test: "sponsors_delete_", login_as: "email@email.com"
     test "deletes chosen sponsor", %{conn: conn, user: user, event: event} do
       %Sponsor{id: sponsor_id} = List.first(event.sponsors)
 
@@ -143,7 +168,14 @@ defmodule EVerApiWeb.SponsorControllerTest do
 
       # Check the event no longer contains the sponsor
       conn = get(conn, Routes.event_path(conn, :show, event.id))
-      sp = Enum.find(json_response(conn, 200)["data"]["sponsors"], fn x -> x["id"] == sponsor_id end)
+
+      %{"sponsors" => sponsors,
+        "user" => resp_user
+      } = json_response(conn, 200)["data"]
+      # check user
+      assert resp_user["id"] == user.id
+
+      sp = Enum.find(sponsors, fn x -> x["id"] == sponsor_id end)
       assert sp == nil
 
       # trying to re delete :(
@@ -152,24 +184,31 @@ defmodule EVerApiWeb.SponsorControllerTest do
     end
 
     @tag individual_test: "sponsors_delete", login_as: "email@email.com"
-    test "renders errors when trying to delete a sponsor to non existent event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to delete a sponsor to non existent event", %{conn: conn, event: event} do
       %Sponsor{id: sponsor_id} = List.first(event.sponsors)
       conn = delete(conn, Routes.sponsor_path(conn, :delete, "666", sponsor_id))
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "sponsors_delete", login_as: "email@email.com"
-    test "renders errors when trying to delete non existent sponsor for a valid event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to delete non existent sponsor for a valid event", %{conn: conn, event: event} do
       %Sponsor{id: sponsor_id} = List.first(event.sponsors)
       conn = delete(conn, Routes.sponsor_path(conn, :delete, event.id, "666"))
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "sponsors_delete", login_as: "email@email.com"
-    test "renders errors when trying to delete a sponsor which belongs to another event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to delete a sponsor which belongs to another event", %{conn: conn, event: event} do
       e = insert(:event, %{name: "foreign event"})
       s = insert(:sponsor, %{event_id: e.id})
       conn = delete(conn, Routes.sponsor_path(conn, :delete, event.id, s.id))
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "sponsors_delete_", login_as: "email@email.com"
+    test "renders 404 when trying to delete a sponsor in event which belongs to another user", %{conn: conn, user: user, evil_event: evil_event} do
+      %Sponsor{id: sponsor_id} = List.first(evil_event.sponsors)
+      conn = delete(conn, Routes.sponsor_path(conn, :delete, evil_event.id, sponsor_id))
       assert json_response(conn, 404)["errors"] != %{}
     end
   end

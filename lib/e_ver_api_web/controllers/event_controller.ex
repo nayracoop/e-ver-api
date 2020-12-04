@@ -8,7 +8,6 @@ defmodule EVerApiWeb.EventController do
   action_fallback EVerApiWeb.FallbackController
 
   def action(conn, _) do
-
     args = [conn, conn.params, ControllerHelper.extract_user(conn)]
     apply(__MODULE__, action_name(conn), args)
   end

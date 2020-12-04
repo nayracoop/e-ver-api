@@ -4,6 +4,7 @@ defmodule EVerApiWeb.SponsorController do
   alias EVerApi.Sponsors
   alias EVerApi.Sponsors.Sponsor
   alias EVerApi.Ever
+  alias EVerApiWeb.ControllerHelper
 
   action_fallback EVerApiWeb.FallbackController
 
@@ -12,9 +13,14 @@ defmodule EVerApiWeb.SponsorController do
   #   render(conn, "index.json", sponsors: sponsors)
   # end
 
-  def create(conn, %{"event_id" => event_id, "sponsor" => sponsor_params}) do
+  def action(conn, _) do
+    args = [conn, conn.params, ControllerHelper.extract_user(conn)]
+    apply(__MODULE__, action_name(conn), args)
+  end
 
-    case Ever.get_event(event_id) do
+  def create(conn, %{"event_id" => event_id, "sponsor" => sponsor_params}, current_user) do
+
+    case Ever.get_event(event_id, current_user) do
       nil -> {:error, :not_found}
       event ->
         params = Map.put_new(sponsor_params, "event_id", event.id)
@@ -32,8 +38,8 @@ defmodule EVerApiWeb.SponsorController do
   #   render(conn, "show.json", sponsor: sponsor)
   # end
 
-  def update(conn, %{"event_id" => event_id, "id" => id, "sponsor" => sponsor_params}) do
-    case Ever.get_event(event_id) do
+  def update(conn, %{"event_id" => event_id, "id" => id, "sponsor" => sponsor_params}, current_user) do
+    case Ever.get_event(event_id, current_user) do
       nil -> {:error, :not_found}
       event ->
         with sponsor when not is_nil(sponsor) <- Sponsors.get_sponsor(id),
@@ -47,8 +53,8 @@ defmodule EVerApiWeb.SponsorController do
     end
   end
 
-  def delete(conn, %{"event_id" => event_id, "id" => id}) do
-    case Ever.get_event(event_id) do
+  def delete(conn, %{"event_id" => event_id, "id" => id}, current_user) do
+    case Ever.get_event(event_id, current_user) do
       nil -> {:error, :not_found}
       event ->
         with sponsor when not is_nil(sponsor) <- Sponsors.get_sponsor(id),

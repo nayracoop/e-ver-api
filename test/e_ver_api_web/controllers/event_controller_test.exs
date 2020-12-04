@@ -23,8 +23,8 @@ defmodule EVerApiWeb.EventControllerTest do
     setup %{conn: conn, login_as: email} do
       user = insert(:user, email: email)
 
-      # other user and event for this user
-      evil_user = insert(:user, %{first_name: "Mauricio"})
+      # other user and event
+      evil_user = insert(:user, %{first_name: "Mauricio", email: "666@999.pro"})
       evil_event = insert(:event, %{name: "¡No more inundations!", user: evil_user})
 
       {:ok, jwt_string, _} = EVerApi.Accounts.token_sign_in(email, "123456")
