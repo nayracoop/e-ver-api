@@ -69,7 +69,7 @@ defmodule EVerApiWeb.TalkControllerTest do
     test "renders talk when data is valid", %{conn: conn, user: user, event: event} do
       conn = post(conn, Routes.talk_path(conn, :create, event.id), talk: @create_attrs)
       assert  %{
-          "id" => id,
+          "id" => talk_id,
           "title" => "some title",
           "details" => "some details",
           "summary" => "some summary",
@@ -83,9 +83,18 @@ defmodule EVerApiWeb.TalkControllerTest do
 
       # check if the event has the talk
       conn = get(conn, Routes.event_path(conn, :show, event.id))
-      resp = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == id end)
+
+      # event response
+      assert %{"talks" => talks,
+        "user" => resp_user
+      } = json_response(conn, 200)["data"]
+
+      # check the user
+      assert resp_user["id"] == user.id
+
+      resp = Enum.find(talks, fn x -> x["id"] == talk_id end)
       assert  %{
-        "id" => id,
+        "id" => ^talk_id,
         "title" => "some title",
         "details" => "some details",
         "summary" => "some summary",
@@ -99,13 +108,13 @@ defmodule EVerApiWeb.TalkControllerTest do
     end
 
     @tag individual_test: "talks_create", login_as: "email@email.com"
-    test "renders errors when trying to add a talk to non existent event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to add a talk to non existent event", %{conn: conn, event: event} do
       conn = post(conn, Routes.talk_path(conn, :create, "666"), talk: @create_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "talks_create", login_as: "email@email.com"
-    test "renders errors when data is invalid", %{conn: conn, user: user, event: event} do
+    test "renders errors when data is invalid", %{conn: conn, event: event} do
       conn = post(conn, Routes.talk_path(conn, :create, event.id), talk: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
@@ -118,16 +127,19 @@ defmodule EVerApiWeb.TalkControllerTest do
 
     # CREATE with associated speakers
     @tag individual_test: "talks_create_add_speaker", login_as: "email@email.com"
-    test "create a talk with speakers then renders talk when data is valid", %{conn: conn, user: user, event: event} do
+    test "create a talk with speakers then renders talk when data is valid", %{conn: conn, user: user, event: event, evil_event: evil_event} do
       s1 = insert(:speaker, %{event_id: event.id})
       s2 = insert(:speaker, %{event_id: event.id})
 
       # create other event to test if the speaker is being added by error in the former test event
-      other_event = insert(:event)
+      other_event = insert(:event, %{user: user})
       s3 = insert(:speaker, %{event_id: other_event.id})
 
+      # create an speaker from other user
+      evil_speaker = insert(:speaker, %{name: "Markus Pegna", event_id: evil_event.id})
+
       # try to add 2 valid speakers - 1 inexistent speaker - a foreign speaker
-      conn = post(conn, Routes.talk_path(conn, :create, event.id), talk: Map.put(@create_attrs, :speakers, [s1.id, s2.id, s3.id, 666]))
+      conn = post(conn, Routes.talk_path(conn, :create, event.id), talk: Map.put(@create_attrs, :speakers, [s1.id, s2.id, s3.id, 666, evil_speaker.id]))
 
       response = json_response(conn, 201)["data"]
       assert  %{
@@ -191,7 +203,7 @@ defmodule EVerApiWeb.TalkControllerTest do
       conn = put(conn, Routes.talk_path(conn, :update, event.id, talk_id), talk: @update_attrs)
 
       assert %{
-        "id" => id,
+        "id" => ^talk_id,
         "title" => "some updated title",
         "details" => "some updated details",
         "summary" => "some updated summary",
@@ -201,13 +213,21 @@ defmodule EVerApiWeb.TalkControllerTest do
         "allow_comments" => true,
         "video" => %{"uri" => "some updated video_uri", "type" => "live video", "autoplay" => true}
       } = json_response(conn, 200)["data"]
-      assert id == talk_id
 
       # fetch event and check updated talk
       conn = get(conn, Routes.event_path(conn, :show, event.id))
-      resp = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == talk_id end)
+
+      # event response
+      assert %{"talks" => talks,
+        "user" => resp_user
+      } = json_response(conn, 200)["data"]
+
+      # check the user
+      assert resp_user["id"] == user.id
+
+      resp = Enum.find(talks, fn x -> x["id"] == talk_id end)
       assert %{
-        "id" => id,
+        "id" => ^talk_id,
         "title" => "some updated title",
         "details" => "some updated details",
         "summary" => "some updated summary",
@@ -220,20 +240,20 @@ defmodule EVerApiWeb.TalkControllerTest do
     end
 
     @tag individual_test: "talks_update", login_as: "email@email.com"
-    test "renders errors when update data is invalid",  %{conn: conn, user: user, event: event} do
+    test "renders errors when update data is invalid",  %{conn: conn, event: event} do
       %Talk{id: talk_id} = List.first(event.talks)
       conn = put(conn, Routes.talk_path(conn, :update, event.id, talk_id), talk: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
 
     @tag individual_test: "talks_update", login_as: "email@email.com"
-    test "renders errors when trying to update a talk to non existent event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to update a talk to non existent event", %{conn: conn, event: event} do
       conn = put(conn, Routes.talk_path(conn, :update, "666", "999"), talk: @update_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "talks_update", login_as: "email@email.com"
-    test "renders errors when trying to update non existent talk for a valid event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to update non existent talk for a valid event", %{conn: conn, event: event} do
       conn = put(conn, Routes.talk_path(conn, :update, event.id, "999"), talk: @update_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
@@ -287,6 +307,7 @@ defmodule EVerApiWeb.TalkControllerTest do
 
       # fetch event and check updated talk
       conn = get(conn, Routes.event_path(conn, :show, event.id))
+
       talk = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == talk_id end)
       assert Enum.count(talk["speakers"]) == 1
       assert List.first(talk["speakers"])["id"] == s1
@@ -328,7 +349,16 @@ defmodule EVerApiWeb.TalkControllerTest do
 
       # check the event is not rendering the deleted talk
       conn = get(conn, Routes.event_path(conn, :show, event.id))
-      resp = Enum.find(json_response(conn, 200)["data"]["talks"], fn x -> x["id"] == talk_id end)
+
+      # event response
+      assert %{"talks" => talks,
+        "user" => resp_user
+      } = json_response(conn, 200)["data"]
+
+      # check the user
+      assert resp_user["id"] == user.id
+
+      resp = Enum.find(talks, fn x -> x["id"] == talk_id end)
       assert resp == nil
 
       # trying to re delete :(
@@ -337,21 +367,21 @@ defmodule EVerApiWeb.TalkControllerTest do
     end
 
     @tag individual_test: "talks_delete", login_as: "email@email.com"
-    test "renders errors when trying to delete a talk to non existent event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to delete a talk to non existent event", %{conn: conn, event: event} do
       %Talk{id: talk_id} = List.first(event.talks)
       conn = delete(conn, Routes.talk_path(conn, :delete, "666", talk_id))
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "talks_delete", login_as: "email@email.com"
-    test "renders errors when trying to delete non existent talk for a valid event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to delete non existent talk for a valid event", %{conn: conn, event: event} do
       %Talk{id: talk_id} = List.first(event.talks)
       conn = delete(conn, Routes.talk_path(conn, :delete, event.id, "666"))
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "talks_delete", login_as: "email@email.com"
-    test "renders errors when trying to delete a talk which belongs to another event", %{conn: conn, user: user, event: event} do
+    test "renders errors when trying to delete a talk which belongs to another event", %{conn: conn, event: event} do
       e = insert(:event, %{name: "foreign event"})
       t = insert(:talk, %{event_id: e.id})
       conn = delete(conn, Routes.talk_path(conn, :delete, event.id, t.id))
