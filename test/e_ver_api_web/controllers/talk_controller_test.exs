@@ -48,6 +48,11 @@ defmodule EVerApiWeb.TalkControllerTest do
     setup %{conn: conn, login_as: email} do
       user = insert(:user, email: email)
       event = insert(:event, %{user: user})
+
+      # other user and event
+      evil_user = insert(:user, %{first_name: "Mauricio", email: "666@999.pro"})
+      evil_event = insert(:event, %{name: "I owe you! I'm not aware", user: evil_user})
+
       {:ok, jwt_string, _} = EVerApi.Accounts.token_sign_in(email, "123456")
 
       conn =
@@ -56,7 +61,7 @@ defmodule EVerApiWeb.TalkControllerTest do
         |> put_req_header("content-type", "application/json")
         |> put_req_header("authorization", "Bearer #{jwt_string}")
 
-      {:ok, conn: conn, user: user, event: event}
+      {:ok, conn: conn, user: user, event: event, evil_user: evil_user, evil_event: evil_event}
     end
 
     # CREATE
@@ -103,6 +108,12 @@ defmodule EVerApiWeb.TalkControllerTest do
     test "renders errors when data is invalid", %{conn: conn, user: user, event: event} do
       conn = post(conn, Routes.talk_path(conn, :create, event.id), talk: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    @tag individual_test: "talks_create", login_as: "email@email.com"
+    test "renders 404 when trying to create a talk for an event which belongs to another user", %{conn: conn, evil_event: evil_event} do
+      conn = post(conn, Routes.talk_path(conn, :create, evil_event.id), talk: @valid_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
     end
 
     # CREATE with associated speakers
@@ -227,6 +238,13 @@ defmodule EVerApiWeb.TalkControllerTest do
       assert json_response(conn, 404)["errors"] != %{}
     end
 
+    @tag individual_test: "talks_update", login_as: "email@email.com"
+    test "render 404 when trying to update a talk in event which belongs to another user", %{conn: conn, evil_event: evil_event} do
+      %Talk{id: talk_id} = List.first(evil_event.talks)
+      conn = put(conn, Routes.talk_path(conn, :update, evil_event.id, talk_id), talk: @update_attrs)
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
     # UPDATE with associated speakers
     @tag individual_test: "talks_update_speaker_", login_as: "email@email.com"
     test "updates a list of speakers in a talk adding one", %{conn: conn, user: user, event: event} do
@@ -299,7 +317,7 @@ defmodule EVerApiWeb.TalkControllerTest do
       assert json_response(conn, 422)["errors"] != %{}
     end
 
-    # DELETE
+    # soft DELETE
     @tag individual_test: "talks_delete", login_as: "email@email.com"
     test "deletes chosen talk", %{conn: conn, user: user, event: event} do
       %Talk{id: talk_id} = List.first(event.talks)
@@ -337,6 +355,13 @@ defmodule EVerApiWeb.TalkControllerTest do
       e = insert(:event, %{name: "foreign event"})
       t = insert(:talk, %{event_id: e.id})
       conn = delete(conn, Routes.talk_path(conn, :delete, event.id, t.id))
+      assert json_response(conn, 404)["errors"] != %{}
+    end
+
+    @tag individual_test: "speakers_delete", login_as: "email@email.com"
+    test "render 404 when trying to delete a talk in event which belongs to another user", %{conn: conn, evil_event: evil_event} do
+      %Talk{id: talk_id} = List.first(evil_event.talks)
+      conn = delete(conn, Routes.talk_path(conn, :delete, evil_event.id, talk_id))
       assert json_response(conn, 404)["errors"] != %{}
     end
   end
