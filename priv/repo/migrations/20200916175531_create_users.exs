@@ -11,6 +11,10 @@ defmodule EVerApi.Repo.Migrations.CreateUsers do
       add :organization, :string
       add :password_hash, :string
 
+      #roles
+      add :permissions, :map
+
+
       timestamps()
       soft_delete_columns()
     end

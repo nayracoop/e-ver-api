@@ -19,7 +19,8 @@ defmodule EVerApi.Factory do
       organization: "Coop. de trabajo Nayra ltda",
       email: sequence(:email, &"email-#{&1}@example.com"),
       username: sequence("nayra"),
-      password_hash: hash_pwd_salt("123456")
+      password_hash: hash_pwd_salt("123456"),
+      permissions: %{admin: [:read, :write]}
     }
   end
 

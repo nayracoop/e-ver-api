@@ -1,5 +1,7 @@
 defmodule EVerApiWeb.Router do
   use EVerApiWeb, :router
+  #alias Guardian.Permissions
+
 
   pipeline :api do
     plug :accepts, ["json"]
@@ -11,6 +13,15 @@ defmodule EVerApiWeb.Router do
 
   pipeline :ensure_auth do
     plug Guardian.Plug.EnsureAuthenticated
+
+  end
+
+  pipeline :api_admin do
+    plug Guardian.Permissions, ensure: %{admin: [:read, :write]}
+  end
+
+  pipeline :api_user do
+    plug Guardian.Permissions, ensure: %{user: [:read]}
   end
 
   scope "/api", EVerApiWeb do
@@ -23,7 +34,7 @@ defmodule EVerApiWeb.Router do
   end
 
   scope "/api", EVerApiWeb do
-    pipe_through [:api, :auth, :ensure_auth]
+    pipe_through [:api, :auth, :ensure_auth, :api_admin]
 
     get "/users", UserController, :index
     get "/users/:id", UserController, :show
