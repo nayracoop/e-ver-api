@@ -7,7 +7,6 @@ defmodule EVerApiWeb.UserController do
   action_fallback EVerApiWeb.FallbackController
 
   def index(conn, _params) do
-    IO.inspect("heyyy")
     users =
       Accounts.list_users()
 

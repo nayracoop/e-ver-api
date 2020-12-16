@@ -17,12 +17,12 @@ defmodule EVerApiWeb.Router do
   end
 
   pipeline :api_admin do
-    plug Guardian.Permissions, ensure: %{admin: [:read, :write]}
+    plug EVerApiWeb.AuthorizationPipeline
   end
 
-  pipeline :api_user do
-    plug Guardian.Permissions, ensure: %{user: [:read]}
-  end
+  # pipeline :api_user do
+  #   plug Guardian.Permissions, ensure: %{user: [:read]}
+  # end
 
   scope "/api", EVerApiWeb do
     pipe_through [:api]
