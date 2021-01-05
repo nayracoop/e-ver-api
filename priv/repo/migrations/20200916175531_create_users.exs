@@ -12,7 +12,7 @@ defmodule EVerApi.Repo.Migrations.CreateUsers do
       add :password_hash, :string
 
       #roles
-      add :permissions, :map
+      add :permissions, :map, default: %{ default: [:read]}
 
 
       timestamps()

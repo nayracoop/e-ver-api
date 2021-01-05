@@ -16,7 +16,7 @@ defmodule EVerApi.Accounts.User do
     field :password_confirmation, :string, virtual: true
 
     #roles
-    field :permissions, :map
+    field :permissions, :map, default: %{ default: [:read]}
     soft_delete_schema()
 
     has_many :events, EVerApi.Ever.Event
