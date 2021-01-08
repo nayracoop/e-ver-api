@@ -1,9 +1,10 @@
 defmodule EVerApiWeb.SponsorControllerTest do
-  use EVerApiWeb.ConnCase
+  use EVerApiWeb.ConnCase, async: true
   @moduletag :sponsors_controller_case
 
   alias EVerApi.Sponsors
   alias EVerApi.Sponsors.Sponsor
+  alias EVerApi.Ever.Event
 
   @create_attrs %{
     logo: "some logo",
@@ -25,13 +26,6 @@ defmodule EVerApiWeb.SponsorControllerTest do
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
-
-  # describe "index" do
-  #   test "lists all sponsors", %{conn: conn} do
-  #     conn = get(conn, Routes.sponsor_path(conn, :index))
-  #     assert json_response(conn, 200)["data"] == []
-  #   end
-  # end
 
   describe "with a logged-in user" do
     setup %{conn: conn, login_as: email} do
@@ -86,20 +80,20 @@ defmodule EVerApiWeb.SponsorControllerTest do
     end
 
     @tag individual_test: "sponsors_create", login_as: "email@email.com"
-    test "renders errors when trying to add a sponsor to non existent event", %{conn: conn, event: event} do
+    test "renders errors when trying to add a sponsor to non existent event", %{conn: conn} do
       conn = post(conn, Routes.sponsor_path(conn, :create, "666"), sponsor: @create_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
     @tag individual_test: "sponsors_create", login_as: "email@email.com"
-    test "renders errors when data is invalid", %{conn: conn, event: event} do
-      conn = post(conn, Routes.sponsor_path(conn, :create, event.id), sponsor: @invalid_attrs)
+    test "renders errors when data is invalid", %{conn: conn, event: %Event{id: event_id}} do
+      conn = post(conn, Routes.sponsor_path(conn, :create, event_id), sponsor: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
 
     @tag individual_test: "sponsors_create", login_as: "email@email.com"
-    test "renders 404 when trying to create a sponsor for an event which belongs to another user", %{conn: conn, user: user, evil_event: evil_event} do
-      conn = post(conn, Routes.sponsor_path(conn, :create, evil_event.id), sponsor: @valid_attrs)
+    test "renders 404 when trying to create a sponsor for an event which belongs to another user", %{conn: conn, evil_event: %Event{id: evil_event_id}} do
+      conn = post(conn, Routes.sponsor_path(conn, :create, evil_event_id), sponsor: @create_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
@@ -197,9 +191,9 @@ defmodule EVerApiWeb.SponsorControllerTest do
     end
 
     @tag individual_test: "sponsors_delete", login_as: "email@email.com"
-    test "renders errors when trying to delete non existent sponsor for a valid event", %{conn: conn, event: event} do
-      %Sponsor{id: sponsor_id} = List.first(event.sponsors)
-      conn = delete(conn, Routes.sponsor_path(conn, :delete, event.id, "666"))
+    test "renders errors when trying to delete non existent sponsor for a valid event", %{conn: conn, event: %Event{id: event_id, sponsors: sponsors}} do
+      %Sponsor{} = List.first(sponsors)
+      conn = delete(conn, Routes.sponsor_path(conn, :delete, event_id, "666"))
       assert json_response(conn, 404)["errors"] != %{}
     end
 
@@ -229,10 +223,5 @@ defmodule EVerApiWeb.SponsorControllerTest do
     ], fn conn ->
       assert json_response(conn, 401)["message"] == "unauthenticated"
     end)
-  end
-
-  defp create_sponsor(_) do
-    sponsor = fixture(:sponsor)
-    %{sponsor: sponsor}
   end
 end
