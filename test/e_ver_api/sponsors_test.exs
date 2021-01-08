@@ -5,12 +5,17 @@ defmodule EVerApi.SponsorsTest do
 
   describe "sponsors" do
     alias EVerApi.Sponsors.Sponsor
+
     setup do
-      e = insert(:event)
-      %{event: e}
+      %{event: insert(:event)}
     end
+
     @valid_attrs %{logo: "some logo", name: "some name", website: "some website"}
-    @update_attrs %{logo: "some updated logo", name: "some updated name", website: "some updated website"}
+    @update_attrs %{
+      logo: "some updated logo",
+      name: "some updated name",
+      website: "some updated website"
+    }
     @invalid_attrs %{logo: nil, name: nil, website: nil}
 
     def sponsor_fixture(attrs \\ %{}) do
@@ -36,11 +41,13 @@ defmodule EVerApi.SponsorsTest do
       sp = Enum.find(sponsors, fn s -> s.id == sponsor.id end)
 
       assert nil != sp
+
       assert %{
-        logo: "some logo",
-        name: "some name",
-        website: "some website"
-        } = sp
+               logo: "some logo",
+               name: "some name",
+               website: "some website"
+             } = sp
+
       assert event.id == sp.event_id
     end
 
@@ -61,10 +68,13 @@ defmodule EVerApi.SponsorsTest do
       assert Sponsors.get_sponsor(sponsor.id) == sponsor
       assert Sponsors.get_sponsor("666") == nil
     end
+
     # CREATE
     @tag individual_test: "create_sponsor"
     test "create_sponsor/1 with valid data creates a sponsor", %{event: event} do
-      assert {:ok, %Sponsor{} = sponsor} = Sponsors.create_sponsor(Map.put(@valid_attrs, :event_id, event.id))
+      assert {:ok, %Sponsor{} = sponsor} =
+               Sponsors.create_sponsor(Map.put(@valid_attrs, :event_id, event.id))
+
       assert sponsor.logo == "some logo"
       assert sponsor.name == "some name"
       assert sponsor.website == "some website"
@@ -72,17 +82,21 @@ defmodule EVerApi.SponsorsTest do
 
     @tag individual_test: "create_sponsor"
     test "create_sponsor/1 with invalid data returns error changeset", %{event: event} do
-      assert {:error, %Ecto.Changeset{}} = Sponsors.create_sponsor(Map.put(@invalid_attrs, :event_id, event.id))
+      assert {:error, %Ecto.Changeset{}} =
+               Sponsors.create_sponsor(Map.put(@invalid_attrs, :event_id, event.id))
     end
 
     @tag individual_test: "create_sponsor"
-    test "create_sponsor/1 with an inexistent event data returns error changeset", %{event: _event} do
-      assert {:error, %Ecto.Changeset{}} = Sponsors.create_sponsor(Map.put(@valid_attrs, :event_id, "666"))
+    test "create_sponsor/1 with an inexistent event data returns error changeset", %{
+      event: _event
+    } do
+      assert {:error, %Ecto.Changeset{}} =
+               Sponsors.create_sponsor(Map.put(@valid_attrs, :event_id, "666"))
     end
 
     # UPDATE
     @tag individual_test: "update_sponsor"
-    test "update_sponsor/2 with valid data updates the sponsor", %{event: event}  do
+    test "update_sponsor/2 with valid data updates the sponsor", %{event: event} do
       sponsor = sponsor_fixture(%{event_id: event.id})
       assert {:ok, %Sponsor{} = sponsor} = Sponsors.update_sponsor(sponsor, @update_attrs)
       assert sponsor.logo == "some updated logo"
@@ -91,16 +105,18 @@ defmodule EVerApi.SponsorsTest do
     end
 
     @tag individual_test: "update_sponsor"
-    test "update_sponsor/2 with invalid data returns error changeset", %{event: event}  do
+    test "update_sponsor/2 with invalid data returns error changeset", %{event: event} do
       sponsor = sponsor_fixture(%{event_id: event.id})
       assert {:error, %Ecto.Changeset{}} = Sponsors.update_sponsor(sponsor, @invalid_attrs)
       assert sponsor == Sponsors.get_sponsor!(sponsor.id)
     end
 
     @tag individual_test: "update_sponsor"
-    test "update_sponsor/2 with an inexisten event returns error changeset", %{event: event}  do
+    test "update_sponsor/2 with an inexisten event returns error changeset", %{event: event} do
       sponsor = sponsor_fixture(%{event_id: event.id})
-      assert {:error, %Ecto.Changeset{}} = Sponsors.update_sponsor(sponsor, Map.put(@valid_attrs, :event_id, "666"))
+
+      assert {:error, %Ecto.Changeset{}} =
+               Sponsors.update_sponsor(sponsor, Map.put(@valid_attrs, :event_id, "666"))
     end
 
     # DELETE
@@ -110,7 +126,7 @@ defmodule EVerApi.SponsorsTest do
       assert {:ok, %Sponsor{}} = Sponsors.delete_sponsor(sponsor)
       assert nil == Sponsors.get_sponsor(sponsor.id)
       # EXPERIMENTAL get_sponsor!/1 retrieves deleted
-      #assert %{...} = Ever.get_sponsor!(sponsor.id)
+      # assert %{...} = Ever.get_sponsor!(sponsor.id)
     end
 
     @tag individual_test: "change_sponsor"
@@ -119,5 +135,4 @@ defmodule EVerApi.SponsorsTest do
       assert %Ecto.Changeset{} = Sponsors.change_sponsor(sponsor)
     end
   end
-
 end
