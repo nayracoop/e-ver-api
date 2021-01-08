@@ -34,13 +34,6 @@ defmodule EVerApiWeb.SpeakerControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  # describe "index" do
-  #   test "lists all speakers", %{conn: conn} do
-  #     conn = get(conn, Routes.speaker_path(conn, :index))
-  #     assert json_response(conn, 200)["data"] == []
-  #   end
-  # end
-
   describe "with a logged-in user" do
     setup %{conn: conn, login_as: email} do
       user = insert(:user, email: email)
@@ -103,7 +96,7 @@ defmodule EVerApiWeb.SpeakerControllerTest do
     end
 
     @tag individual_test: "speakers_create", login_as: "email@email.com"
-    test "renders errors when trying to add a speaker to non existent event", %{conn: conn, event: event} do
+    test "renders errors when trying to add a speaker to non existent event", %{conn: conn} do
       conn = post(conn, Routes.speaker_path(conn, :create, "666"), speaker: @create_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
@@ -116,7 +109,7 @@ defmodule EVerApiWeb.SpeakerControllerTest do
 
     @tag individual_test: "speakers_create", login_as: "email@email.com"
     test "renders 404 when trying to create a speaker for an event which belongs to another user", %{conn: conn, evil_event: evil_event} do
-      conn = post(conn, Routes.speaker_path(conn, :create, evil_event.id), speaker: @valid_attrs)
+      conn = post(conn, Routes.speaker_path(conn, :create, evil_event.id), speaker: @create_attrs)
       assert json_response(conn, 404)["errors"] != %{}
     end
 
@@ -255,10 +248,5 @@ defmodule EVerApiWeb.SpeakerControllerTest do
     ], fn conn ->
       assert json_response(conn, 401)["message"] == "unauthenticated"
     end)
-  end
-
-  defp create_speaker(_) do
-    speaker = fixture(:speaker)
-    %{speaker: speaker}
   end
 end
