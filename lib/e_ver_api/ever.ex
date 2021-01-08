@@ -6,6 +6,7 @@ defmodule EVerApi.Ever do
   import Ecto.Query, warn: false
   alias EVerApi.Repo
 
+  alias EVerApi.Accounts.User
   alias EVerApi.Ever.{Event, Talk}
   import Ecto.SoftDelete.Query
 
@@ -26,6 +27,12 @@ defmodule EVerApi.Ever do
       |> filter_user(user_id) # check the user owns the events
       |> with_undeleted()
     Repo.all(query) |> Repo.preload([:user, :sponsors, :speakers, {:talks, :speakers}])
+  end
+
+  def list_events_no_preload do
+    from(e in Event, select: e)
+    |> with_undeleted()
+    |> Repo.all
   end
 
   @doc """
@@ -80,6 +87,14 @@ defmodule EVerApi.Ever do
     Repo.get(query, id)
       |> Repo.preload([:user, [sponsors: sponsors_query], [speakers: speakers_query], [talks: talks_query]])
   end
+
+  def create_event(%User{} = user, attrs) do
+    %Event{}
+    |> Event.changeset(attrs)
+    |> Ecto.Changeset.put_assoc(:user, user)
+    |> Repo.insert()
+  end
+
   @doc """
   Creates a event.
 
@@ -92,12 +107,11 @@ defmodule EVerApi.Ever do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_event(attrs \\ %{}) do
+  def create_event(attrs) do
     %Event{}
     |> Event.changeset(attrs)
     |> Repo.insert()
   end
-
   @doc """
   Updates a event.
 
@@ -397,4 +411,11 @@ defmodule EVerApi.Ever do
     Speaker.changeset(speaker, attrs)
   end
 
+  def datasource() do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  def query(queryable, _) do
+    queryable
+  end
 end

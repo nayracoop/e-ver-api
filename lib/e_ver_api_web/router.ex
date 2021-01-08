@@ -7,6 +7,7 @@ defmodule EVerApiWeb.Router do
 
   pipeline :auth do
     plug EVerApiWeb.AuthAccessPipeline
+    plug EVerApiWeb.SetCurrentUser
   end
 
   pipeline :ensure_auth do
@@ -47,6 +48,17 @@ defmodule EVerApiWeb.Router do
     post "/events/:event_id/sponsors", SponsorController, :create
     put "/events/:event_id/sponsors/:id", SponsorController, :update
     delete "/events/:event_id/sponsors/:id", SponsorController, :delete
+  end
+
+  scope "/graphql" do
+    pipe_through [:api, :auth]
+
+    forward "/api", Absinthe.Plug,
+      schema: EVerApiWeb.Schema.Schema
+
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: EVerApiWeb.Schema.Schema,
+      socket: EVerApiWeb.UserSocket
   end
 
   # Enables LiveDashboard only for development

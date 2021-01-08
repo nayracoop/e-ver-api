@@ -10,7 +10,7 @@ server: MIX_ENV=dev
 server:
 	@source .env.dev && iex --name everapi@127.0.0.1 -S mix phx.server
 
-setup: 
+setup:
 	@source .env.dev && mix ecto.setup
 reset:
 	@source .env.dev && mix ecto.reset

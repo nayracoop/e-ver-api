@@ -5,7 +5,7 @@ defmodule EVerApi.MixProject do
     [
       app: :e_ver_api,
       version: "0.1.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -51,7 +51,12 @@ defmodule EVerApi.MixProject do
       {:guardian, "~> 2.1" },
       {:ex_machina, "~> 2.4", only: :test},
       {:excoveralls, "~> 0.10", only: :test},
-      {:ecto_soft_delete, "~> 1.0"}
+      {:ecto_soft_delete, "~> 1.0"},
+      {:absinthe, "~> 1.5.3"},
+      {:absinthe_plug, "~> 1.5.0"},
+      {:absinthe_phoenix, "~> 2.0"},
+      {:dataloader, "~> 1.0.8"},
+      {:wormwood, "~> 0.1.3"}
     ]
   end
 
