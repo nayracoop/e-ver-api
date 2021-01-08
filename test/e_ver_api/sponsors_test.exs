@@ -1,5 +1,5 @@
 defmodule EVerApi.SponsorsTest do
-  use EVerApi.DataCase
+  use EVerApi.DataCase, async: true
 
   alias EVerApi.Sponsors
 
