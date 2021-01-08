@@ -18,14 +18,20 @@ defmodule EVerApiWeb.EventSchemaTest do
     end
 
     test "should get all Events", %{user: user} do
-      events = insert_list(3, :event)
-      result = query_gql_by(:get_events, context: %{current_user: user})
-      assert {:ok, %{data: %{"events" => events}}} = result
+      insert_list(3, :event)
+      # should map from struct and take sponsors and talks
+      # events = Enum.map(insert_list(3, :event), fn user ->
+      #   user
+      #   |> Map.from_struct()
+      #   |> Map.take([:id, :name, :sponsors, :talks])
+      # end)
+
+      assert {:ok, %{data: %{"events" => events}}} = query_gql_by(:get_events, context: %{current_user: user})
       assert Enum.count(events) == 3
     end
 
     test "should Authorize get all Events action" do
-      events = insert_list(3, :event)
+      insert_list(3, :event)
       result = query_gql_by(:get_events)
       assert {:ok, %{data: %{"events" => nil}, errors: [%{message: "Unauthorized"} | _]}} = result
     end
