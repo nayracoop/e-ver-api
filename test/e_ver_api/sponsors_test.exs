@@ -45,7 +45,7 @@ defmodule EVerApi.SponsorsTest do
     end
 
     @tag individual_test: "list_sponsors"
-    test "list_sponsors/0 returns empty list if there is no sponsors", %{event: event} do
+    test "list_sponsors/0 returns empty list if there is no sponsors", %{event: _event} do
       assert Sponsors.list_sponsors()
     end
 
@@ -76,7 +76,7 @@ defmodule EVerApi.SponsorsTest do
     end
 
     @tag individual_test: "create_sponsor"
-    test "create_sponsor/1 with an inexistent event data returns error changeset", %{event: event} do
+    test "create_sponsor/1 with an inexistent event data returns error changeset", %{event: _event} do
       assert {:error, %Ecto.Changeset{}} = Sponsors.create_sponsor(Map.put(@valid_attrs, :event_id, "666"))
     end
 
