@@ -1,5 +1,5 @@
 defmodule EVerApi.EverTest do
-  use EVerApi.DataCase
+  use EVerApi.DataCase, async: true
 
   alias EVerApi.Ever
 
