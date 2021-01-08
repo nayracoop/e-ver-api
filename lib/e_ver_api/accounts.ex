@@ -7,6 +7,7 @@ defmodule EVerApi.Accounts do
   alias EVerApi.Repo
 
   alias EVerApi.Accounts.User
+  alias Guardian.Permissions
   alias EVerApi.Guardian
   import Bcrypt
   import Ecto.SoftDelete.Query
@@ -151,7 +152,7 @@ defmodule EVerApi.Accounts do
   def token_sign_in(email, password) do
     case email_password_auth(email, password) do
       {:ok, user} ->
-        Guardian.encode_and_sign(user)
+        Guardian.encode_and_sign(user, %{}, permissions: user.permissions)
       _ ->
         {:error, :unauthorized}
     end

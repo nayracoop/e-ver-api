@@ -14,6 +14,9 @@ defmodule EVerApi.Accounts.User do
     # virtual fields
     field :password, :string, virtual: true
     field :password_confirmation, :string, virtual: true
+
+    #roles
+    field :permissions, :map, default: %{ default: [:read]}
     soft_delete_schema()
 
     has_many :events, EVerApi.Ever.Event
@@ -24,8 +27,9 @@ defmodule EVerApi.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:first_name, :last_name, :email, :username, :organization, :password, :password_confirmation])
-    |> validate_required([:first_name, :last_name, :email, :username, :password, :password_confirmation])
+    |> cast(attrs, [:first_name, :last_name, :email, :username, :organization, :password, :password_confirmation, :permissions])
+    #|> validate_inclusion(:roles, ~w(admin user))
+    |> validate_required([:first_name, :last_name, :email, :username, :password, :password_confirmation, :permissions])
     |> validate_format(:email, ~r/@/) # this is very basic hahaha
     |> validate_length(:password, min: 6)
     |> validate_confirmation(:password)
@@ -36,8 +40,8 @@ defmodule EVerApi.Accounts.User do
 
   def update_changeset(user, attrs) do
     user
-    |> cast(attrs, [:first_name, :last_name, :email, :username, :organization])
-    |> validate_required([:first_name, :last_name, :email, :username])
+    |> cast(attrs, [:first_name, :last_name, :email, :username, :organization, :permissions])
+    |> validate_required([:first_name, :last_name, :email, :username, :permissions])
     |> validate_format(:email, ~r/@/) # this is very basic hahaha
     |> validate_length(:password, min: 6)
     |> validate_confirmation(:password)

@@ -11,7 +11,7 @@
 # and so on) as they will fail if something goes wrong.
 alias EVerApi.Repo
 alias EVerApi.Accounts.User
-alias EVerApi.Ever.{Event, Talk, Speaker, SpeakerTalk}
+alias EVerApi.Ever.{Event, Talk, Speaker}
 alias EVerApi.Sponsors.Sponsor
 
 import Bcrypt, only: [hash_pwd_salt: 1]
@@ -19,13 +19,16 @@ import Bcrypt, only: [hash_pwd_salt: 1]
 now = Timex.now |> Timex.to_datetime() |> DateTime.truncate(:second)
 hash = hash_pwd_salt("123456")
 
+permissions_admin = %{admin: [:read, :write]}
+
 Repo.insert!(%User{
   first_name: "señora",
   last_name: "nayra",
   organization: "Coop. de trabajo Nayra ltda",
   email: "nayra@fake.coop",
   username: "nayra",
-  password_hash: hash
+  password_hash: hash,
+  permissions: permissions_admin
 })
 
 Repo.insert!(%User{
@@ -34,7 +37,8 @@ Repo.insert!(%User{
   organization: "The fake inc.",
   email: "rick.forte@fake.coop",
   username: "ricky.forte",
-  password_hash: hash
+  password_hash: hash,
+  permissions: permissions_admin
 })
 
 Repo.insert!(%User{
@@ -43,7 +47,8 @@ Repo.insert!(%User{
   organization: "Coop Gerú Sirán",
   email: "dhavide.lebon@fake.coop",
   username: "dhavide.lebon",
-  password_hash: hash
+  password_hash: hash,
+  permissions: permissions_admin
 })
 
 # deleted user
@@ -54,7 +59,8 @@ Repo.insert!(%User{
   email: "senhor.nayra@fake.coop",
   username: "senhor.nayra",
   password_hash: hash,
-  deleted_at: now
+  deleted_at: now,
+  permissions: permissions_admin
 })
 
 Repo.insert!(%Event{

@@ -33,7 +33,7 @@ defmodule EVerApiWeb.UserControllerTest do
         |> put_req_header("accept", "application/json")
         |> put_req_header("content-type", "application/json")
         |> put_req_header("authorization", "Bearer #{jwt_string}")
-
+        #|> bypass_through(EVerApiWeb.Router)
       {:ok, conn: conn, user: user}
     end
 

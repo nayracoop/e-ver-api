@@ -30,7 +30,11 @@ config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
 config :e_ver_api, EVerApi.Guardian,
   issuer: "e_ver_api",
-  secret_key: System.get_env("JWT_SECRET") # mix guardian.gen.secret
+  secret_key: System.get_env("JWT_SECRET"), # mix guardian.gen.secret
+  permissions: %{
+    default: [:read],
+    admin: [:read, :write, :drink_wine]
+  }
 
 config :e_ver_api, EVerApiWeb.AuthAccessPipeline,
   module: EVerApi.Guardian,
