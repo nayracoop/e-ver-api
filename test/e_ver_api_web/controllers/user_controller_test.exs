@@ -33,23 +33,37 @@ defmodule EVerApiWeb.UserControllerTest do
         |> put_req_header("accept", "application/json")
         |> put_req_header("content-type", "application/json")
         |> put_req_header("authorization", "Bearer #{jwt_string}")
-        #|> bypass_through(EVerApiWeb.Router)
+
+      # |> bypass_through(EVerApiWeb.Router)
       {:ok, conn: conn, user: user}
     end
 
     @tag individual_test: "users_index_list", login_as: "email@email.com"
-    test "lists all users", %{conn: conn, user: %User{email: email, first_name: first_name, last_name: last_name, organization: organization, username: username}} do
+    test "lists all users", %{
+      conn: conn,
+      user: %User{
+        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        organization: organization,
+        username: username
+      }
+    } do
       conn = get(conn, Routes.user_path(conn, :index))
 
       assert response = json_response(conn, 200)["data"]
-      assert [%{
-        "email" => ^email,
-        "events" => [],
-        "first_name" => ^first_name,
-        "last_name" => ^last_name,
-        "organization" => ^organization,
-        "username" => ^username
-      }] = response
+
+      assert [
+               %{
+                 "email" => ^email,
+                 "events" => [],
+                 "first_name" => ^first_name,
+                 "last_name" => ^last_name,
+                 "organization" => ^organization,
+                 "username" => ^username
+               }
+             ] = response
+
       [%{"id" => id}] = response
       assert is_number(id)
     end
@@ -74,14 +88,14 @@ defmodule EVerApiWeb.UserControllerTest do
       conn = get(conn, Routes.user_path(conn, :show, id))
 
       assert %{
-                "id" => id,
-                "email" => "test.queen@nayra.coop",
-                "first_name" => "mrs test",
-                "last_name" => "queen",
-                "username" => "test_queen",
-                "organization" => "nayracoop",
-                "events" => []
-              } = json_response(conn, 200)["data"]
+               "id" => id,
+               "email" => "test.queen@nayra.coop",
+               "first_name" => "mrs test",
+               "last_name" => "queen",
+               "username" => "test_queen",
+               "organization" => "nayracoop",
+               "events" => []
+             } = json_response(conn, 200)["data"]
 
       # should not contain the password_hash field
       refute Kernel.match?(%{"password_hash" => _pass}, json_response(conn, 200)["data"])
@@ -115,7 +129,10 @@ defmodule EVerApiWeb.UserControllerTest do
     end
 
     @tag individual_test: "users_update", login_as: "email@email.com"
-    test "renders errors when an unique field is updated with existent data", %{conn: conn, user: %User{username: username}} do
+    test "renders errors when an unique field is updated with existent data", %{
+      conn: conn,
+      user: %User{username: username}
+    } do
       {:ok, user2} = Accounts.create_user(Map.replace!(@create_attrs, :username, "dhavide.lebon"))
       # try to change current username with an already existent username in database
       conn = put(conn, Routes.user_path(conn, :update, user2), user: %{username: username})
@@ -142,14 +159,17 @@ defmodule EVerApiWeb.UserControllerTest do
   end
 
   test "requires user authentication on all actions", %{conn: conn} do
-    Enum.each([
-      get(conn, Routes.user_path(conn, :index)),
-      get(conn, Routes.user_path(conn, :show, 1)),
-      post(conn, Routes.user_path(conn, :create, %{})),
-      put(conn, Routes.user_path(conn, :update, "123")),
-      delete(conn, Routes.user_path(conn, :delete, "123")),
-    ], fn conn ->
-      assert json_response(conn, 401)["message"] == "unauthenticated"
-    end)
+    Enum.each(
+      [
+        get(conn, Routes.user_path(conn, :index)),
+        get(conn, Routes.user_path(conn, :show, 1)),
+        post(conn, Routes.user_path(conn, :create, %{})),
+        put(conn, Routes.user_path(conn, :update, "123")),
+        delete(conn, Routes.user_path(conn, :delete, "123"))
+      ],
+      fn conn ->
+        assert json_response(conn, 401)["message"] == "unauthenticated"
+      end
+    )
   end
 end
