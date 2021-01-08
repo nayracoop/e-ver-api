@@ -2,9 +2,6 @@ defmodule EVerApiWeb.EventControllerTest do
   use EVerApiWeb.ConnCase, async: true
   @moduletag :events_controller_case
 
-  alias EVerApi.Ever
-  alias EVerApi.Ever.Event
-
   @create_attrs %{
     summary: "some summary",
     end_time: "2010-04-17T14:00:00Z",
@@ -172,7 +169,7 @@ defmodule EVerApiWeb.EventControllerTest do
     end
 
     @tag individual_test: "events_show"
-    test "404 for get an event by id", %{conn: conn, event: event} do
+    test "404 for get an event by id", %{conn: conn} do
       conn = get(conn, Routes.event_path(conn, :show, -1))
 
       assert json_response(conn, 404)["errors"] == %{"detail" => "Not Found"}
