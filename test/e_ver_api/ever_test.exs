@@ -5,14 +5,18 @@ defmodule EVerApi.EverTest do
   alias EVerApi.Ever.Event
 
   describe "events" do
-
     @valid_attrs %{
-       summary: "some summary",
-       end_time: "2010-04-17T14:00:00Z",
-       name: "some name",
-       start_time: "2010-04-17T14:00:00Z"
-      }
-    @update_attrs %{description: "some updated description", end_time: "2011-05-18T15:01:01Z", name: "some updated name", start_time: "2011-05-18T15:01:01Z"}
+      summary: "some summary",
+      end_time: "2010-04-17T14:00:00Z",
+      name: "some name",
+      start_time: "2010-04-17T14:00:00Z"
+    }
+    @update_attrs %{
+      description: "some updated description",
+      end_time: "2011-05-18T15:01:01Z",
+      name: "some updated name",
+      start_time: "2011-05-18T15:01:01Z"
+    }
     @invalid_attrs %{description: nil, end_time: nil, name: nil, start_time: nil}
 
     def event_fixture(attrs \\ %{}) do
@@ -33,11 +37,11 @@ defmodule EVerApi.EverTest do
       [listed_event] = Ever.list_events()
 
       assert %{
-        summary: "some summary",
-        end_time: ~U[2010-04-17T14:00:00Z],
-        name: "some name",
-        start_time: ~U[2010-04-17T14:00:00Z]
-       } = listed_event
+               summary: "some summary",
+               end_time: ~U[2010-04-17T14:00:00Z],
+               name: "some name",
+               start_time: ~U[2010-04-17T14:00:00Z]
+             } = listed_event
     end
 
     @tag individual_test: "list_events"
@@ -48,27 +52,29 @@ defmodule EVerApi.EverTest do
     @tag individual_test: "get_event"
     test "get_event!/1 returns the event with given id" do
       event = event_fixture()
-      assert %{
-        summary: "some summary",
-        end_time: ~U[2010-04-17T14:00:00Z],
-        name: "some name",
-        start_time: ~U[2010-04-17T14:00:00Z]
-       } = Ever.get_event!(event.id)
 
-       assert_raise Ecto.NoResultsError, fn -> Ever.get_event!(-1) end
+      assert %{
+               summary: "some summary",
+               end_time: ~U[2010-04-17T14:00:00Z],
+               name: "some name",
+               start_time: ~U[2010-04-17T14:00:00Z]
+             } = Ever.get_event!(event.id)
+
+      assert_raise Ecto.NoResultsError, fn -> Ever.get_event!(-1) end
     end
 
     @tag individual_test: "get_event"
     test "get_event/1 returns the event with given id" do
       event = event_fixture()
-      assert %{
-        summary: "some summary",
-        end_time: ~U[2010-04-17T14:00:00Z],
-        name: "some name",
-        start_time: ~U[2010-04-17T14:00:00Z]
-       } = Ever.get_event(event.id)
 
-       assert nil == Ever.get_event(-1)
+      assert %{
+               summary: "some summary",
+               end_time: ~U[2010-04-17T14:00:00Z],
+               name: "some name",
+               start_time: ~U[2010-04-17T14:00:00Z]
+             } = Ever.get_event(event.id)
+
+      assert nil == Ever.get_event(-1)
     end
 
     @tag individual_test: "create_event"
@@ -106,13 +112,14 @@ defmodule EVerApi.EverTest do
 
       not_updated_event = Ever.get_event!(event.id)
       assert not_updated_event.user_id == user
+
       assert %{
-        summary: "some summary",
-        end_time: ~U[2010-04-17T14:00:00Z],
-        name: "some name",
-        start_time: ~U[2010-04-17T14:00:00Z],
-        description: nil
-       } = not_updated_event
+               summary: "some summary",
+               end_time: ~U[2010-04-17T14:00:00Z],
+               name: "some name",
+               start_time: ~U[2010-04-17T14:00:00Z],
+               description: nil
+             } = not_updated_event
     end
 
     @tag individual_test: "delete_event"
@@ -131,13 +138,26 @@ defmodule EVerApi.EverTest do
 
   describe "talks" do
     alias EVerApi.Ever.Talk
+
     setup do
       e = insert(:event)
       %{event: e}
     end
 
-    @valid_attrs %{title: "some title", duration: 42, start_time: "2010-04-17T14:00:00Z", tags: ["vino"], video: %{uri: "some video"}}
-    @update_attrs %{title: "some updated title", duration: 43, start_time: "2011-05-18T15:01:01Z", tags: ["cerveza"], video: %{uri: "some updated video"}}
+    @valid_attrs %{
+      title: "some title",
+      duration: 42,
+      start_time: "2010-04-17T14:00:00Z",
+      tags: ["vino"],
+      video: %{uri: "some video"}
+    }
+    @update_attrs %{
+      title: "some updated title",
+      duration: 43,
+      start_time: "2011-05-18T15:01:01Z",
+      tags: ["cerveza"],
+      video: %{uri: "some updated video"}
+    }
     @invalid_attrs %{title: nil, duration: nil, start_time: nil, tags: nil, video: nil}
 
     def talk_fixture(attrs \\ %{}) do
@@ -162,24 +182,27 @@ defmodule EVerApi.EverTest do
       # validate a single talk
       t = Enum.find(talks, fn x -> x.id == new_talk.id end)
       assert t != nil
+
       assert %{
-        title: "some title",
-        duration: 42,
-        start_time: ~U[2010-04-17T14:00:00Z],
-        tags: ["vino"],
-        video: %{uri: "some video"}} = t
+               title: "some title",
+               duration: 42,
+               start_time: ~U[2010-04-17T14:00:00Z],
+               tags: ["vino"],
+               video: %{uri: "some video"}
+             } = t
     end
 
     @tag individual_test: "get_talk"
     test "get_talk!/1 returns the talk with given id", %{event: event} do
       talk = talk_fixture(event_id: event.id)
+
       assert assert %{
-        title: "some title",
-        duration: 42,
-        start_time: ~U[2010-04-17T14:00:00Z],
-        tags: ["vino"],
-        video: %{uri: "some video"}
-        } = Ever.get_talk!(talk.id)
+                      title: "some title",
+                      duration: 42,
+                      start_time: ~U[2010-04-17T14:00:00Z],
+                      tags: ["vino"],
+                      video: %{uri: "some video"}
+                    } = Ever.get_talk!(talk.id)
 
       assert_raise Ecto.NoResultsError, fn -> Ever.get_talk!("666") end
     end
@@ -187,13 +210,14 @@ defmodule EVerApi.EverTest do
     @tag individual_test: "get_talk"
     test "get_talk/1 returns the talk with given id", %{event: event} do
       talk = talk_fixture(event_id: event.id)
+
       assert %{
-        title: "some title",
-        duration: 42,
-        start_time: ~U[2010-04-17T14:00:00Z],
-        tags: ["vino"],
-        video: %{uri: "some video"}
-        } = Ever.get_talk(talk.id)
+               title: "some title",
+               duration: 42,
+               start_time: ~U[2010-04-17T14:00:00Z],
+               tags: ["vino"],
+               video: %{uri: "some video"}
+             } = Ever.get_talk(talk.id)
 
       assert Ever.get_talk("666") == nil
     end
@@ -210,12 +234,14 @@ defmodule EVerApi.EverTest do
 
     @tag individual_test: "create_talk"
     test "create_talk/1 with invalid data returns error changeset", %{event: event} do
-      assert {:error, %Ecto.Changeset{}} = Ever.create_talk(Map.put(@invalid_attrs, :event_id, event.id))
+      assert {:error, %Ecto.Changeset{}} =
+               Ever.create_talk(Map.put(@invalid_attrs, :event_id, event.id))
     end
 
     @tag individual_test: "create_talk"
     test "create_talk/1 with an inexistent event returns error changeset", %{} do
-      assert {:error, %Ecto.Changeset{}} = Ever.create_talk(Map.put(@valid_attrs, :event_id, "666"))
+      assert {:error, %Ecto.Changeset{}} =
+               Ever.create_talk(Map.put(@valid_attrs, :event_id, "666"))
     end
 
     @tag individual_test: "update_talk"
@@ -239,7 +265,9 @@ defmodule EVerApi.EverTest do
     @tag individual_test: "update_talk"
     test "update_talk/2 with an inexistent event returns error changeset", %{event: event} do
       talk = talk_fixture(%{event_id: event.id})
-      assert {:error, %Ecto.Changeset{}} = Ever.update_talk(talk, Map.put(@valid_attrs, :event_id, "666"))
+
+      assert {:error, %Ecto.Changeset{}} =
+               Ever.update_talk(talk, Map.put(@valid_attrs, :event_id, "666"))
     end
 
     @tag individual_test: "delete_talk"
@@ -248,8 +276,8 @@ defmodule EVerApi.EverTest do
       assert {:ok, %Talk{}} = Ever.delete_talk(talk)
       # get_talk/1 filters deleted
       assert nil == Ever.get_talk(talk.id)
-     # EXPERIMENTAL get_talk!/1 retrieves deleted
-      #assert %{...} = Ever.get_talk!(talk.id)
+      # EXPERIMENTAL get_talk!/1 retrieves deleted
+      # assert %{...} = Ever.get_talk!(talk.id)
     end
 
     @tag individual_test: "change_talk"
@@ -272,7 +300,9 @@ defmodule EVerApi.EverTest do
     end
 
     @tag individual_test: "change_talk"
-    test "change_talk/1 returns a invalid talk changeset when speakers has bad format", %{event: %Event{id: id}} do
+    test "change_talk/1 returns a invalid talk changeset when speakers has bad format", %{
+      event: %Event{id: id}
+    } do
       speaker_fixture(%{event_id: id})
       talk = talk_fixture(%{event_id: id})
 
@@ -285,15 +315,40 @@ defmodule EVerApi.EverTest do
 
   describe "speakers" do
     alias EVerApi.Ever.Speaker
+
     setup do
       e = insert(:event)
-      #IO.inspect(e)
+      # IO.inspect(e)
       %{event: e}
     end
 
-    @valid_attrs %{avatar: "some avatar", bio: "some bio", company: "some company", first_name: "some first_name", last_name: "some last_name", name: "some name", role: "some role"}
-    @update_attrs %{avatar: "some updated avatar", bio: "some updated bio", company: "some updated company", first_name: "some updated first_name", last_name: "some updated last_name", name: "some updated name", role: "some updated role"}
-    @invalid_attrs %{avatar: nil, bio: nil, company: nil, first_name: nil, last_name: nil, name: nil, role: nil}
+    @valid_attrs %{
+      avatar: "some avatar",
+      bio: "some bio",
+      company: "some company",
+      first_name: "some first_name",
+      last_name: "some last_name",
+      name: "some name",
+      role: "some role"
+    }
+    @update_attrs %{
+      avatar: "some updated avatar",
+      bio: "some updated bio",
+      company: "some updated company",
+      first_name: "some updated first_name",
+      last_name: "some updated last_name",
+      name: "some updated name",
+      role: "some updated role"
+    }
+    @invalid_attrs %{
+      avatar: nil,
+      bio: nil,
+      company: nil,
+      first_name: nil,
+      last_name: nil,
+      name: nil,
+      role: nil
+    }
 
     def speaker_fixture(attrs \\ %{}) do
       {:ok, speaker} =
@@ -306,7 +361,6 @@ defmodule EVerApi.EverTest do
 
     @tag individual_test: "list_speakers"
     test "list_speakers/0 returns all speakers", %{event: event} do
-
       new_speaker = speaker_fixture(%{event_id: event.id})
       # test with_undeleted
       deleted_speaker = speaker_fixture(%{event_id: event.id})
@@ -319,16 +373,17 @@ defmodule EVerApi.EverTest do
       # validate a single speaker
       s = Enum.find(speakers, fn x -> x.id == new_speaker.id end)
       assert s != nil
+
       assert %{
-        id: _,
-        avatar: "some avatar",
-        bio: "some bio",
-        company: "some company",
-        first_name: "some first_name",
-        last_name: "some last_name",
-        name: "some name",
-        role: "some role"
-      } = s
+               id: _,
+               avatar: "some avatar",
+               bio: "some bio",
+               company: "some company",
+               first_name: "some first_name",
+               last_name: "some last_name",
+               name: "some name",
+               role: "some role"
+             } = s
     end
 
     @tag individual_test: "get_speaker"
@@ -350,7 +405,9 @@ defmodule EVerApi.EverTest do
 
     @tag individual_test: "create_speaker"
     test "create_speaker/1 with valid data creates a speaker", %{event: event} do
-      assert {:ok, %Speaker{} = speaker} = Ever.create_speaker(Map.put(@valid_attrs, :event_id, event.id))
+      assert {:ok, %Speaker{} = speaker} =
+               Ever.create_speaker(Map.put(@valid_attrs, :event_id, event.id))
+
       assert speaker.avatar == "some avatar"
       assert speaker.bio == "some bio"
       assert speaker.company == "some company"
@@ -362,12 +419,14 @@ defmodule EVerApi.EverTest do
 
     @tag individual_test: "create_speaker"
     test "create_speaker/1 with invalid data returns error changeset", %{event: event} do
-      assert {:error, %Ecto.Changeset{}} = Ever.create_speaker(Map.put(@invalid_attrs, :event_id, event.id))
+      assert {:error, %Ecto.Changeset{}} =
+               Ever.create_speaker(Map.put(@invalid_attrs, :event_id, event.id))
     end
 
     @tag individual_test: "create_speaker"
     test "create_speaker/1 with an inexistent event returns error changeset", %{} do
-      assert {:error, %Ecto.Changeset{}} = Ever.create_speaker(Map.put(@valid_attrs, :event_id, "666"))
+      assert {:error, %Ecto.Changeset{}} =
+               Ever.create_speaker(Map.put(@valid_attrs, :event_id, "666"))
     end
 
     @tag individual_test: "update_speaker"
@@ -393,7 +452,9 @@ defmodule EVerApi.EverTest do
     @tag individual_test: "update_speaker"
     test "update_speaker/2 with an inexistent event returns error changeset", %{event: event} do
       speaker = speaker_fixture(%{event_id: event.id})
-      assert {:error, %Ecto.Changeset{}} = Ever.update_speaker(speaker, Map.put(@valid_attrs, :event_id, "666"))
+
+      assert {:error, %Ecto.Changeset{}} =
+               Ever.update_speaker(speaker, Map.put(@valid_attrs, :event_id, "666"))
     end
 
     @tag individual_test: "delete_speaker"
