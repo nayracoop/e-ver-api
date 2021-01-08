@@ -38,20 +38,18 @@ defmodule EVerApiWeb.UserControllerTest do
     end
 
     @tag individual_test: "users_index_list", login_as: "email@email.com"
-    test "lists all users", %{conn: conn} do
+    test "lists all users", %{conn: conn, user: %User{email: email, first_name: first_name, last_name: last_name, organization: organization, username: username}} do
       conn = get(conn, Routes.user_path(conn, :index))
-      response = json_response(conn, 200)["data"]
-      expected = %{
-        "email" => "nayra@fake.coop",
-        "events" => [],
-        "first_name" => "señora",
-        "last_name" => "nayra",
-        "organization" => "Coop. de trabajo Nayra ltda",
-        "username" => "nayra"
-      }
 
-      assert json_response(conn, 200)
-      assert expected = response
+      assert response = json_response(conn, 200)["data"]
+      assert [%{
+        "email" => ^email,
+        "events" => [],
+        "first_name" => ^first_name,
+        "last_name" => ^last_name,
+        "organization" => ^organization,
+        "username" => ^username
+      }] = response
       [%{"id" => id}] = response
       assert is_number(id)
     end
@@ -86,7 +84,7 @@ defmodule EVerApiWeb.UserControllerTest do
               } = json_response(conn, 200)["data"]
 
       # should not contain the password_hash field
-      refute Kernel.match?(%{"password_hash" => pass}, json_response(conn, 200)["data"])
+      refute Kernel.match?(%{"password_hash" => _pass}, json_response(conn, 200)["data"])
     end
 
     @tag individual_test: "users_create", login_as: "email@email.com"
@@ -117,7 +115,7 @@ defmodule EVerApiWeb.UserControllerTest do
     end
 
     @tag individual_test: "users_update", login_as: "email@email.com"
-    test "renders errors when an unique field is updated with existent data", %{conn: conn, user: %User{username: username} = user} do
+    test "renders errors when an unique field is updated with existent data", %{conn: conn, user: %User{username: username}} do
       {:ok, user2} = Accounts.create_user(Map.replace!(@create_attrs, :username, "dhavide.lebon"))
       # try to change current username with an already existent username in database
       conn = put(conn, Routes.user_path(conn, :update, user2), user: %{username: username})
