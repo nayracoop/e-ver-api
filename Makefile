@@ -17,4 +17,4 @@ reset:
 
 test: MIX_ENV=test
 test:
-	@source .env.test && mix coveralls.html $(TEST_FILE)
+	@source .env.test && mix coveralls.html $(TEST_FILE) --slowest=10
