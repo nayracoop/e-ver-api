@@ -9,6 +9,7 @@ defmodule EVerApiWeb.EventControllerTest do
     start_time: "2010-04-17T14:00:00Z"
   }
   @update_attrs %{
+    summary: "some updated summary",
     description: "some updated description",
     end_time: "2011-05-18T15:01:01Z",
     name: "some updated name",
@@ -111,6 +112,7 @@ defmodule EVerApiWeb.EventControllerTest do
 
       assert %{
                "id" => id,
+               "summary" => "some updated summary",
                "description" => "some updated description",
                "end_time" => "2011-05-18T15:01:01Z",
                "name" => "some updated name",
