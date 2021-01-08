@@ -1,10 +1,8 @@
 defmodule EVerApi.AccountsTest do
-  use EVerApi.DataCase
+  use EVerApi.DataCase, async: true
 
   alias EVerApi.Accounts
   alias EVerApi.Repo
-
-  import Bcrypt
 
   @password "123456"
 
@@ -22,16 +20,6 @@ defmodule EVerApi.AccountsTest do
       organization: "nayracoop"
     }
 
-    defp valid_fetch() do
-      %{
-        email: "test.kinga@nayra.coop",
-        first_name: "mrs test",
-        last_name: "kinga",
-        username: "test_kinga",
-        organization: "nayracoop"
-      }
-    end
-
     @update_attrs %{first_name: "The Royal", last_name: "queen"}
     @invalid_attrs %{first_name: nil, last_name: nil}
 
@@ -46,20 +34,24 @@ defmodule EVerApi.AccountsTest do
 
     @tag individual_test: "list_users"
     test "list_users/0 returns all users" do
-      user = user_fixture()
+      %User{
+        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        username: username,
+        organization: organization
+      } = user_fixture()
+
       [listed_user] = Accounts.list_users()
 
       assert %{
-               email: "test.kinga@nayra.coop",
-               first_name: "mrs test",
-               last_name: "kinga",
-               username: "test_kinga",
-               organization: "nayracoop",
-               password_hash: hash
+               email: ^email,
+               first_name: ^first_name,
+               last_name: ^last_name,
+               username: ^username,
+               organization: ^organization
              } = listed_user
 
-      # check hashed pass
-      assert {:ok, _} = Bcrypt.check_pass(listed_user, @password)
     end
 
     @tag individual_test: "list_users_empty"
@@ -70,45 +62,58 @@ defmodule EVerApi.AccountsTest do
 
     @tag individual_test: "get_user"
     test "get_user/1 returns the user with given id" do
-      user = user_fixture()
+      %User{
+        id: id,
+        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        username: username,
+        organization: organization
+      } = user_fixture()
 
       assert %{
-               email: "test.kinga@nayra.coop",
-               first_name: "mrs test",
-               last_name: "kinga",
-               username: "test_kinga",
-               organization: "nayracoop"
-             } = Accounts.get_user(user.id)
+               email: ^email,
+               first_name: ^first_name,
+               last_name: ^last_name,
+               username: ^username,
+               organization: ^organization
+             } = Accounts.get_user(id)
 
       assert Accounts.get_user(-1) == nil
     end
 
     @tag individual_test: "get_user"
     test "get_user!/1 returns the user with given id" do
-      user = user_fixture()
+      %User{
+        id: id,
+        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        username: username,
+        organization: organization
+      } = user_fixture()
 
       assert %{
-               email: "test.kinga@nayra.coop",
-               first_name: "mrs test",
-               last_name: "kinga",
-               username: "test_kinga",
-               organization: "nayracoop"
-             } = Accounts.get_user!(user.id)
+               email: ^email,
+               first_name: ^first_name,
+               last_name: ^last_name,
+               username: ^username,
+               organization: ^organization
+             } = Accounts.get_user(id)
 
       assert_raise Ecto.NoResultsError, fn -> Accounts.get_user!(-1) end
     end
 
     @tag individual_test: "create_user"
     test "create_user/1 with valid data creates a user" do
-      assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-
-      assert %{
-               email: "test.kinga@nayra.coop",
-               first_name: "mrs test",
-               last_name: "kinga",
-               username: "test_kinga",
-               organization: "nayracoop"
-             } = user
+      {:ok,
+       %User{
+         email: "test.kinga@nayra.coop",
+         first_name: "mrs test",
+         last_name: "kinga",
+         username: "test_kinga",
+         organization: "nayracoop"
+       } = user} = Accounts.create_user(@valid_attrs)
 
       # check hashed pass
       assert {:ok, _} = Bcrypt.check_pass(user, @password)
@@ -120,8 +125,7 @@ defmodule EVerApi.AccountsTest do
 
     @tag individual_test: "create_user_unique"
     test "create_user/1 with not unique data returns error changeset" do
-      # email must be unique
-      user = user_fixture()
+      user_fixture()
 
       assert {:error, %Ecto.Changeset{action: :insert, errors: [err]}} =
                Accounts.create_user(@valid_attrs)
