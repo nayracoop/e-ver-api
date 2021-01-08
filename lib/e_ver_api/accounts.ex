@@ -7,9 +7,7 @@ defmodule EVerApi.Accounts do
   alias EVerApi.Repo
 
   alias EVerApi.Accounts.User
-  alias Guardian.Permissions
   alias EVerApi.Guardian
-  import Bcrypt
   import Ecto.SoftDelete.Query
 
   @doc """
