@@ -2,9 +2,9 @@ defmodule EVerApi.EverTest do
   use EVerApi.DataCase, async: true
 
   alias EVerApi.Ever
+  alias EVerApi.Ever.Event
 
   describe "events" do
-    alias EVerApi.Ever.Event
 
     @valid_attrs %{
        summary: "some summary",
@@ -29,7 +29,7 @@ defmodule EVerApi.EverTest do
 
     @tag individual_test: "list_events"
     test "list_events/0 returns all events" do
-      event = event_fixture()
+      event_fixture()
       [listed_event] = Ever.list_events()
 
       assert %{
@@ -214,7 +214,7 @@ defmodule EVerApi.EverTest do
     end
 
     @tag individual_test: "create_talk"
-    test "create_talk/1 with an inexistent event returns error changeset", %{event: event} do
+    test "create_talk/1 with an inexistent event returns error changeset", %{} do
       assert {:error, %Ecto.Changeset{}} = Ever.create_talk(Map.put(@valid_attrs, :event_id, "666"))
     end
 
@@ -272,9 +272,10 @@ defmodule EVerApi.EverTest do
     end
 
     @tag individual_test: "change_talk"
-    test "change_talk/1 returns a invalid talk changeset when speakers has bad format", %{event: event} do
-      speaker = speaker_fixture(%{event_id: event.id})
-      talk = talk_fixture(%{event_id: event.id})
+    test "change_talk/1 returns a invalid talk changeset when speakers has bad format", %{event: %Event{id: id}} do
+      speaker_fixture(%{event_id: id})
+      talk = talk_fixture(%{event_id: id})
+
       changeset = Ever.change_talk(talk, %{"speakers" => ["holis"]})
       assert %Ecto.Changeset{} = changeset
       assert [{:speakers, _}] = changeset.errors
@@ -365,7 +366,7 @@ defmodule EVerApi.EverTest do
     end
 
     @tag individual_test: "create_speaker"
-    test "create_speaker/1 with an inexistent event returns error changeset", %{event: event} do
+    test "create_speaker/1 with an inexistent event returns error changeset", %{} do
       assert {:error, %Ecto.Changeset{}} = Ever.create_speaker(Map.put(@valid_attrs, :event_id, "666"))
     end
 
