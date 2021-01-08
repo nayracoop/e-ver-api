@@ -37,7 +37,7 @@ defmodule EVerApiWeb.SponsorControllerTest do
 
       evil_event =
         insert(:event, %{
-          name: "in some places there is plenty of water and in others there is no",
+          name: "in some places there is plenty of water and in others there is none",
           user: evil_user
         })
 
