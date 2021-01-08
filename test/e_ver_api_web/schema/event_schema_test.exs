@@ -2,9 +2,23 @@ defmodule EVerApiWeb.EventSchemaTest do
   use EVerApiWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
-  load_gql :get_events, EVerApiWeb.Schema.Schema, "test/e_ver_api_web/schema/queries/GetEvents.gql"
-  load_gql :get_event_by_id, EVerApiWeb.Schema.Schema, "test/e_ver_api_web/schema/queries/GetEventById.gql"
-  load_gql :create_event, EVerApiWeb.Schema.Schema, "test/e_ver_api_web/schema/queries/CreateEvent.gql"
+  load_gql(
+    :get_events,
+    EVerApiWeb.Schema.Schema,
+    "test/e_ver_api_web/schema/queries/GetEvents.gql"
+  )
+
+  load_gql(
+    :get_event_by_id,
+    EVerApiWeb.Schema.Schema,
+    "test/e_ver_api_web/schema/queries/GetEventById.gql"
+  )
+
+  load_gql(
+    :create_event,
+    EVerApiWeb.Schema.Schema,
+    "test/e_ver_api_web/schema/queries/CreateEvent.gql"
+  )
 
   setup %{conn: conn} do
     user = insert(:user)
@@ -26,7 +40,9 @@ defmodule EVerApiWeb.EventSchemaTest do
       #   |> Map.take([:id, :name, :sponsors, :talks])
       # end)
 
-      assert {:ok, %{data: %{"events" => events}}} = query_gql_by(:get_events, context: %{current_user: user})
+      assert {:ok, %{data: %{"events" => events}}} =
+               query_gql_by(:get_events, context: %{current_user: user})
+
       assert Enum.count(events) == 3
     end
 
@@ -51,23 +67,24 @@ defmodule EVerApiWeb.EventSchemaTest do
       create_event_params = create_event_params()
       %{"name" => name, "description" => description} = create_event_params
 
-      result = query_gql_by(
-        :create_event,
-        variables: %{
-          "createEventParams" => create_event_params
-        },
-        context: %{current_user: user}
-      )
+      result =
+        query_gql_by(
+          :create_event,
+          variables: %{
+            "createEventParams" => create_event_params
+          },
+          context: %{current_user: user}
+        )
 
       assert {:ok,
-      %{
-        data: %{
-          "createEvent" => %{
-            "name" => ^name,
-            "description" => ^description
-          }
-        }
-      }} = result
+              %{
+                data: %{
+                  "createEvent" => %{
+                    "name" => ^name,
+                    "description" => ^description
+                  }
+                }
+              }} = result
     end
   end
 end
