@@ -1,4 +1,4 @@
-.PHONY: server setup reset test
+.PHONY: server setup reset test migrate
 
 SHELL := /bin/bash
 
@@ -14,6 +14,8 @@ setup:
 	@source .env.dev && mix ecto.setup
 reset:
 	@source .env.dev && mix ecto.reset
+migrate:
+	@source .env.dev && mix ecto.migrate
 
 test: MIX_ENV=test
 test:
