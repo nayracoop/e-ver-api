@@ -35,11 +35,6 @@ defmodule EVerApiWeb.TalkControllerTest do
     video_url: nil
   }
 
-  def fixture(:talk) do
-    {:ok, talk} = Ever.create_talk(@create_attrs)
-    talk
-  end
-
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end

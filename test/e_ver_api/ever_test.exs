@@ -19,21 +19,9 @@ defmodule EVerApi.EverTest do
     }
     @invalid_attrs %{description: nil, end_time: nil, name: nil, start_time: nil}
 
-    def event_fixture(attrs \\ %{}) do
-      user = insert(:user)
-
-      {:ok, event} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Map.put_new(:user_id, user.id)
-        |> Ever.create_event()
-
-      event
-    end
-
     @tag individual_test: "list_events"
     test "list_events/0 returns all events" do
-      event_fixture()
+      insert(:event, @valid_attrs)
       [listed_event] = Ever.list_events()
 
       assert %{
@@ -51,7 +39,7 @@ defmodule EVerApi.EverTest do
 
     @tag individual_test: "get_event"
     test "get_event!/1 returns the event with given id" do
-      event = event_fixture()
+      event = insert(:event, @valid_attrs)
 
       assert %{
                summary: "some summary",
@@ -65,7 +53,7 @@ defmodule EVerApi.EverTest do
 
     @tag individual_test: "get_event"
     test "get_event/1 returns the event with given id" do
-      event = event_fixture()
+      event = insert(:event, @valid_attrs)
 
       assert %{
                summary: "some summary",
@@ -95,7 +83,7 @@ defmodule EVerApi.EverTest do
 
     @tag individual_test: "update_event"
     test "update_event/2 with valid data updates the event" do
-      event = event_fixture()
+      event = insert(:event, @valid_attrs)
       assert {:ok, %Event{} = event} = Ever.update_event(event, @update_attrs)
       assert event.description == "some updated description"
       assert event.end_time == DateTime.from_naive!(~N[2011-05-18T15:01:01Z], "Etc/UTC")
@@ -105,7 +93,7 @@ defmodule EVerApi.EverTest do
 
     @tag individual_test: "update_event"
     test "update_event/2 with invalid data returns error changeset" do
-      event = event_fixture()
+      event = insert(:event, @valid_attrs)
       user = event.user_id
 
       assert {:error, %Ecto.Changeset{}} = Ever.update_event(event, @invalid_attrs)
@@ -117,21 +105,20 @@ defmodule EVerApi.EverTest do
                summary: "some summary",
                end_time: ~U[2010-04-17T14:00:00Z],
                name: "some name",
-               start_time: ~U[2010-04-17T14:00:00Z],
-               description: nil
+               start_time: ~U[2010-04-17T14:00:00Z]
              } = not_updated_event
     end
 
     @tag individual_test: "delete_event"
     test "delete_event/1 deletes the event" do
-      event = event_fixture()
+      event = insert(:event, @valid_attrs)
       assert {:ok, %Event{}} = Ever.delete_event(event)
       assert_raise Ecto.NoResultsError, fn -> Ever.get_event!(event.id) end
     end
 
     @tag individual_test: "change_event"
     test "change_event/1 returns a event changeset" do
-      event = event_fixture()
+      event = insert(:event, @valid_attrs)
       assert %Ecto.Changeset{} = Ever.change_event(event)
     end
   end

@@ -23,15 +23,6 @@ defmodule EVerApi.AccountsTest do
     @update_attrs %{first_name: "The Royal", last_name: "queen"}
     @invalid_attrs %{first_name: nil, last_name: nil}
 
-    def user_fixture(attrs \\ %{}) do
-      {:ok, user} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Accounts.create_user()
-
-      user
-    end
-
     @tag individual_test: "list_users"
     test "list_users/0 returns all users" do
       %User{
@@ -40,7 +31,7 @@ defmodule EVerApi.AccountsTest do
         last_name: last_name,
         username: username,
         organization: organization
-      } = user_fixture()
+      } = insert(:user)
 
       [listed_user] = Accounts.list_users()
 
@@ -56,7 +47,7 @@ defmodule EVerApi.AccountsTest do
 
     @tag individual_test: "list_users_empty"
     test "list_users/0 returns empty list if there is no users" do
-      # user = user_fixture()
+      # user = insert(:user)
       assert [] == Accounts.list_users()
     end
 
@@ -69,7 +60,7 @@ defmodule EVerApi.AccountsTest do
         last_name: last_name,
         username: username,
         organization: organization
-      } = user_fixture()
+      } = insert(:user)
 
       assert %{
                email: ^email,
@@ -91,7 +82,7 @@ defmodule EVerApi.AccountsTest do
         last_name: last_name,
         username: username,
         organization: organization
-      } = user_fixture()
+      } = insert(:user)
 
       assert %{
                email: ^email,
@@ -125,7 +116,7 @@ defmodule EVerApi.AccountsTest do
 
     @tag individual_test: "create_user_unique"
     test "create_user/1 with not unique data returns error changeset" do
-      user_fixture()
+      insert(:user, @valid_attrs)
 
       assert {:error, %Ecto.Changeset{action: :insert, errors: [err]}} =
                Accounts.create_user(@valid_attrs)
@@ -140,7 +131,7 @@ defmodule EVerApi.AccountsTest do
 
     # @tag individual_test: "update_user"
     test "update_user/2 with valid data updates the user" do
-      user = user_fixture()
+      user = insert(:user)
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
       assert user.first_name == "The Royal"
       assert user.last_name == "queen"
@@ -148,7 +139,7 @@ defmodule EVerApi.AccountsTest do
 
     @tag individual_test: "update_user_invalid"
     test "update_user/2 with invalid data returns error changeset" do
-      user = user_fixture()
+      user = insert(:user, @valid_attrs)
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
       user_ = Accounts.get_user!(user.id)
 
@@ -160,7 +151,7 @@ defmodule EVerApi.AccountsTest do
 
     @tag individual_test: "update_user"
     test "update_user/2 should not change password" do
-      user = user_fixture()
+      user = insert(:user)
 
       assert {:ok, %User{} = user} =
                Accounts.update_user(user, %{
@@ -175,7 +166,7 @@ defmodule EVerApi.AccountsTest do
 
     @tag individual_test: "delete_user"
     test "delete_user/1 deletes the user" do
-      user = user_fixture()
+      user = insert(:user)
       Accounts.delete_user(user)
 
       assert {:ok, %User{}} = Accounts.delete_user(user)
@@ -188,7 +179,7 @@ defmodule EVerApi.AccountsTest do
     end
 
     test "change_user/1 returns a user changeset" do
-      user = user_fixture()
+      user = insert(:user)
       assert %Ecto.Changeset{} = Accounts.change_user(user)
     end
   end

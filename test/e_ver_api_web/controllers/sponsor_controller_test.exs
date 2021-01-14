@@ -18,11 +18,6 @@ defmodule EVerApiWeb.SponsorControllerTest do
   }
   @invalid_attrs %{logo: nil, name: nil, website: nil}
 
-  def fixture(:sponsor) do
-    {:ok, sponsor} = Sponsors.create_sponsor(@create_attrs)
-    sponsor
-  end
-
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end

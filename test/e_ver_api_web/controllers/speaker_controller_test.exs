@@ -33,11 +33,6 @@ defmodule EVerApiWeb.SpeakerControllerTest do
     role: nil
   }
 
-  def fixture(:speaker) do
-    {:ok, speaker} = Ever.create_speaker(@create_attrs)
-    speaker
-  end
-
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end

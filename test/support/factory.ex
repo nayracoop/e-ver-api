@@ -3,11 +3,29 @@ defmodule EVerApi.Factory do
   alias ExMachina.Sequence
   import Bcrypt, only: [hash_pwd_salt: 1]
 
-  @names ["Richard", "Feche", "Elsa", "Refalosa", "Quiqui", "Ana", "Raquel", "Pablito", "Wenceslao", "Abel"]
-  @topics ["programming in KOVOL", "Decentralized life",
-    "Cooperativismo mágico", "Sound sculptures", "Wine & enology",
-    "Innovation in Media Arts", "AR/VR für alles", "Innovationsgenossenschaften",
-    "The void in XXI Century litterature", "Tout est virtuel"
+  @names [
+    "Richard",
+    "Feche",
+    "Elsa",
+    "Refalosa",
+    "Quiqui",
+    "Ana",
+    "Raquel",
+    "Pablito",
+    "Wenceslao",
+    "Abel"
+  ]
+  @topics [
+    "programming in KOVOL",
+    "Decentralized life",
+    "Cooperativismo mágico",
+    "Sound sculptures",
+    "Wine & enology",
+    "Innovation in Media Arts",
+    "AR/VR für alles",
+    "Innovationsgenossenschaften",
+    "The void in XXI Century litterature",
+    "Tout est virtuel"
   ]
   @roles ["Supreme King", "A simple human", "AI chief", "CEO", "Inventor", "PO", "Evangelist"]
   @sponsors ["The Air Conditioner Fundamentalism co.", "nayracoop"]
@@ -36,7 +54,8 @@ defmodule EVerApi.Factory do
   def talk_factory do
     %EVerApi.Ever.Talk{
       title: Sequence.next(:topics, @topics),
-      video: %{} #TODO
+      # TODO
+      video: %{}
     }
   end
 
@@ -60,11 +79,11 @@ defmodule EVerApi.Factory do
     [speaker | speakers] = insert_list(3, :speaker)
 
     talk1 = build(:talk, %{speakers: [speaker, List.first(speakers)]})
-    talk2 = build(:talk,  %{speakers: [List.first(speakers)]})
+    talk2 = build(:talk, %{speakers: [List.first(speakers)]})
     talk3 = build(:talk)
     # NOTE an orphan speaker exists
 
-    #sponsor
+    # sponsor
     sponsors = insert_list(2, :sponsor)
 
     %EVerApi.Ever.Event{

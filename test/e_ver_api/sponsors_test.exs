@@ -18,20 +18,11 @@ defmodule EVerApi.SponsorsTest do
     }
     @invalid_attrs %{logo: nil, name: nil, website: nil}
 
-    def sponsor_fixture(attrs \\ %{}) do
-      {:ok, sponsor} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Sponsors.create_sponsor()
-
-      sponsor
-    end
-
     @tag individual_test: "list_sponsors"
     test "list_sponsors/0 returns all sponsors", %{event: event} do
-      sponsor = sponsor_fixture(%{event_id: event.id})
+      sponsor = insert(:sponsor, Map.merge(@valid_attrs, %{event_id: event.id}))
       # should not list undeleted
-      sponsor_del = sponsor_fixture(%{event_id: event.id, name: "neike"})
+      sponsor_del = insert(:sponsor, %{event_id: event.id, name: "neike"})
       Sponsors.delete_sponsor(sponsor_del)
       # 2 sponsors were defined in factory
       sponsors = Sponsors.list_sponsors()
@@ -58,13 +49,13 @@ defmodule EVerApi.SponsorsTest do
 
     @tag individual_test: "get_sponsor"
     test "get_sponsor!/1 returns the sponsor with given id", %{event: event} do
-      sponsor = sponsor_fixture(%{event_id: event.id})
+      sponsor = insert(:sponsor, %{event_id: event.id})
       assert Sponsors.get_sponsor!(sponsor.id) == sponsor
     end
 
     @tag individual_test: "get_sponsor"
     test "get_sponsor/1 returns the sponsor with given id", %{event: event} do
-      sponsor = sponsor_fixture(%{event_id: event.id})
+      sponsor = insert(:sponsor, %{event_id: event.id})
       assert Sponsors.get_sponsor(sponsor.id) == sponsor
       assert Sponsors.get_sponsor("666") == nil
     end
@@ -97,7 +88,7 @@ defmodule EVerApi.SponsorsTest do
     # UPDATE
     @tag individual_test: "update_sponsor"
     test "update_sponsor/2 with valid data updates the sponsor", %{event: event} do
-      sponsor = sponsor_fixture(%{event_id: event.id})
+      sponsor = insert(:sponsor, %{event_id: event.id})
       assert {:ok, %Sponsor{} = sponsor} = Sponsors.update_sponsor(sponsor, @update_attrs)
       assert sponsor.logo == "some updated logo"
       assert sponsor.name == "some updated name"
@@ -106,14 +97,14 @@ defmodule EVerApi.SponsorsTest do
 
     @tag individual_test: "update_sponsor"
     test "update_sponsor/2 with invalid data returns error changeset", %{event: event} do
-      sponsor = sponsor_fixture(%{event_id: event.id})
+      sponsor = insert(:sponsor, %{event_id: event.id})
       assert {:error, %Ecto.Changeset{}} = Sponsors.update_sponsor(sponsor, @invalid_attrs)
       assert sponsor == Sponsors.get_sponsor!(sponsor.id)
     end
 
     @tag individual_test: "update_sponsor"
     test "update_sponsor/2 with an inexisten event returns error changeset", %{event: event} do
-      sponsor = sponsor_fixture(%{event_id: event.id})
+      sponsor = insert(:sponsor, %{event_id: event.id})
 
       assert {:error, %Ecto.Changeset{}} =
                Sponsors.update_sponsor(sponsor, Map.put(@valid_attrs, :event_id, "666"))
@@ -122,7 +113,7 @@ defmodule EVerApi.SponsorsTest do
     # DELETE
     @tag individual_test: "delete_sponsor"
     test "delete_sponsor/1 deletes the sponsor", %{event: event} do
-      sponsor = sponsor_fixture(%{event_id: event.id})
+      sponsor = insert(:sponsor, %{event_id: event.id})
       assert {:ok, %Sponsor{}} = Sponsors.delete_sponsor(sponsor)
       assert nil == Sponsors.get_sponsor(sponsor.id)
       # EXPERIMENTAL get_sponsor!/1 retrieves deleted
@@ -131,7 +122,7 @@ defmodule EVerApi.SponsorsTest do
 
     @tag individual_test: "change_sponsor"
     test "change_sponsor/1 returns a sponsor changeset", %{event: event} do
-      sponsor = sponsor_fixture(%{event_id: event.id})
+      sponsor = insert(:sponsor, %{event_id: event.id})
       assert %Ecto.Changeset{} = Sponsors.change_sponsor(sponsor)
     end
   end
