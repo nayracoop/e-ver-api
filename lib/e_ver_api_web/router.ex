@@ -59,6 +59,10 @@ defmodule EVerApiWeb.Router do
     post "/events/:event_id/sponsors", SponsorController, :create
     put "/events/:event_id/sponsors/:id", SponsorController, :update
     delete "/events/:event_id/sponsors/:id", SponsorController, :delete
+
+    # media uploading
+    post "/storage/pictures", StorageController, :create
+    get "/storage/pictures/:id", StorageController, :show
   end
 
   scope "/graphql" do
