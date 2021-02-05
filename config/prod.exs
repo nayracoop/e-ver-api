@@ -52,4 +52,20 @@ config :logger, level: :info
 
 # Finally import the config/prod.secret.exs which loads secrets
 # and configuration from environment variables.
+
+# include here the Arc storage config with S3 or the adapter of your choice
+
+# e.g. with S3
+
+# config :arc,
+#   storage: Arc.Storage.S3,
+#   bucket: {:system, "S3_BUCKET"},
+#   access_key_id: {:system, "AWS_ACCESS_KEY_ID"},
+#   secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"},
+#   s3: [
+#     scheme: {:system, "S3_SCHEME"} || "https://",
+#     host: {:system, "S3_HOST"} || "s3.amazonaws.com",
+#     region: {:system, "S3_REGION"} || "us-east-1"
+#   ]
+
 import_config "prod.secret.exs"
