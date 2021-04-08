@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  postgres:
+    container_name: e-ver-postgres
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    env_file: 
+      - .env.docker
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+
+  api:
+    container_name: e-ver-api
+    image: e-ver-api
+    build: .
+    ports:
+      - 4000:4000
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    env_file:
+      - .env.docker
+
+volumes:
+  database-data:
