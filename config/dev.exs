@@ -2,10 +2,10 @@ use Mix.Config
 
 # Configure your database
 config :e_ver_api, EVerApi.Repo,
-  username: System.get_env("DB_USERNAME"),
-  password: System.get_env("DB_PASSWORD"),
-  database: System.get_env("DB_DATABASE"),
-  hostname: System.get_env("DB_HOSTNAME"),
+  username: System.get_env("POSTGRES_USER"),
+  password: System.get_env("POSTGRES_PASSWORD"),
+  database: System.get_env("POSTGRES_DB"),
+  hostname: System.get_env("POSTGRES_HOSTNAME"),
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
