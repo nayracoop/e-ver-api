@@ -77,19 +77,23 @@ defmodule EVerApiWeb.EventControllerTest do
     # CREATE
     @tag individual_test: "events_create", login_as: "email@email.com"
     test "renders created event when data is valid", %{conn: conn, user: user} do
-      attrs = Map.put_new(@create_attrs, :user_id, user.id)
-      conn = post(conn, Routes.event_path(conn, :create), event: attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      # not including the user id in the body
+      conn = post(conn, Routes.event_path(conn, :create), event: @create_attrs)
+      create_response = json_response(conn, 201)["data"]
+      %{"id" => id, "user_id" => user_id} = create_response
+      assert user_id == user.id
 
+      # check the get for created event
       conn = get(conn, Routes.event_path(conn, :show, id))
-
+      response_get = json_response(conn, 200)["data"]
+      assert response_get["id"] == id
+      assert response_get["user"]["id"] == user_id
       assert %{
-               "id" => id,
                "summary" => "some summary",
                "end_time" => "2010-04-17T14:00:00Z",
                "name" => "some name",
                "start_time" => "2010-04-17T14:00:00Z"
-             } = json_response(conn, 200)["data"]
+             } = response_get
     end
 
     @tag individual_test: "events_create", login_as: "email@email.com"
@@ -99,6 +103,7 @@ defmodule EVerApiWeb.EventControllerTest do
       conn = post(conn, Routes.event_path(conn, :create), event: attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
+
 
     # UPDATE
     @tag individual_test: "events_update", login_as: "email@email.com"

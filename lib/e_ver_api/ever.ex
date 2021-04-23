@@ -88,12 +88,7 @@ defmodule EVerApi.Ever do
       |> Repo.preload([:user, [sponsors: sponsors_query], [speakers: speakers_query], [talks: talks_query]])
   end
 
-  def create_event(%User{} = user, attrs) do
-    %Event{}
-    |> Event.changeset(attrs)
-    |> Ecto.Changeset.put_assoc(:user, user)
-    |> Repo.insert()
-  end
+
 
   @doc """
   Creates a event.
@@ -112,6 +107,14 @@ defmodule EVerApi.Ever do
     |> Event.changeset(attrs)
     |> Repo.insert()
   end
+
+  def create_event(attrs, %User{} = user) do
+    %Event{}
+    |> Event.changeset(attrs)
+    |> Ecto.Changeset.put_assoc(:user, user)
+    |> Repo.insert()
+  end
+
   @doc """
   Updates a event.
 
