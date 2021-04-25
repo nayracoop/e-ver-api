@@ -11,7 +11,7 @@ defmodule EVerApiWeb.Resolvers.Event do
   end
 
   def create_event(_, %{create_event_params: args}, %{context: %{current_user: user}}) do
-    case Ever.create_event(user, args) do
+    case Ever.create_event(args, user) do
       {:error, changeset} ->
         {
           :error,
