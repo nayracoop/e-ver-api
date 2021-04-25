@@ -1,7 +1,5 @@
 defmodule EVerApiWeb.Router do
   use EVerApiWeb, :router
-  #alias Guardian.Permissions
-
 
   pipeline :api do
     plug :accepts, ["json"]
@@ -13,25 +11,20 @@ defmodule EVerApiWeb.Router do
   end
 
   pipeline :ensure_auth do
+    plug Guardian.Plug.Pipeline, error_handler: EVerApiWeb.ErrorHandlers.Auth
     plug Guardian.Plug.EnsureAuthenticated
-
   end
 
   pipeline :api_admin do
-    plug EVerApiWeb.AuthorizationPipeline
+    plug Guardian.Plug.Pipeline, error_handler: EVerApiWeb.ErrorHandlers.Admin
+    plug Guardian.Permissions, ensure: %{admin: [:read, :write]}
   end
-
-  # pipeline :api_user do
-  #   plug Guardian.Permissions, ensure: %{user: [:read]}
-  # end
 
   scope "/api", EVerApiWeb do
     pipe_through [:api]
 
     get "/events/:id", EventController, :show
     post "/login", UserController, :sign_in
-    # separate the logic from create (for admins usage)
-    #post "sign_up", UserController, :sign_up
   end
 
   scope "/api", EVerApiWeb do

@@ -3,7 +3,6 @@ defmodule EVerApiWeb.EventController do
 
   alias EVerApi.Ever
   alias EVerApi.Ever.Event
-  alias EVerApi.Accounts.User
   alias EVerApiWeb.ControllerHelper
 
   action_fallback EVerApiWeb.FallbackController
@@ -18,7 +17,7 @@ defmodule EVerApiWeb.EventController do
     render(conn, "index.json", events: events)
   end
 
-  def create(conn, %{"event" => event_params}, current_user) do
+  def create(conn, %{"event" => event_params}, _current_user) do
     user = conn.private.guardian_default_resource
     with {:ok, %Event{} = event} <- Ever.create_event(event_params, user) do
       # manually adding event owner data ?

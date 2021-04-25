@@ -1,4 +1,4 @@
-defmodule EVerApiWeb.AuthErrorHandler do
+defmodule EVerApiWeb.ErrorHandlers.Admin do
   import Plug.Conn
 
   @behaviour Guardian.Plug.ErrorHandler
@@ -9,6 +9,6 @@ defmodule EVerApiWeb.AuthErrorHandler do
 
     conn
     |> put_resp_content_type("text/json")
-    |> send_resp(401, body)
+    |> send_resp(403, body)
   end
 end
