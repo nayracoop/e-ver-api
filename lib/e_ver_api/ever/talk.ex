@@ -13,6 +13,7 @@ defmodule EVerApi.Ever.Talk do
     field :duration, :integer
     field :tags, {:array, :string}
     field :allow_comments, :boolean, default: false
+    # TODO: anonymous_chat?
     soft_delete_schema()
 
     embeds_one :video, EVerApi.Ever.Video, on_replace: :delete

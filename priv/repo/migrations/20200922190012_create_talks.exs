@@ -18,6 +18,5 @@ defmodule EVerApi.Repo.Migrations.CreateTalks do
       timestamps()
       soft_delete_columns()
     end
-
   end
 end
