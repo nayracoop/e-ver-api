@@ -9,7 +9,7 @@ defmodule EVerApi.Guardian do
 
   def resource_from_claims(claims) do
     id = claims["sub"]
-    resource = EVerApi.Accounts.get_user!(id)
+    resource = EVerApi.Accounts.get_user!(id, :no_preloads)
     {:ok, resource}
   rescue
     Ecto.NoResultsError -> {:error, :resource_not_found}

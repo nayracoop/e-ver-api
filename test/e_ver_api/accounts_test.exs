@@ -90,9 +90,34 @@ defmodule EVerApi.AccountsTest do
                last_name: ^last_name,
                username: ^username,
                organization: ^organization
-             } = Accounts.get_user(id)
+             } = Accounts.get_user!(id)
 
       assert_raise Ecto.NoResultsError, fn -> Accounts.get_user!(-1) end
+    end
+
+    @tag individual_test: "get_user"
+    test "get_user!/2 with flag :no_preloads should return the user with given id without preloads" do
+      %User{
+        id: id,
+        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        username: username,
+        organization: organization
+      } = insert(:user)
+
+      user = Accounts.get_user!(id, :no_preloads)
+      assert %{
+               email: ^email,
+               first_name: ^first_name,
+               last_name: ^last_name,
+               username: ^username,
+               organization: ^organization
+             } = user
+      # please don't load the events
+      assert %Ecto.Association.NotLoaded{} = user.events
+
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_user!(-1, :no_preloads) end
     end
 
     @tag individual_test: "create_user"

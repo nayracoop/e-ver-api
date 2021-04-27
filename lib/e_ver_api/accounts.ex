@@ -64,6 +64,26 @@ defmodule EVerApi.Accounts do
     Repo.get!(query, id) |> Repo.preload(:events)
   end
 
+   @doc """
+  Gets a single user without preloading associates
+
+   Raises `Ecto.NoResultsError` if the User does not exist.
+
+  ## Examples
+
+      iex> get_user!(123, :no_preloads)
+      %User{}
+
+      iex> get_user!(456, :no_preloads)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_user!(id, :no_preloads) do
+    query = from(u in User, select: u)
+      |> with_undeleted()
+    Repo.get!(query, id)
+  end
+
   @doc """
   Gets a single user by email.
 
